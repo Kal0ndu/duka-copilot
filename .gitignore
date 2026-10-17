@@ -21,3 +21,4 @@ env/
 *.synctex.gz
 .omx/
 .vscode/
+*.db

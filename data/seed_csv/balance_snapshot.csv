@@ -1,0 +1,4 @@
+snapshot_id,account_id,as_of,balance_minor,source
+1,1,2026-03-31,37572800,derived
+2,2,2026-03-31,31941700,derived
+3,3,2026-03-31,19269300,derived

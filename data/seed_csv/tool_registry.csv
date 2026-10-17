@@ -1,0 +1,18 @@
+tool_name,tier,description,args_schema_json,exposed_to_llm,enabled
+ingest_statement,T0,Parse and validate an uploaded statement,,1,1
+categorise_transactions,T0,"Categorise transactions (rules first, LLM fallback)",,1,1
+get_ledger_summary,T0,Totals by category and period,,1,1
+compute_business_health,T0,"Revenue, costs, margin, best and worst days, personal mix",,1,1
+forecast_balance,T0,Forecast the balance with p10/p50/p90 band,,1,1
+check_affordability,T0,Test an offer against the forecast and buffer,,1,1
+search_knowledge,T0,Retrieve knowledge-base chunks,,1,1
+build_chart,T0,Return a chart specification and data,,1,1
+detect_shortfalls,T1,Raise a shortfall alert with suggested actions,,1,1
+compare_financing,T1,Rank credit options by total cost,,1,1
+draft_application_pack,T1,Draft a loan application pack,,1,1
+propose_supplier_payment,T2,Create a pending supplier payment proposal,,1,1
+propose_loan_request,T2,Create a pending loan request proposal,,1,1
+execute_approved_action,T2,Execute an approved action in the sandbox (UI only),,0,1
+change_limits,T3,Change caps or policy (forbidden),,0,0
+add_payee,T3,Add an unverified payee (forbidden),,0,0
+send_data_external,T3,Send data outside the system (forbidden),,0,0

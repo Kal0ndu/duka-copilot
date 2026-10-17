@@ -1,0 +1,26 @@
+category_id,code,name,kind,parent_id,is_business,sort_order,active
+1,SALES_TILL,Sales (till),income,,1,10,1
+2,SALES_TRANSFER,Sales (transfer),income,,1,11,1
+3,CREDIT_RECOVERY,Customer credit recovered,income,,1,12,1
+4,OTHER_INCOME,Other income,income,,1,19,1
+5,STOCK_PURCHASES,Stock purchases,cogs,,1,20,1
+6,RENT,Rent,opex,,1,30,1
+7,UTILITIES,Utilities,opex,,1,31,1
+8,TRANSPORT,Transport and delivery,opex,,1,32,1
+9,WAGES,Wages,opex,,1,33,1
+10,AIRTIME_DATA,Airtime and data,opex,,1,34,1
+11,REPAIRS,Repairs and maintenance,opex,,1,35,1
+12,TXN_CHARGES,Mobile-money charges,opex,,1,36,1
+13,OTHER_OPEX,Other operating costs,opex,,1,39,1
+14,LICENSE_TAX,Licences and taxes,tax,,1,40,1
+15,LOAN_DISBURSEMENT,Loan received,financing,,1,50,1
+16,LOAN_REPAYMENT,Loan repayment,financing,,1,51,1
+17,OVERDRAFT_FEE,Overdraft fee,financing,,1,52,1
+18,INTEREST_FEES,Interest and credit fees,financing,,1,53,1
+19,PERSONAL_WITHDRAWAL,Personal withdrawal,personal,,0,60,1
+20,FAMILY_TRANSFER,Family transfer,personal,,0,61,1
+21,SCHOOL_FEES,School fees,personal,,0,62,1
+22,PERSONAL_OTHER,Other personal,personal,,0,69,1
+23,OWN_TRANSFER,Transfer between own accounts,transfer,,0,70,1
+24,SAVINGS_DEPOSIT,Savings deposit,transfer,,0,71,1
+25,UNCLASSIFIED,Unclassified,unknown,,1,99,1

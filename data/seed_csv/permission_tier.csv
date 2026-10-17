@@ -1,0 +1,5 @@
+tier,name,description,requires_approval,sandbox_only
+T0,Read,"Read ledger, compute analytics and forecasts",0,0
+T1,Suggest,"Alerts, recommendations and draft documents; no money moves",0,0
+T2,Execute with approval,Sandbox payments and loan requests after owner confirmation,1,1
+T3,Forbidden,"Change limits, add unverified payees, act outside the sandbox, send data externally",1,1

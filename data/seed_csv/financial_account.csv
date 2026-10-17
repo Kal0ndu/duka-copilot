@@ -1,0 +1,4 @@
+account_id,business_id,platform_id,kind,label,currency_code,opening_balance_minor,opening_date,is_primary,is_sandbox,status
+1,1,1,mobile_wallet,Amina Grocery mobile wallet,KES,881900,2026-01-01,1,0,active
+2,2,1,mobile_wallet,Grace Salon mobile wallet,KES,2893100,2026-01-01,1,0,active
+3,3,1,mobile_wallet,Otieno Transport mobile wallet,KES,859200,2026-01-01,1,0,active

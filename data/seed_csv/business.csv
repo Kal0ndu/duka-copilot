@@ -1,0 +1,4 @@
+business_id,public_ref,name_token,sector,sub_sector,country_code,currency_code,timezone,registration_type,tax_pin_token,start_date,employee_count,status,is_synthetic,created_at,updated_at
+1,SYN-0001,tok_3f2003e4593c4f75,grocery,grocery_kiosk,KE,KES,Africa/Nairobi,informal,,2026-01-01,0,active,1,2026-10-17T18:46:36Z,
+2,SYN-0002,tok_64386dc3a0ee1a07,salon,beauty_services,KE,KES,Africa/Nairobi,informal,,2026-01-01,0,active,1,2026-10-17T18:46:36Z,
+3,SYN-0003,tok_691a203a510283ae,transport,boda_boda,KE,KES,Africa/Nairobi,informal,,2026-01-01,3,active,1,2026-10-17T18:46:36Z,

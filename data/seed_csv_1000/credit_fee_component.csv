@@ -1,0 +1,7 @@
+component_id,product_id,kind,basis,rate_bp,flat_minor,period_days,tier_min_minor,tier_max_minor,description
+1,1,upfront_pct,principal,600,,,,,Facility fee (illustrative)
+2,2,upfront_pct,principal,900,,,,,Facility fee (illustrative)
+3,3,periodic_pct,outstanding,150,,30,,,Monthly interest (illustrative)
+4,3,upfront_flat,flat,,50000,,,,Processing fee (illustrative)
+5,4,periodic_pct,outstanding,120,,30,,,Monthly interest (illustrative)
+6,4,upfront_pct,principal,200,,,,,Arrangement fee (illustrative)

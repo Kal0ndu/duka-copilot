@@ -1,0 +1,4 @@
+run_id,persona,seed,generator_version,params_json,generated_at
+1,grocery,42,2.0.0,"{""days"": 90, ""start"": ""2026-01-01""}",2026-10-17T18:46:36Z
+2,salon,42,2.0.0,"{""days"": 90, ""start"": ""2026-01-01""}",2026-10-17T18:46:36Z
+3,transport,42,2.0.0,"{""days"": 90, ""start"": ""2026-01-01""}",2026-10-17T18:46:36Z

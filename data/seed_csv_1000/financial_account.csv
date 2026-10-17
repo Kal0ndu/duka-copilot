@@ -1,0 +1,1001 @@
+account_id,business_id,platform_id,kind,label,currency_code,opening_balance_minor,opening_date,is_primary,is_sandbox,status
+1,1,1,mobile_wallet,Amina Grocery mobile wallet,KES,881900,2026-01-01,1,0,active
+2,2,1,mobile_wallet,Grace Salon mobile wallet,KES,2518000,2026-01-01,1,0,active
+3,3,1,mobile_wallet,Otieno Transport mobile wallet,KES,950600,2026-01-01,1,0,active
+4,4,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1979600,2026-01-01,1,0,active
+5,5,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2185600,2026-01-01,1,0,active
+6,6,1,mobile_wallet,Amina Grocery mobile wallet,KES,2079900,2026-01-01,1,0,active
+7,7,1,mobile_wallet,Grace Salon mobile wallet,KES,2747500,2026-01-01,1,0,active
+8,8,1,mobile_wallet,Otieno Transport mobile wallet,KES,1314300,2026-01-01,1,0,active
+9,9,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1457900,2026-01-01,1,0,active
+10,10,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1651900,2026-01-01,1,0,active
+11,11,1,mobile_wallet,Amina Grocery mobile wallet,KES,1756300,2026-01-01,1,0,active
+12,12,1,mobile_wallet,Grace Salon mobile wallet,KES,2985100,2026-01-01,1,0,active
+13,13,1,mobile_wallet,Otieno Transport mobile wallet,KES,1925300,2026-01-01,1,0,active
+14,14,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2084400,2026-01-01,1,0,active
+15,15,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2858900,2026-01-01,1,0,active
+16,16,1,mobile_wallet,Amina Grocery mobile wallet,KES,1728300,2026-01-01,1,0,active
+17,17,1,mobile_wallet,Grace Salon mobile wallet,KES,1047400,2026-01-01,1,0,active
+18,18,1,mobile_wallet,Otieno Transport mobile wallet,KES,2255000,2026-01-01,1,0,active
+19,19,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2987700,2026-01-01,1,0,active
+20,20,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2775200,2026-01-01,1,0,active
+21,21,1,mobile_wallet,Amina Grocery mobile wallet,KES,1949900,2026-01-01,1,0,active
+22,22,1,mobile_wallet,Grace Salon mobile wallet,KES,1161600,2026-01-01,1,0,active
+23,23,1,mobile_wallet,Otieno Transport mobile wallet,KES,2489700,2026-01-01,1,0,active
+24,24,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1440400,2026-01-01,1,0,active
+25,25,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2684000,2026-01-01,1,0,active
+26,26,1,mobile_wallet,Amina Grocery mobile wallet,KES,950400,2026-01-01,1,0,active
+27,27,1,mobile_wallet,Grace Salon mobile wallet,KES,947200,2026-01-01,1,0,active
+28,28,1,mobile_wallet,Otieno Transport mobile wallet,KES,2032300,2026-01-01,1,0,active
+29,29,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2068300,2026-01-01,1,0,active
+30,30,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1336700,2026-01-01,1,0,active
+31,31,1,mobile_wallet,Amina Grocery mobile wallet,KES,1747600,2026-01-01,1,0,active
+32,32,1,mobile_wallet,Grace Salon mobile wallet,KES,2439100,2026-01-01,1,0,active
+33,33,1,mobile_wallet,Otieno Transport mobile wallet,KES,2056200,2026-01-01,1,0,active
+34,34,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1024700,2026-01-01,1,0,active
+35,35,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2074100,2026-01-01,1,0,active
+36,36,1,mobile_wallet,Amina Grocery mobile wallet,KES,1018600,2026-01-01,1,0,active
+37,37,1,mobile_wallet,Grace Salon mobile wallet,KES,1522200,2026-01-01,1,0,active
+38,38,1,mobile_wallet,Otieno Transport mobile wallet,KES,1024800,2026-01-01,1,0,active
+39,39,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1491000,2026-01-01,1,0,active
+40,40,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2410700,2026-01-01,1,0,active
+41,41,1,mobile_wallet,Amina Grocery mobile wallet,KES,2116100,2026-01-01,1,0,active
+42,42,1,mobile_wallet,Grace Salon mobile wallet,KES,2914600,2026-01-01,1,0,active
+43,43,1,mobile_wallet,Otieno Transport mobile wallet,KES,2260600,2026-01-01,1,0,active
+44,44,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,919200,2026-01-01,1,0,active
+45,45,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2873000,2026-01-01,1,0,active
+46,46,1,mobile_wallet,Amina Grocery mobile wallet,KES,2171200,2026-01-01,1,0,active
+47,47,1,mobile_wallet,Grace Salon mobile wallet,KES,1519600,2026-01-01,1,0,active
+48,48,1,mobile_wallet,Otieno Transport mobile wallet,KES,2133900,2026-01-01,1,0,active
+49,49,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,916000,2026-01-01,1,0,active
+50,50,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2302700,2026-01-01,1,0,active
+51,51,1,mobile_wallet,Amina Grocery mobile wallet,KES,1797400,2026-01-01,1,0,active
+52,52,1,mobile_wallet,Grace Salon mobile wallet,KES,2634200,2026-01-01,1,0,active
+53,53,1,mobile_wallet,Otieno Transport mobile wallet,KES,1302000,2026-01-01,1,0,active
+54,54,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,872500,2026-01-01,1,0,active
+55,55,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2914300,2026-01-01,1,0,active
+56,56,1,mobile_wallet,Amina Grocery mobile wallet,KES,2686200,2026-01-01,1,0,active
+57,57,1,mobile_wallet,Grace Salon mobile wallet,KES,2743900,2026-01-01,1,0,active
+58,58,1,mobile_wallet,Otieno Transport mobile wallet,KES,1123800,2026-01-01,1,0,active
+59,59,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1989000,2026-01-01,1,0,active
+60,60,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2104900,2026-01-01,1,0,active
+61,61,1,mobile_wallet,Amina Grocery mobile wallet,KES,1987600,2026-01-01,1,0,active
+62,62,1,mobile_wallet,Grace Salon mobile wallet,KES,2445900,2026-01-01,1,0,active
+63,63,1,mobile_wallet,Otieno Transport mobile wallet,KES,2248600,2026-01-01,1,0,active
+64,64,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1902100,2026-01-01,1,0,active
+65,65,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1047000,2026-01-01,1,0,active
+66,66,1,mobile_wallet,Amina Grocery mobile wallet,KES,1839800,2026-01-01,1,0,active
+67,67,1,mobile_wallet,Grace Salon mobile wallet,KES,2121200,2026-01-01,1,0,active
+68,68,1,mobile_wallet,Otieno Transport mobile wallet,KES,2358000,2026-01-01,1,0,active
+69,69,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2702300,2026-01-01,1,0,active
+70,70,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1620500,2026-01-01,1,0,active
+71,71,1,mobile_wallet,Amina Grocery mobile wallet,KES,2172600,2026-01-01,1,0,active
+72,72,1,mobile_wallet,Grace Salon mobile wallet,KES,1191100,2026-01-01,1,0,active
+73,73,1,mobile_wallet,Otieno Transport mobile wallet,KES,1173600,2026-01-01,1,0,active
+74,74,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2761000,2026-01-01,1,0,active
+75,75,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1112900,2026-01-01,1,0,active
+76,76,1,mobile_wallet,Amina Grocery mobile wallet,KES,1615800,2026-01-01,1,0,active
+77,77,1,mobile_wallet,Grace Salon mobile wallet,KES,1660000,2026-01-01,1,0,active
+78,78,1,mobile_wallet,Otieno Transport mobile wallet,KES,2619000,2026-01-01,1,0,active
+79,79,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1266100,2026-01-01,1,0,active
+80,80,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2223700,2026-01-01,1,0,active
+81,81,1,mobile_wallet,Amina Grocery mobile wallet,KES,1177700,2026-01-01,1,0,active
+82,82,1,mobile_wallet,Grace Salon mobile wallet,KES,2515500,2026-01-01,1,0,active
+83,83,1,mobile_wallet,Otieno Transport mobile wallet,KES,2510600,2026-01-01,1,0,active
+84,84,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2566400,2026-01-01,1,0,active
+85,85,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1590100,2026-01-01,1,0,active
+86,86,1,mobile_wallet,Amina Grocery mobile wallet,KES,2891200,2026-01-01,1,0,active
+87,87,1,mobile_wallet,Grace Salon mobile wallet,KES,1704300,2026-01-01,1,0,active
+88,88,1,mobile_wallet,Otieno Transport mobile wallet,KES,1614200,2026-01-01,1,0,active
+89,89,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1510500,2026-01-01,1,0,active
+90,90,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1805800,2026-01-01,1,0,active
+91,91,1,mobile_wallet,Amina Grocery mobile wallet,KES,1237900,2026-01-01,1,0,active
+92,92,1,mobile_wallet,Grace Salon mobile wallet,KES,2794400,2026-01-01,1,0,active
+93,93,1,mobile_wallet,Otieno Transport mobile wallet,KES,944700,2026-01-01,1,0,active
+94,94,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2764600,2026-01-01,1,0,active
+95,95,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1908700,2026-01-01,1,0,active
+96,96,1,mobile_wallet,Amina Grocery mobile wallet,KES,1080000,2026-01-01,1,0,active
+97,97,1,mobile_wallet,Grace Salon mobile wallet,KES,2590400,2026-01-01,1,0,active
+98,98,1,mobile_wallet,Otieno Transport mobile wallet,KES,1868100,2026-01-01,1,0,active
+99,99,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2046700,2026-01-01,1,0,active
+100,100,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2330300,2026-01-01,1,0,active
+101,101,1,mobile_wallet,Amina Grocery mobile wallet,KES,2926400,2026-01-01,1,0,active
+102,102,1,mobile_wallet,Grace Salon mobile wallet,KES,1586500,2026-01-01,1,0,active
+103,103,1,mobile_wallet,Otieno Transport mobile wallet,KES,2981700,2026-01-01,1,0,active
+104,104,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1107400,2026-01-01,1,0,active
+105,105,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1108800,2026-01-01,1,0,active
+106,106,1,mobile_wallet,Amina Grocery mobile wallet,KES,980200,2026-01-01,1,0,active
+107,107,1,mobile_wallet,Grace Salon mobile wallet,KES,826400,2026-01-01,1,0,active
+108,108,1,mobile_wallet,Otieno Transport mobile wallet,KES,1395500,2026-01-01,1,0,active
+109,109,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2597900,2026-01-01,1,0,active
+110,110,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,990700,2026-01-01,1,0,active
+111,111,1,mobile_wallet,Amina Grocery mobile wallet,KES,2882600,2026-01-01,1,0,active
+112,112,1,mobile_wallet,Grace Salon mobile wallet,KES,1379500,2026-01-01,1,0,active
+113,113,1,mobile_wallet,Otieno Transport mobile wallet,KES,1662400,2026-01-01,1,0,active
+114,114,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1903300,2026-01-01,1,0,active
+115,115,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1140800,2026-01-01,1,0,active
+116,116,1,mobile_wallet,Amina Grocery mobile wallet,KES,1024200,2026-01-01,1,0,active
+117,117,1,mobile_wallet,Grace Salon mobile wallet,KES,1042900,2026-01-01,1,0,active
+118,118,1,mobile_wallet,Otieno Transport mobile wallet,KES,980600,2026-01-01,1,0,active
+119,119,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1151200,2026-01-01,1,0,active
+120,120,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,852600,2026-01-01,1,0,active
+121,121,1,mobile_wallet,Amina Grocery mobile wallet,KES,1734500,2026-01-01,1,0,active
+122,122,1,mobile_wallet,Grace Salon mobile wallet,KES,944700,2026-01-01,1,0,active
+123,123,1,mobile_wallet,Otieno Transport mobile wallet,KES,2198500,2026-01-01,1,0,active
+124,124,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2932500,2026-01-01,1,0,active
+125,125,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1231400,2026-01-01,1,0,active
+126,126,1,mobile_wallet,Amina Grocery mobile wallet,KES,1219800,2026-01-01,1,0,active
+127,127,1,mobile_wallet,Grace Salon mobile wallet,KES,844700,2026-01-01,1,0,active
+128,128,1,mobile_wallet,Otieno Transport mobile wallet,KES,1899400,2026-01-01,1,0,active
+129,129,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2234800,2026-01-01,1,0,active
+130,130,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,928800,2026-01-01,1,0,active
+131,131,1,mobile_wallet,Amina Grocery mobile wallet,KES,1734900,2026-01-01,1,0,active
+132,132,1,mobile_wallet,Grace Salon mobile wallet,KES,2515800,2026-01-01,1,0,active
+133,133,1,mobile_wallet,Otieno Transport mobile wallet,KES,2219400,2026-01-01,1,0,active
+134,134,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2061600,2026-01-01,1,0,active
+135,135,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,899500,2026-01-01,1,0,active
+136,136,1,mobile_wallet,Amina Grocery mobile wallet,KES,1623100,2026-01-01,1,0,active
+137,137,1,mobile_wallet,Grace Salon mobile wallet,KES,1124200,2026-01-01,1,0,active
+138,138,1,mobile_wallet,Otieno Transport mobile wallet,KES,1370300,2026-01-01,1,0,active
+139,139,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1362500,2026-01-01,1,0,active
+140,140,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1276700,2026-01-01,1,0,active
+141,141,1,mobile_wallet,Amina Grocery mobile wallet,KES,2218200,2026-01-01,1,0,active
+142,142,1,mobile_wallet,Grace Salon mobile wallet,KES,2310800,2026-01-01,1,0,active
+143,143,1,mobile_wallet,Otieno Transport mobile wallet,KES,2277900,2026-01-01,1,0,active
+144,144,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2813800,2026-01-01,1,0,active
+145,145,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2225300,2026-01-01,1,0,active
+146,146,1,mobile_wallet,Amina Grocery mobile wallet,KES,2197100,2026-01-01,1,0,active
+147,147,1,mobile_wallet,Grace Salon mobile wallet,KES,2607300,2026-01-01,1,0,active
+148,148,1,mobile_wallet,Otieno Transport mobile wallet,KES,2298900,2026-01-01,1,0,active
+149,149,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1891800,2026-01-01,1,0,active
+150,150,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1891600,2026-01-01,1,0,active
+151,151,1,mobile_wallet,Amina Grocery mobile wallet,KES,1048900,2026-01-01,1,0,active
+152,152,1,mobile_wallet,Grace Salon mobile wallet,KES,1195900,2026-01-01,1,0,active
+153,153,1,mobile_wallet,Otieno Transport mobile wallet,KES,1005800,2026-01-01,1,0,active
+154,154,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2173200,2026-01-01,1,0,active
+155,155,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1846000,2026-01-01,1,0,active
+156,156,1,mobile_wallet,Amina Grocery mobile wallet,KES,1875100,2026-01-01,1,0,active
+157,157,1,mobile_wallet,Grace Salon mobile wallet,KES,1580000,2026-01-01,1,0,active
+158,158,1,mobile_wallet,Otieno Transport mobile wallet,KES,2233100,2026-01-01,1,0,active
+159,159,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1006500,2026-01-01,1,0,active
+160,160,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1464800,2026-01-01,1,0,active
+161,161,1,mobile_wallet,Amina Grocery mobile wallet,KES,1991400,2026-01-01,1,0,active
+162,162,1,mobile_wallet,Grace Salon mobile wallet,KES,1703800,2026-01-01,1,0,active
+163,163,1,mobile_wallet,Otieno Transport mobile wallet,KES,2701200,2026-01-01,1,0,active
+164,164,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1813400,2026-01-01,1,0,active
+165,165,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1816600,2026-01-01,1,0,active
+166,166,1,mobile_wallet,Amina Grocery mobile wallet,KES,1991900,2026-01-01,1,0,active
+167,167,1,mobile_wallet,Grace Salon mobile wallet,KES,1971600,2026-01-01,1,0,active
+168,168,1,mobile_wallet,Otieno Transport mobile wallet,KES,2967800,2026-01-01,1,0,active
+169,169,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2512000,2026-01-01,1,0,active
+170,170,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,963700,2026-01-01,1,0,active
+171,171,1,mobile_wallet,Amina Grocery mobile wallet,KES,1953200,2026-01-01,1,0,active
+172,172,1,mobile_wallet,Grace Salon mobile wallet,KES,2255600,2026-01-01,1,0,active
+173,173,1,mobile_wallet,Otieno Transport mobile wallet,KES,1690800,2026-01-01,1,0,active
+174,174,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2155600,2026-01-01,1,0,active
+175,175,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2224200,2026-01-01,1,0,active
+176,176,1,mobile_wallet,Amina Grocery mobile wallet,KES,2287200,2026-01-01,1,0,active
+177,177,1,mobile_wallet,Grace Salon mobile wallet,KES,2773700,2026-01-01,1,0,active
+178,178,1,mobile_wallet,Otieno Transport mobile wallet,KES,1317700,2026-01-01,1,0,active
+179,179,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2318200,2026-01-01,1,0,active
+180,180,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1372800,2026-01-01,1,0,active
+181,181,1,mobile_wallet,Amina Grocery mobile wallet,KES,2820200,2026-01-01,1,0,active
+182,182,1,mobile_wallet,Grace Salon mobile wallet,KES,2943400,2026-01-01,1,0,active
+183,183,1,mobile_wallet,Otieno Transport mobile wallet,KES,2057700,2026-01-01,1,0,active
+184,184,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2204400,2026-01-01,1,0,active
+185,185,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,999900,2026-01-01,1,0,active
+186,186,1,mobile_wallet,Amina Grocery mobile wallet,KES,2837000,2026-01-01,1,0,active
+187,187,1,mobile_wallet,Grace Salon mobile wallet,KES,2134400,2026-01-01,1,0,active
+188,188,1,mobile_wallet,Otieno Transport mobile wallet,KES,2451400,2026-01-01,1,0,active
+189,189,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1450500,2026-01-01,1,0,active
+190,190,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2541100,2026-01-01,1,0,active
+191,191,1,mobile_wallet,Amina Grocery mobile wallet,KES,1350100,2026-01-01,1,0,active
+192,192,1,mobile_wallet,Grace Salon mobile wallet,KES,937300,2026-01-01,1,0,active
+193,193,1,mobile_wallet,Otieno Transport mobile wallet,KES,1676000,2026-01-01,1,0,active
+194,194,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2821100,2026-01-01,1,0,active
+195,195,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2727500,2026-01-01,1,0,active
+196,196,1,mobile_wallet,Amina Grocery mobile wallet,KES,2940600,2026-01-01,1,0,active
+197,197,1,mobile_wallet,Grace Salon mobile wallet,KES,1174100,2026-01-01,1,0,active
+198,198,1,mobile_wallet,Otieno Transport mobile wallet,KES,1300900,2026-01-01,1,0,active
+199,199,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1719100,2026-01-01,1,0,active
+200,200,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1533500,2026-01-01,1,0,active
+201,201,1,mobile_wallet,Amina Grocery mobile wallet,KES,1461800,2026-01-01,1,0,active
+202,202,1,mobile_wallet,Grace Salon mobile wallet,KES,1324100,2026-01-01,1,0,active
+203,203,1,mobile_wallet,Otieno Transport mobile wallet,KES,2465900,2026-01-01,1,0,active
+204,204,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2092500,2026-01-01,1,0,active
+205,205,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2252800,2026-01-01,1,0,active
+206,206,1,mobile_wallet,Amina Grocery mobile wallet,KES,875400,2026-01-01,1,0,active
+207,207,1,mobile_wallet,Grace Salon mobile wallet,KES,2301000,2026-01-01,1,0,active
+208,208,1,mobile_wallet,Otieno Transport mobile wallet,KES,1751500,2026-01-01,1,0,active
+209,209,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1912800,2026-01-01,1,0,active
+210,210,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2784000,2026-01-01,1,0,active
+211,211,1,mobile_wallet,Amina Grocery mobile wallet,KES,2046700,2026-01-01,1,0,active
+212,212,1,mobile_wallet,Grace Salon mobile wallet,KES,2290700,2026-01-01,1,0,active
+213,213,1,mobile_wallet,Otieno Transport mobile wallet,KES,1118300,2026-01-01,1,0,active
+214,214,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1240900,2026-01-01,1,0,active
+215,215,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1987300,2026-01-01,1,0,active
+216,216,1,mobile_wallet,Amina Grocery mobile wallet,KES,2514700,2026-01-01,1,0,active
+217,217,1,mobile_wallet,Grace Salon mobile wallet,KES,1786700,2026-01-01,1,0,active
+218,218,1,mobile_wallet,Otieno Transport mobile wallet,KES,1176300,2026-01-01,1,0,active
+219,219,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2996100,2026-01-01,1,0,active
+220,220,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2226000,2026-01-01,1,0,active
+221,221,1,mobile_wallet,Amina Grocery mobile wallet,KES,1620900,2026-01-01,1,0,active
+222,222,1,mobile_wallet,Grace Salon mobile wallet,KES,1088700,2026-01-01,1,0,active
+223,223,1,mobile_wallet,Otieno Transport mobile wallet,KES,2742900,2026-01-01,1,0,active
+224,224,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2031300,2026-01-01,1,0,active
+225,225,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1254400,2026-01-01,1,0,active
+226,226,1,mobile_wallet,Amina Grocery mobile wallet,KES,2666000,2026-01-01,1,0,active
+227,227,1,mobile_wallet,Grace Salon mobile wallet,KES,940000,2026-01-01,1,0,active
+228,228,1,mobile_wallet,Otieno Transport mobile wallet,KES,2146500,2026-01-01,1,0,active
+229,229,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1824300,2026-01-01,1,0,active
+230,230,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,833400,2026-01-01,1,0,active
+231,231,1,mobile_wallet,Amina Grocery mobile wallet,KES,2112900,2026-01-01,1,0,active
+232,232,1,mobile_wallet,Grace Salon mobile wallet,KES,2869400,2026-01-01,1,0,active
+233,233,1,mobile_wallet,Otieno Transport mobile wallet,KES,1923200,2026-01-01,1,0,active
+234,234,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2659200,2026-01-01,1,0,active
+235,235,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2555000,2026-01-01,1,0,active
+236,236,1,mobile_wallet,Amina Grocery mobile wallet,KES,1787400,2026-01-01,1,0,active
+237,237,1,mobile_wallet,Grace Salon mobile wallet,KES,2363900,2026-01-01,1,0,active
+238,238,1,mobile_wallet,Otieno Transport mobile wallet,KES,1272400,2026-01-01,1,0,active
+239,239,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1451400,2026-01-01,1,0,active
+240,240,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2362600,2026-01-01,1,0,active
+241,241,1,mobile_wallet,Amina Grocery mobile wallet,KES,1920400,2026-01-01,1,0,active
+242,242,1,mobile_wallet,Grace Salon mobile wallet,KES,1264500,2026-01-01,1,0,active
+243,243,1,mobile_wallet,Otieno Transport mobile wallet,KES,1924900,2026-01-01,1,0,active
+244,244,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1074100,2026-01-01,1,0,active
+245,245,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1901800,2026-01-01,1,0,active
+246,246,1,mobile_wallet,Amina Grocery mobile wallet,KES,2964500,2026-01-01,1,0,active
+247,247,1,mobile_wallet,Grace Salon mobile wallet,KES,2743100,2026-01-01,1,0,active
+248,248,1,mobile_wallet,Otieno Transport mobile wallet,KES,2339600,2026-01-01,1,0,active
+249,249,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1941400,2026-01-01,1,0,active
+250,250,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2446600,2026-01-01,1,0,active
+251,251,1,mobile_wallet,Amina Grocery mobile wallet,KES,1384200,2026-01-01,1,0,active
+252,252,1,mobile_wallet,Grace Salon mobile wallet,KES,1711800,2026-01-01,1,0,active
+253,253,1,mobile_wallet,Otieno Transport mobile wallet,KES,2629700,2026-01-01,1,0,active
+254,254,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1889400,2026-01-01,1,0,active
+255,255,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1614000,2026-01-01,1,0,active
+256,256,1,mobile_wallet,Amina Grocery mobile wallet,KES,1932700,2026-01-01,1,0,active
+257,257,1,mobile_wallet,Grace Salon mobile wallet,KES,1932600,2026-01-01,1,0,active
+258,258,1,mobile_wallet,Otieno Transport mobile wallet,KES,2269400,2026-01-01,1,0,active
+259,259,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2893300,2026-01-01,1,0,active
+260,260,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1118100,2026-01-01,1,0,active
+261,261,1,mobile_wallet,Amina Grocery mobile wallet,KES,1341600,2026-01-01,1,0,active
+262,262,1,mobile_wallet,Grace Salon mobile wallet,KES,849900,2026-01-01,1,0,active
+263,263,1,mobile_wallet,Otieno Transport mobile wallet,KES,1306900,2026-01-01,1,0,active
+264,264,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2211900,2026-01-01,1,0,active
+265,265,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1614700,2026-01-01,1,0,active
+266,266,1,mobile_wallet,Amina Grocery mobile wallet,KES,1808300,2026-01-01,1,0,active
+267,267,1,mobile_wallet,Grace Salon mobile wallet,KES,2154400,2026-01-01,1,0,active
+268,268,1,mobile_wallet,Otieno Transport mobile wallet,KES,2318400,2026-01-01,1,0,active
+269,269,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1967300,2026-01-01,1,0,active
+270,270,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2345500,2026-01-01,1,0,active
+271,271,1,mobile_wallet,Amina Grocery mobile wallet,KES,2118300,2026-01-01,1,0,active
+272,272,1,mobile_wallet,Grace Salon mobile wallet,KES,939700,2026-01-01,1,0,active
+273,273,1,mobile_wallet,Otieno Transport mobile wallet,KES,1233100,2026-01-01,1,0,active
+274,274,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2317900,2026-01-01,1,0,active
+275,275,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2308700,2026-01-01,1,0,active
+276,276,1,mobile_wallet,Amina Grocery mobile wallet,KES,2217200,2026-01-01,1,0,active
+277,277,1,mobile_wallet,Grace Salon mobile wallet,KES,1352600,2026-01-01,1,0,active
+278,278,1,mobile_wallet,Otieno Transport mobile wallet,KES,1407800,2026-01-01,1,0,active
+279,279,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2497400,2026-01-01,1,0,active
+280,280,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1313400,2026-01-01,1,0,active
+281,281,1,mobile_wallet,Amina Grocery mobile wallet,KES,1759900,2026-01-01,1,0,active
+282,282,1,mobile_wallet,Grace Salon mobile wallet,KES,2161800,2026-01-01,1,0,active
+283,283,1,mobile_wallet,Otieno Transport mobile wallet,KES,2619400,2026-01-01,1,0,active
+284,284,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2274100,2026-01-01,1,0,active
+285,285,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1873300,2026-01-01,1,0,active
+286,286,1,mobile_wallet,Amina Grocery mobile wallet,KES,2146400,2026-01-01,1,0,active
+287,287,1,mobile_wallet,Grace Salon mobile wallet,KES,2657100,2026-01-01,1,0,active
+288,288,1,mobile_wallet,Otieno Transport mobile wallet,KES,2304700,2026-01-01,1,0,active
+289,289,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1481200,2026-01-01,1,0,active
+290,290,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1769700,2026-01-01,1,0,active
+291,291,1,mobile_wallet,Amina Grocery mobile wallet,KES,1586300,2026-01-01,1,0,active
+292,292,1,mobile_wallet,Grace Salon mobile wallet,KES,2734200,2026-01-01,1,0,active
+293,293,1,mobile_wallet,Otieno Transport mobile wallet,KES,1232200,2026-01-01,1,0,active
+294,294,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1812600,2026-01-01,1,0,active
+295,295,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1320200,2026-01-01,1,0,active
+296,296,1,mobile_wallet,Amina Grocery mobile wallet,KES,1526600,2026-01-01,1,0,active
+297,297,1,mobile_wallet,Grace Salon mobile wallet,KES,1076200,2026-01-01,1,0,active
+298,298,1,mobile_wallet,Otieno Transport mobile wallet,KES,2747600,2026-01-01,1,0,active
+299,299,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1018100,2026-01-01,1,0,active
+300,300,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2894800,2026-01-01,1,0,active
+301,301,1,mobile_wallet,Amina Grocery mobile wallet,KES,1372100,2026-01-01,1,0,active
+302,302,1,mobile_wallet,Grace Salon mobile wallet,KES,1277900,2026-01-01,1,0,active
+303,303,1,mobile_wallet,Otieno Transport mobile wallet,KES,1126000,2026-01-01,1,0,active
+304,304,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1814700,2026-01-01,1,0,active
+305,305,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1808900,2026-01-01,1,0,active
+306,306,1,mobile_wallet,Amina Grocery mobile wallet,KES,2964100,2026-01-01,1,0,active
+307,307,1,mobile_wallet,Grace Salon mobile wallet,KES,1803000,2026-01-01,1,0,active
+308,308,1,mobile_wallet,Otieno Transport mobile wallet,KES,2414300,2026-01-01,1,0,active
+309,309,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1567700,2026-01-01,1,0,active
+310,310,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1508800,2026-01-01,1,0,active
+311,311,1,mobile_wallet,Amina Grocery mobile wallet,KES,1123900,2026-01-01,1,0,active
+312,312,1,mobile_wallet,Grace Salon mobile wallet,KES,1968300,2026-01-01,1,0,active
+313,313,1,mobile_wallet,Otieno Transport mobile wallet,KES,1797400,2026-01-01,1,0,active
+314,314,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2601800,2026-01-01,1,0,active
+315,315,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1209800,2026-01-01,1,0,active
+316,316,1,mobile_wallet,Amina Grocery mobile wallet,KES,2084200,2026-01-01,1,0,active
+317,317,1,mobile_wallet,Grace Salon mobile wallet,KES,1390400,2026-01-01,1,0,active
+318,318,1,mobile_wallet,Otieno Transport mobile wallet,KES,2083000,2026-01-01,1,0,active
+319,319,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,962900,2026-01-01,1,0,active
+320,320,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2349300,2026-01-01,1,0,active
+321,321,1,mobile_wallet,Amina Grocery mobile wallet,KES,1957700,2026-01-01,1,0,active
+322,322,1,mobile_wallet,Grace Salon mobile wallet,KES,2064700,2026-01-01,1,0,active
+323,323,1,mobile_wallet,Otieno Transport mobile wallet,KES,1172000,2026-01-01,1,0,active
+324,324,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2065500,2026-01-01,1,0,active
+325,325,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1368100,2026-01-01,1,0,active
+326,326,1,mobile_wallet,Amina Grocery mobile wallet,KES,2817700,2026-01-01,1,0,active
+327,327,1,mobile_wallet,Grace Salon mobile wallet,KES,2000600,2026-01-01,1,0,active
+328,328,1,mobile_wallet,Otieno Transport mobile wallet,KES,2854100,2026-01-01,1,0,active
+329,329,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1668800,2026-01-01,1,0,active
+330,330,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1154800,2026-01-01,1,0,active
+331,331,1,mobile_wallet,Amina Grocery mobile wallet,KES,1069300,2026-01-01,1,0,active
+332,332,1,mobile_wallet,Grace Salon mobile wallet,KES,2905200,2026-01-01,1,0,active
+333,333,1,mobile_wallet,Otieno Transport mobile wallet,KES,2208300,2026-01-01,1,0,active
+334,334,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2993500,2026-01-01,1,0,active
+335,335,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1178000,2026-01-01,1,0,active
+336,336,1,mobile_wallet,Amina Grocery mobile wallet,KES,945800,2026-01-01,1,0,active
+337,337,1,mobile_wallet,Grace Salon mobile wallet,KES,2698600,2026-01-01,1,0,active
+338,338,1,mobile_wallet,Otieno Transport mobile wallet,KES,2145900,2026-01-01,1,0,active
+339,339,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2437600,2026-01-01,1,0,active
+340,340,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1988000,2026-01-01,1,0,active
+341,341,1,mobile_wallet,Amina Grocery mobile wallet,KES,1052900,2026-01-01,1,0,active
+342,342,1,mobile_wallet,Grace Salon mobile wallet,KES,1061300,2026-01-01,1,0,active
+343,343,1,mobile_wallet,Otieno Transport mobile wallet,KES,1581200,2026-01-01,1,0,active
+344,344,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2436300,2026-01-01,1,0,active
+345,345,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2373300,2026-01-01,1,0,active
+346,346,1,mobile_wallet,Amina Grocery mobile wallet,KES,2657000,2026-01-01,1,0,active
+347,347,1,mobile_wallet,Grace Salon mobile wallet,KES,1991100,2026-01-01,1,0,active
+348,348,1,mobile_wallet,Otieno Transport mobile wallet,KES,989700,2026-01-01,1,0,active
+349,349,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2580300,2026-01-01,1,0,active
+350,350,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,922800,2026-01-01,1,0,active
+351,351,1,mobile_wallet,Amina Grocery mobile wallet,KES,2671600,2026-01-01,1,0,active
+352,352,1,mobile_wallet,Grace Salon mobile wallet,KES,2426800,2026-01-01,1,0,active
+353,353,1,mobile_wallet,Otieno Transport mobile wallet,KES,1315700,2026-01-01,1,0,active
+354,354,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2248600,2026-01-01,1,0,active
+355,355,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1097900,2026-01-01,1,0,active
+356,356,1,mobile_wallet,Amina Grocery mobile wallet,KES,2735200,2026-01-01,1,0,active
+357,357,1,mobile_wallet,Grace Salon mobile wallet,KES,2274700,2026-01-01,1,0,active
+358,358,1,mobile_wallet,Otieno Transport mobile wallet,KES,1446000,2026-01-01,1,0,active
+359,359,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2632400,2026-01-01,1,0,active
+360,360,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,955000,2026-01-01,1,0,active
+361,361,1,mobile_wallet,Amina Grocery mobile wallet,KES,2755000,2026-01-01,1,0,active
+362,362,1,mobile_wallet,Grace Salon mobile wallet,KES,2286500,2026-01-01,1,0,active
+363,363,1,mobile_wallet,Otieno Transport mobile wallet,KES,921200,2026-01-01,1,0,active
+364,364,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1702900,2026-01-01,1,0,active
+365,365,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1135500,2026-01-01,1,0,active
+366,366,1,mobile_wallet,Amina Grocery mobile wallet,KES,2257200,2026-01-01,1,0,active
+367,367,1,mobile_wallet,Grace Salon mobile wallet,KES,1324500,2026-01-01,1,0,active
+368,368,1,mobile_wallet,Otieno Transport mobile wallet,KES,1082100,2026-01-01,1,0,active
+369,369,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2365800,2026-01-01,1,0,active
+370,370,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2005000,2026-01-01,1,0,active
+371,371,1,mobile_wallet,Amina Grocery mobile wallet,KES,2557900,2026-01-01,1,0,active
+372,372,1,mobile_wallet,Grace Salon mobile wallet,KES,2188600,2026-01-01,1,0,active
+373,373,1,mobile_wallet,Otieno Transport mobile wallet,KES,2823900,2026-01-01,1,0,active
+374,374,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,929200,2026-01-01,1,0,active
+375,375,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1522200,2026-01-01,1,0,active
+376,376,1,mobile_wallet,Amina Grocery mobile wallet,KES,2976900,2026-01-01,1,0,active
+377,377,1,mobile_wallet,Grace Salon mobile wallet,KES,2460500,2026-01-01,1,0,active
+378,378,1,mobile_wallet,Otieno Transport mobile wallet,KES,2670100,2026-01-01,1,0,active
+379,379,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2770900,2026-01-01,1,0,active
+380,380,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1706400,2026-01-01,1,0,active
+381,381,1,mobile_wallet,Amina Grocery mobile wallet,KES,820100,2026-01-01,1,0,active
+382,382,1,mobile_wallet,Grace Salon mobile wallet,KES,2243500,2026-01-01,1,0,active
+383,383,1,mobile_wallet,Otieno Transport mobile wallet,KES,2783300,2026-01-01,1,0,active
+384,384,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2483500,2026-01-01,1,0,active
+385,385,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1273800,2026-01-01,1,0,active
+386,386,1,mobile_wallet,Amina Grocery mobile wallet,KES,2467900,2026-01-01,1,0,active
+387,387,1,mobile_wallet,Grace Salon mobile wallet,KES,1245100,2026-01-01,1,0,active
+388,388,1,mobile_wallet,Otieno Transport mobile wallet,KES,2982500,2026-01-01,1,0,active
+389,389,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2710200,2026-01-01,1,0,active
+390,390,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1843800,2026-01-01,1,0,active
+391,391,1,mobile_wallet,Amina Grocery mobile wallet,KES,1181000,2026-01-01,1,0,active
+392,392,1,mobile_wallet,Grace Salon mobile wallet,KES,851200,2026-01-01,1,0,active
+393,393,1,mobile_wallet,Otieno Transport mobile wallet,KES,1134400,2026-01-01,1,0,active
+394,394,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,896400,2026-01-01,1,0,active
+395,395,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2112900,2026-01-01,1,0,active
+396,396,1,mobile_wallet,Amina Grocery mobile wallet,KES,2835100,2026-01-01,1,0,active
+397,397,1,mobile_wallet,Grace Salon mobile wallet,KES,2919800,2026-01-01,1,0,active
+398,398,1,mobile_wallet,Otieno Transport mobile wallet,KES,1505300,2026-01-01,1,0,active
+399,399,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1659500,2026-01-01,1,0,active
+400,400,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2865200,2026-01-01,1,0,active
+401,401,1,mobile_wallet,Amina Grocery mobile wallet,KES,1630600,2026-01-01,1,0,active
+402,402,1,mobile_wallet,Grace Salon mobile wallet,KES,2132700,2026-01-01,1,0,active
+403,403,1,mobile_wallet,Otieno Transport mobile wallet,KES,869500,2026-01-01,1,0,active
+404,404,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,871100,2026-01-01,1,0,active
+405,405,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2131600,2026-01-01,1,0,active
+406,406,1,mobile_wallet,Amina Grocery mobile wallet,KES,1939500,2026-01-01,1,0,active
+407,407,1,mobile_wallet,Grace Salon mobile wallet,KES,2856600,2026-01-01,1,0,active
+408,408,1,mobile_wallet,Otieno Transport mobile wallet,KES,2736400,2026-01-01,1,0,active
+409,409,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1207900,2026-01-01,1,0,active
+410,410,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2700300,2026-01-01,1,0,active
+411,411,1,mobile_wallet,Amina Grocery mobile wallet,KES,1789000,2026-01-01,1,0,active
+412,412,1,mobile_wallet,Grace Salon mobile wallet,KES,2746400,2026-01-01,1,0,active
+413,413,1,mobile_wallet,Otieno Transport mobile wallet,KES,1075600,2026-01-01,1,0,active
+414,414,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1238700,2026-01-01,1,0,active
+415,415,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1856000,2026-01-01,1,0,active
+416,416,1,mobile_wallet,Amina Grocery mobile wallet,KES,2297900,2026-01-01,1,0,active
+417,417,1,mobile_wallet,Grace Salon mobile wallet,KES,1925900,2026-01-01,1,0,active
+418,418,1,mobile_wallet,Otieno Transport mobile wallet,KES,2847300,2026-01-01,1,0,active
+419,419,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2870700,2026-01-01,1,0,active
+420,420,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2654900,2026-01-01,1,0,active
+421,421,1,mobile_wallet,Amina Grocery mobile wallet,KES,1017700,2026-01-01,1,0,active
+422,422,1,mobile_wallet,Grace Salon mobile wallet,KES,1507800,2026-01-01,1,0,active
+423,423,1,mobile_wallet,Otieno Transport mobile wallet,KES,2059700,2026-01-01,1,0,active
+424,424,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1132200,2026-01-01,1,0,active
+425,425,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1097900,2026-01-01,1,0,active
+426,426,1,mobile_wallet,Amina Grocery mobile wallet,KES,2411000,2026-01-01,1,0,active
+427,427,1,mobile_wallet,Grace Salon mobile wallet,KES,2677800,2026-01-01,1,0,active
+428,428,1,mobile_wallet,Otieno Transport mobile wallet,KES,1915300,2026-01-01,1,0,active
+429,429,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1287400,2026-01-01,1,0,active
+430,430,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2715200,2026-01-01,1,0,active
+431,431,1,mobile_wallet,Amina Grocery mobile wallet,KES,1592800,2026-01-01,1,0,active
+432,432,1,mobile_wallet,Grace Salon mobile wallet,KES,2850500,2026-01-01,1,0,active
+433,433,1,mobile_wallet,Otieno Transport mobile wallet,KES,2848000,2026-01-01,1,0,active
+434,434,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1550100,2026-01-01,1,0,active
+435,435,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2683200,2026-01-01,1,0,active
+436,436,1,mobile_wallet,Amina Grocery mobile wallet,KES,2581600,2026-01-01,1,0,active
+437,437,1,mobile_wallet,Grace Salon mobile wallet,KES,1236700,2026-01-01,1,0,active
+438,438,1,mobile_wallet,Otieno Transport mobile wallet,KES,1134200,2026-01-01,1,0,active
+439,439,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1368100,2026-01-01,1,0,active
+440,440,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2925800,2026-01-01,1,0,active
+441,441,1,mobile_wallet,Amina Grocery mobile wallet,KES,2645600,2026-01-01,1,0,active
+442,442,1,mobile_wallet,Grace Salon mobile wallet,KES,1277700,2026-01-01,1,0,active
+443,443,1,mobile_wallet,Otieno Transport mobile wallet,KES,1336100,2026-01-01,1,0,active
+444,444,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2563400,2026-01-01,1,0,active
+445,445,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2606900,2026-01-01,1,0,active
+446,446,1,mobile_wallet,Amina Grocery mobile wallet,KES,2625500,2026-01-01,1,0,active
+447,447,1,mobile_wallet,Grace Salon mobile wallet,KES,1205900,2026-01-01,1,0,active
+448,448,1,mobile_wallet,Otieno Transport mobile wallet,KES,1871600,2026-01-01,1,0,active
+449,449,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2184200,2026-01-01,1,0,active
+450,450,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2776800,2026-01-01,1,0,active
+451,451,1,mobile_wallet,Amina Grocery mobile wallet,KES,2729700,2026-01-01,1,0,active
+452,452,1,mobile_wallet,Grace Salon mobile wallet,KES,2072300,2026-01-01,1,0,active
+453,453,1,mobile_wallet,Otieno Transport mobile wallet,KES,1048800,2026-01-01,1,0,active
+454,454,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1475400,2026-01-01,1,0,active
+455,455,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2209100,2026-01-01,1,0,active
+456,456,1,mobile_wallet,Amina Grocery mobile wallet,KES,1707900,2026-01-01,1,0,active
+457,457,1,mobile_wallet,Grace Salon mobile wallet,KES,1940000,2026-01-01,1,0,active
+458,458,1,mobile_wallet,Otieno Transport mobile wallet,KES,1982800,2026-01-01,1,0,active
+459,459,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1277900,2026-01-01,1,0,active
+460,460,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2800400,2026-01-01,1,0,active
+461,461,1,mobile_wallet,Amina Grocery mobile wallet,KES,2211600,2026-01-01,1,0,active
+462,462,1,mobile_wallet,Grace Salon mobile wallet,KES,1762000,2026-01-01,1,0,active
+463,463,1,mobile_wallet,Otieno Transport mobile wallet,KES,1208800,2026-01-01,1,0,active
+464,464,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2650300,2026-01-01,1,0,active
+465,465,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2343700,2026-01-01,1,0,active
+466,466,1,mobile_wallet,Amina Grocery mobile wallet,KES,1433900,2026-01-01,1,0,active
+467,467,1,mobile_wallet,Grace Salon mobile wallet,KES,2389000,2026-01-01,1,0,active
+468,468,1,mobile_wallet,Otieno Transport mobile wallet,KES,2102300,2026-01-01,1,0,active
+469,469,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1606000,2026-01-01,1,0,active
+470,470,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1031000,2026-01-01,1,0,active
+471,471,1,mobile_wallet,Amina Grocery mobile wallet,KES,2382600,2026-01-01,1,0,active
+472,472,1,mobile_wallet,Grace Salon mobile wallet,KES,1429000,2026-01-01,1,0,active
+473,473,1,mobile_wallet,Otieno Transport mobile wallet,KES,2196600,2026-01-01,1,0,active
+474,474,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1716300,2026-01-01,1,0,active
+475,475,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1191900,2026-01-01,1,0,active
+476,476,1,mobile_wallet,Amina Grocery mobile wallet,KES,1912300,2026-01-01,1,0,active
+477,477,1,mobile_wallet,Grace Salon mobile wallet,KES,1122800,2026-01-01,1,0,active
+478,478,1,mobile_wallet,Otieno Transport mobile wallet,KES,2729300,2026-01-01,1,0,active
+479,479,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2064100,2026-01-01,1,0,active
+480,480,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2655800,2026-01-01,1,0,active
+481,481,1,mobile_wallet,Amina Grocery mobile wallet,KES,2670200,2026-01-01,1,0,active
+482,482,1,mobile_wallet,Grace Salon mobile wallet,KES,1684500,2026-01-01,1,0,active
+483,483,1,mobile_wallet,Otieno Transport mobile wallet,KES,1477100,2026-01-01,1,0,active
+484,484,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1244700,2026-01-01,1,0,active
+485,485,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,960400,2026-01-01,1,0,active
+486,486,1,mobile_wallet,Amina Grocery mobile wallet,KES,900800,2026-01-01,1,0,active
+487,487,1,mobile_wallet,Grace Salon mobile wallet,KES,1241400,2026-01-01,1,0,active
+488,488,1,mobile_wallet,Otieno Transport mobile wallet,KES,869800,2026-01-01,1,0,active
+489,489,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1149400,2026-01-01,1,0,active
+490,490,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1014100,2026-01-01,1,0,active
+491,491,1,mobile_wallet,Amina Grocery mobile wallet,KES,1148300,2026-01-01,1,0,active
+492,492,1,mobile_wallet,Grace Salon mobile wallet,KES,2256000,2026-01-01,1,0,active
+493,493,1,mobile_wallet,Otieno Transport mobile wallet,KES,2739700,2026-01-01,1,0,active
+494,494,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1667500,2026-01-01,1,0,active
+495,495,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1273200,2026-01-01,1,0,active
+496,496,1,mobile_wallet,Amina Grocery mobile wallet,KES,2771000,2026-01-01,1,0,active
+497,497,1,mobile_wallet,Grace Salon mobile wallet,KES,2494100,2026-01-01,1,0,active
+498,498,1,mobile_wallet,Otieno Transport mobile wallet,KES,1127300,2026-01-01,1,0,active
+499,499,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2962400,2026-01-01,1,0,active
+500,500,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1477800,2026-01-01,1,0,active
+501,501,1,mobile_wallet,Amina Grocery mobile wallet,KES,951200,2026-01-01,1,0,active
+502,502,1,mobile_wallet,Grace Salon mobile wallet,KES,2742200,2026-01-01,1,0,active
+503,503,1,mobile_wallet,Otieno Transport mobile wallet,KES,1826700,2026-01-01,1,0,active
+504,504,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1375000,2026-01-01,1,0,active
+505,505,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2075700,2026-01-01,1,0,active
+506,506,1,mobile_wallet,Amina Grocery mobile wallet,KES,2440800,2026-01-01,1,0,active
+507,507,1,mobile_wallet,Grace Salon mobile wallet,KES,1576300,2026-01-01,1,0,active
+508,508,1,mobile_wallet,Otieno Transport mobile wallet,KES,1147200,2026-01-01,1,0,active
+509,509,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2841100,2026-01-01,1,0,active
+510,510,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1242600,2026-01-01,1,0,active
+511,511,1,mobile_wallet,Amina Grocery mobile wallet,KES,2063900,2026-01-01,1,0,active
+512,512,1,mobile_wallet,Grace Salon mobile wallet,KES,1406200,2026-01-01,1,0,active
+513,513,1,mobile_wallet,Otieno Transport mobile wallet,KES,2166700,2026-01-01,1,0,active
+514,514,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,841900,2026-01-01,1,0,active
+515,515,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1528500,2026-01-01,1,0,active
+516,516,1,mobile_wallet,Amina Grocery mobile wallet,KES,1158500,2026-01-01,1,0,active
+517,517,1,mobile_wallet,Grace Salon mobile wallet,KES,1130700,2026-01-01,1,0,active
+518,518,1,mobile_wallet,Otieno Transport mobile wallet,KES,2813000,2026-01-01,1,0,active
+519,519,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1121800,2026-01-01,1,0,active
+520,520,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2814100,2026-01-01,1,0,active
+521,521,1,mobile_wallet,Amina Grocery mobile wallet,KES,2637700,2026-01-01,1,0,active
+522,522,1,mobile_wallet,Grace Salon mobile wallet,KES,909400,2026-01-01,1,0,active
+523,523,1,mobile_wallet,Otieno Transport mobile wallet,KES,2503500,2026-01-01,1,0,active
+524,524,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1870600,2026-01-01,1,0,active
+525,525,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1661500,2026-01-01,1,0,active
+526,526,1,mobile_wallet,Amina Grocery mobile wallet,KES,1819600,2026-01-01,1,0,active
+527,527,1,mobile_wallet,Grace Salon mobile wallet,KES,2926300,2026-01-01,1,0,active
+528,528,1,mobile_wallet,Otieno Transport mobile wallet,KES,2619400,2026-01-01,1,0,active
+529,529,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2103600,2026-01-01,1,0,active
+530,530,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1096600,2026-01-01,1,0,active
+531,531,1,mobile_wallet,Amina Grocery mobile wallet,KES,863400,2026-01-01,1,0,active
+532,532,1,mobile_wallet,Grace Salon mobile wallet,KES,1980900,2026-01-01,1,0,active
+533,533,1,mobile_wallet,Otieno Transport mobile wallet,KES,2540800,2026-01-01,1,0,active
+534,534,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1221600,2026-01-01,1,0,active
+535,535,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2341600,2026-01-01,1,0,active
+536,536,1,mobile_wallet,Amina Grocery mobile wallet,KES,891800,2026-01-01,1,0,active
+537,537,1,mobile_wallet,Grace Salon mobile wallet,KES,1502800,2026-01-01,1,0,active
+538,538,1,mobile_wallet,Otieno Transport mobile wallet,KES,2132100,2026-01-01,1,0,active
+539,539,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2742900,2026-01-01,1,0,active
+540,540,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2608700,2026-01-01,1,0,active
+541,541,1,mobile_wallet,Amina Grocery mobile wallet,KES,1096100,2026-01-01,1,0,active
+542,542,1,mobile_wallet,Grace Salon mobile wallet,KES,1046400,2026-01-01,1,0,active
+543,543,1,mobile_wallet,Otieno Transport mobile wallet,KES,2810900,2026-01-01,1,0,active
+544,544,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1444200,2026-01-01,1,0,active
+545,545,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1103800,2026-01-01,1,0,active
+546,546,1,mobile_wallet,Amina Grocery mobile wallet,KES,1897700,2026-01-01,1,0,active
+547,547,1,mobile_wallet,Grace Salon mobile wallet,KES,1376100,2026-01-01,1,0,active
+548,548,1,mobile_wallet,Otieno Transport mobile wallet,KES,2403100,2026-01-01,1,0,active
+549,549,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2671000,2026-01-01,1,0,active
+550,550,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1831400,2026-01-01,1,0,active
+551,551,1,mobile_wallet,Amina Grocery mobile wallet,KES,2736100,2026-01-01,1,0,active
+552,552,1,mobile_wallet,Grace Salon mobile wallet,KES,1432700,2026-01-01,1,0,active
+553,553,1,mobile_wallet,Otieno Transport mobile wallet,KES,1031500,2026-01-01,1,0,active
+554,554,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1542200,2026-01-01,1,0,active
+555,555,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2868900,2026-01-01,1,0,active
+556,556,1,mobile_wallet,Amina Grocery mobile wallet,KES,2652100,2026-01-01,1,0,active
+557,557,1,mobile_wallet,Grace Salon mobile wallet,KES,1776900,2026-01-01,1,0,active
+558,558,1,mobile_wallet,Otieno Transport mobile wallet,KES,1783800,2026-01-01,1,0,active
+559,559,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2708400,2026-01-01,1,0,active
+560,560,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,905000,2026-01-01,1,0,active
+561,561,1,mobile_wallet,Amina Grocery mobile wallet,KES,2184300,2026-01-01,1,0,active
+562,562,1,mobile_wallet,Grace Salon mobile wallet,KES,1955300,2026-01-01,1,0,active
+563,563,1,mobile_wallet,Otieno Transport mobile wallet,KES,1778800,2026-01-01,1,0,active
+564,564,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1467600,2026-01-01,1,0,active
+565,565,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1618000,2026-01-01,1,0,active
+566,566,1,mobile_wallet,Amina Grocery mobile wallet,KES,976000,2026-01-01,1,0,active
+567,567,1,mobile_wallet,Grace Salon mobile wallet,KES,1688900,2026-01-01,1,0,active
+568,568,1,mobile_wallet,Otieno Transport mobile wallet,KES,2464800,2026-01-01,1,0,active
+569,569,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1841300,2026-01-01,1,0,active
+570,570,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1805200,2026-01-01,1,0,active
+571,571,1,mobile_wallet,Amina Grocery mobile wallet,KES,2688600,2026-01-01,1,0,active
+572,572,1,mobile_wallet,Grace Salon mobile wallet,KES,2083700,2026-01-01,1,0,active
+573,573,1,mobile_wallet,Otieno Transport mobile wallet,KES,1547700,2026-01-01,1,0,active
+574,574,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2671700,2026-01-01,1,0,active
+575,575,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1796900,2026-01-01,1,0,active
+576,576,1,mobile_wallet,Amina Grocery mobile wallet,KES,2405600,2026-01-01,1,0,active
+577,577,1,mobile_wallet,Grace Salon mobile wallet,KES,2350200,2026-01-01,1,0,active
+578,578,1,mobile_wallet,Otieno Transport mobile wallet,KES,1982000,2026-01-01,1,0,active
+579,579,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2854200,2026-01-01,1,0,active
+580,580,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1823700,2026-01-01,1,0,active
+581,581,1,mobile_wallet,Amina Grocery mobile wallet,KES,1232900,2026-01-01,1,0,active
+582,582,1,mobile_wallet,Grace Salon mobile wallet,KES,1658200,2026-01-01,1,0,active
+583,583,1,mobile_wallet,Otieno Transport mobile wallet,KES,1215600,2026-01-01,1,0,active
+584,584,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2079000,2026-01-01,1,0,active
+585,585,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1652000,2026-01-01,1,0,active
+586,586,1,mobile_wallet,Amina Grocery mobile wallet,KES,1009800,2026-01-01,1,0,active
+587,587,1,mobile_wallet,Grace Salon mobile wallet,KES,1063200,2026-01-01,1,0,active
+588,588,1,mobile_wallet,Otieno Transport mobile wallet,KES,2344900,2026-01-01,1,0,active
+589,589,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,954200,2026-01-01,1,0,active
+590,590,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1576500,2026-01-01,1,0,active
+591,591,1,mobile_wallet,Amina Grocery mobile wallet,KES,1244300,2026-01-01,1,0,active
+592,592,1,mobile_wallet,Grace Salon mobile wallet,KES,1474100,2026-01-01,1,0,active
+593,593,1,mobile_wallet,Otieno Transport mobile wallet,KES,969700,2026-01-01,1,0,active
+594,594,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2302500,2026-01-01,1,0,active
+595,595,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2283800,2026-01-01,1,0,active
+596,596,1,mobile_wallet,Amina Grocery mobile wallet,KES,1218200,2026-01-01,1,0,active
+597,597,1,mobile_wallet,Grace Salon mobile wallet,KES,889900,2026-01-01,1,0,active
+598,598,1,mobile_wallet,Otieno Transport mobile wallet,KES,1321900,2026-01-01,1,0,active
+599,599,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1750800,2026-01-01,1,0,active
+600,600,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2405700,2026-01-01,1,0,active
+601,601,1,mobile_wallet,Amina Grocery mobile wallet,KES,2014800,2026-01-01,1,0,active
+602,602,1,mobile_wallet,Grace Salon mobile wallet,KES,1336100,2026-01-01,1,0,active
+603,603,1,mobile_wallet,Otieno Transport mobile wallet,KES,1241200,2026-01-01,1,0,active
+604,604,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2245700,2026-01-01,1,0,active
+605,605,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1036100,2026-01-01,1,0,active
+606,606,1,mobile_wallet,Amina Grocery mobile wallet,KES,1172800,2026-01-01,1,0,active
+607,607,1,mobile_wallet,Grace Salon mobile wallet,KES,1978700,2026-01-01,1,0,active
+608,608,1,mobile_wallet,Otieno Transport mobile wallet,KES,1209600,2026-01-01,1,0,active
+609,609,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2185100,2026-01-01,1,0,active
+610,610,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1645500,2026-01-01,1,0,active
+611,611,1,mobile_wallet,Amina Grocery mobile wallet,KES,1144100,2026-01-01,1,0,active
+612,612,1,mobile_wallet,Grace Salon mobile wallet,KES,2147200,2026-01-01,1,0,active
+613,613,1,mobile_wallet,Otieno Transport mobile wallet,KES,2990700,2026-01-01,1,0,active
+614,614,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2410000,2026-01-01,1,0,active
+615,615,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2502400,2026-01-01,1,0,active
+616,616,1,mobile_wallet,Amina Grocery mobile wallet,KES,2517500,2026-01-01,1,0,active
+617,617,1,mobile_wallet,Grace Salon mobile wallet,KES,2393100,2026-01-01,1,0,active
+618,618,1,mobile_wallet,Otieno Transport mobile wallet,KES,1355100,2026-01-01,1,0,active
+619,619,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2537000,2026-01-01,1,0,active
+620,620,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1847900,2026-01-01,1,0,active
+621,621,1,mobile_wallet,Amina Grocery mobile wallet,KES,1113300,2026-01-01,1,0,active
+622,622,1,mobile_wallet,Grace Salon mobile wallet,KES,2502800,2026-01-01,1,0,active
+623,623,1,mobile_wallet,Otieno Transport mobile wallet,KES,2454500,2026-01-01,1,0,active
+624,624,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,988100,2026-01-01,1,0,active
+625,625,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2059500,2026-01-01,1,0,active
+626,626,1,mobile_wallet,Amina Grocery mobile wallet,KES,2515900,2026-01-01,1,0,active
+627,627,1,mobile_wallet,Grace Salon mobile wallet,KES,2642200,2026-01-01,1,0,active
+628,628,1,mobile_wallet,Otieno Transport mobile wallet,KES,835700,2026-01-01,1,0,active
+629,629,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2547900,2026-01-01,1,0,active
+630,630,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,812700,2026-01-01,1,0,active
+631,631,1,mobile_wallet,Amina Grocery mobile wallet,KES,2978900,2026-01-01,1,0,active
+632,632,1,mobile_wallet,Grace Salon mobile wallet,KES,1815100,2026-01-01,1,0,active
+633,633,1,mobile_wallet,Otieno Transport mobile wallet,KES,2132700,2026-01-01,1,0,active
+634,634,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2913200,2026-01-01,1,0,active
+635,635,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1720600,2026-01-01,1,0,active
+636,636,1,mobile_wallet,Amina Grocery mobile wallet,KES,2478200,2026-01-01,1,0,active
+637,637,1,mobile_wallet,Grace Salon mobile wallet,KES,2631700,2026-01-01,1,0,active
+638,638,1,mobile_wallet,Otieno Transport mobile wallet,KES,957900,2026-01-01,1,0,active
+639,639,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2950700,2026-01-01,1,0,active
+640,640,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1132800,2026-01-01,1,0,active
+641,641,1,mobile_wallet,Amina Grocery mobile wallet,KES,2679800,2026-01-01,1,0,active
+642,642,1,mobile_wallet,Grace Salon mobile wallet,KES,2981700,2026-01-01,1,0,active
+643,643,1,mobile_wallet,Otieno Transport mobile wallet,KES,2647400,2026-01-01,1,0,active
+644,644,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2687200,2026-01-01,1,0,active
+645,645,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2519500,2026-01-01,1,0,active
+646,646,1,mobile_wallet,Amina Grocery mobile wallet,KES,1152200,2026-01-01,1,0,active
+647,647,1,mobile_wallet,Grace Salon mobile wallet,KES,2295800,2026-01-01,1,0,active
+648,648,1,mobile_wallet,Otieno Transport mobile wallet,KES,2383100,2026-01-01,1,0,active
+649,649,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1445400,2026-01-01,1,0,active
+650,650,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,814900,2026-01-01,1,0,active
+651,651,1,mobile_wallet,Amina Grocery mobile wallet,KES,2766600,2026-01-01,1,0,active
+652,652,1,mobile_wallet,Grace Salon mobile wallet,KES,1652800,2026-01-01,1,0,active
+653,653,1,mobile_wallet,Otieno Transport mobile wallet,KES,2914900,2026-01-01,1,0,active
+654,654,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1334500,2026-01-01,1,0,active
+655,655,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2809100,2026-01-01,1,0,active
+656,656,1,mobile_wallet,Amina Grocery mobile wallet,KES,965000,2026-01-01,1,0,active
+657,657,1,mobile_wallet,Grace Salon mobile wallet,KES,1993700,2026-01-01,1,0,active
+658,658,1,mobile_wallet,Otieno Transport mobile wallet,KES,2127600,2026-01-01,1,0,active
+659,659,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,978800,2026-01-01,1,0,active
+660,660,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2500600,2026-01-01,1,0,active
+661,661,1,mobile_wallet,Amina Grocery mobile wallet,KES,1538600,2026-01-01,1,0,active
+662,662,1,mobile_wallet,Grace Salon mobile wallet,KES,1932000,2026-01-01,1,0,active
+663,663,1,mobile_wallet,Otieno Transport mobile wallet,KES,1118200,2026-01-01,1,0,active
+664,664,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1109100,2026-01-01,1,0,active
+665,665,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2464000,2026-01-01,1,0,active
+666,666,1,mobile_wallet,Amina Grocery mobile wallet,KES,1914200,2026-01-01,1,0,active
+667,667,1,mobile_wallet,Grace Salon mobile wallet,KES,2639800,2026-01-01,1,0,active
+668,668,1,mobile_wallet,Otieno Transport mobile wallet,KES,1198900,2026-01-01,1,0,active
+669,669,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,953800,2026-01-01,1,0,active
+670,670,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1115600,2026-01-01,1,0,active
+671,671,1,mobile_wallet,Amina Grocery mobile wallet,KES,1502500,2026-01-01,1,0,active
+672,672,1,mobile_wallet,Grace Salon mobile wallet,KES,2226500,2026-01-01,1,0,active
+673,673,1,mobile_wallet,Otieno Transport mobile wallet,KES,917700,2026-01-01,1,0,active
+674,674,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2696700,2026-01-01,1,0,active
+675,675,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2468300,2026-01-01,1,0,active
+676,676,1,mobile_wallet,Amina Grocery mobile wallet,KES,2201600,2026-01-01,1,0,active
+677,677,1,mobile_wallet,Grace Salon mobile wallet,KES,852800,2026-01-01,1,0,active
+678,678,1,mobile_wallet,Otieno Transport mobile wallet,KES,1744800,2026-01-01,1,0,active
+679,679,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2226700,2026-01-01,1,0,active
+680,680,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1400900,2026-01-01,1,0,active
+681,681,1,mobile_wallet,Amina Grocery mobile wallet,KES,914400,2026-01-01,1,0,active
+682,682,1,mobile_wallet,Grace Salon mobile wallet,KES,869300,2026-01-01,1,0,active
+683,683,1,mobile_wallet,Otieno Transport mobile wallet,KES,981000,2026-01-01,1,0,active
+684,684,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,980500,2026-01-01,1,0,active
+685,685,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2545700,2026-01-01,1,0,active
+686,686,1,mobile_wallet,Amina Grocery mobile wallet,KES,2404800,2026-01-01,1,0,active
+687,687,1,mobile_wallet,Grace Salon mobile wallet,KES,2212200,2026-01-01,1,0,active
+688,688,1,mobile_wallet,Otieno Transport mobile wallet,KES,835800,2026-01-01,1,0,active
+689,689,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2959000,2026-01-01,1,0,active
+690,690,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2300100,2026-01-01,1,0,active
+691,691,1,mobile_wallet,Amina Grocery mobile wallet,KES,2156900,2026-01-01,1,0,active
+692,692,1,mobile_wallet,Grace Salon mobile wallet,KES,899600,2026-01-01,1,0,active
+693,693,1,mobile_wallet,Otieno Transport mobile wallet,KES,850600,2026-01-01,1,0,active
+694,694,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2715000,2026-01-01,1,0,active
+695,695,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1505300,2026-01-01,1,0,active
+696,696,1,mobile_wallet,Amina Grocery mobile wallet,KES,1531200,2026-01-01,1,0,active
+697,697,1,mobile_wallet,Grace Salon mobile wallet,KES,952600,2026-01-01,1,0,active
+698,698,1,mobile_wallet,Otieno Transport mobile wallet,KES,1834800,2026-01-01,1,0,active
+699,699,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1156100,2026-01-01,1,0,active
+700,700,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2482900,2026-01-01,1,0,active
+701,701,1,mobile_wallet,Amina Grocery mobile wallet,KES,1013500,2026-01-01,1,0,active
+702,702,1,mobile_wallet,Grace Salon mobile wallet,KES,1929800,2026-01-01,1,0,active
+703,703,1,mobile_wallet,Otieno Transport mobile wallet,KES,2391100,2026-01-01,1,0,active
+704,704,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1972300,2026-01-01,1,0,active
+705,705,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1703600,2026-01-01,1,0,active
+706,706,1,mobile_wallet,Amina Grocery mobile wallet,KES,962000,2026-01-01,1,0,active
+707,707,1,mobile_wallet,Grace Salon mobile wallet,KES,2572700,2026-01-01,1,0,active
+708,708,1,mobile_wallet,Otieno Transport mobile wallet,KES,1997200,2026-01-01,1,0,active
+709,709,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2289200,2026-01-01,1,0,active
+710,710,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2384200,2026-01-01,1,0,active
+711,711,1,mobile_wallet,Amina Grocery mobile wallet,KES,1413000,2026-01-01,1,0,active
+712,712,1,mobile_wallet,Grace Salon mobile wallet,KES,2247700,2026-01-01,1,0,active
+713,713,1,mobile_wallet,Otieno Transport mobile wallet,KES,2355000,2026-01-01,1,0,active
+714,714,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2723100,2026-01-01,1,0,active
+715,715,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1208900,2026-01-01,1,0,active
+716,716,1,mobile_wallet,Amina Grocery mobile wallet,KES,2906500,2026-01-01,1,0,active
+717,717,1,mobile_wallet,Grace Salon mobile wallet,KES,1622800,2026-01-01,1,0,active
+718,718,1,mobile_wallet,Otieno Transport mobile wallet,KES,2516400,2026-01-01,1,0,active
+719,719,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1315000,2026-01-01,1,0,active
+720,720,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1218600,2026-01-01,1,0,active
+721,721,1,mobile_wallet,Amina Grocery mobile wallet,KES,2845200,2026-01-01,1,0,active
+722,722,1,mobile_wallet,Grace Salon mobile wallet,KES,2313800,2026-01-01,1,0,active
+723,723,1,mobile_wallet,Otieno Transport mobile wallet,KES,1347700,2026-01-01,1,0,active
+724,724,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2259300,2026-01-01,1,0,active
+725,725,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1632100,2026-01-01,1,0,active
+726,726,1,mobile_wallet,Amina Grocery mobile wallet,KES,2232600,2026-01-01,1,0,active
+727,727,1,mobile_wallet,Grace Salon mobile wallet,KES,1576700,2026-01-01,1,0,active
+728,728,1,mobile_wallet,Otieno Transport mobile wallet,KES,2204100,2026-01-01,1,0,active
+729,729,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1484000,2026-01-01,1,0,active
+730,730,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2287900,2026-01-01,1,0,active
+731,731,1,mobile_wallet,Amina Grocery mobile wallet,KES,1535300,2026-01-01,1,0,active
+732,732,1,mobile_wallet,Grace Salon mobile wallet,KES,1876600,2026-01-01,1,0,active
+733,733,1,mobile_wallet,Otieno Transport mobile wallet,KES,2368000,2026-01-01,1,0,active
+734,734,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2152000,2026-01-01,1,0,active
+735,735,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2647600,2026-01-01,1,0,active
+736,736,1,mobile_wallet,Amina Grocery mobile wallet,KES,2035500,2026-01-01,1,0,active
+737,737,1,mobile_wallet,Grace Salon mobile wallet,KES,2190100,2026-01-01,1,0,active
+738,738,1,mobile_wallet,Otieno Transport mobile wallet,KES,2654200,2026-01-01,1,0,active
+739,739,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2997300,2026-01-01,1,0,active
+740,740,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2861900,2026-01-01,1,0,active
+741,741,1,mobile_wallet,Amina Grocery mobile wallet,KES,2889400,2026-01-01,1,0,active
+742,742,1,mobile_wallet,Grace Salon mobile wallet,KES,1877000,2026-01-01,1,0,active
+743,743,1,mobile_wallet,Otieno Transport mobile wallet,KES,2416000,2026-01-01,1,0,active
+744,744,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2695700,2026-01-01,1,0,active
+745,745,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2699000,2026-01-01,1,0,active
+746,746,1,mobile_wallet,Amina Grocery mobile wallet,KES,972200,2026-01-01,1,0,active
+747,747,1,mobile_wallet,Grace Salon mobile wallet,KES,1125000,2026-01-01,1,0,active
+748,748,1,mobile_wallet,Otieno Transport mobile wallet,KES,2010200,2026-01-01,1,0,active
+749,749,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1560300,2026-01-01,1,0,active
+750,750,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1533800,2026-01-01,1,0,active
+751,751,1,mobile_wallet,Amina Grocery mobile wallet,KES,1209200,2026-01-01,1,0,active
+752,752,1,mobile_wallet,Grace Salon mobile wallet,KES,2028500,2026-01-01,1,0,active
+753,753,1,mobile_wallet,Otieno Transport mobile wallet,KES,1658400,2026-01-01,1,0,active
+754,754,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,844900,2026-01-01,1,0,active
+755,755,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2629800,2026-01-01,1,0,active
+756,756,1,mobile_wallet,Amina Grocery mobile wallet,KES,1374600,2026-01-01,1,0,active
+757,757,1,mobile_wallet,Grace Salon mobile wallet,KES,2562800,2026-01-01,1,0,active
+758,758,1,mobile_wallet,Otieno Transport mobile wallet,KES,2025700,2026-01-01,1,0,active
+759,759,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2838300,2026-01-01,1,0,active
+760,760,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1723100,2026-01-01,1,0,active
+761,761,1,mobile_wallet,Amina Grocery mobile wallet,KES,2530300,2026-01-01,1,0,active
+762,762,1,mobile_wallet,Grace Salon mobile wallet,KES,2921700,2026-01-01,1,0,active
+763,763,1,mobile_wallet,Otieno Transport mobile wallet,KES,2691800,2026-01-01,1,0,active
+764,764,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1398900,2026-01-01,1,0,active
+765,765,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1016000,2026-01-01,1,0,active
+766,766,1,mobile_wallet,Amina Grocery mobile wallet,KES,895400,2026-01-01,1,0,active
+767,767,1,mobile_wallet,Grace Salon mobile wallet,KES,1312700,2026-01-01,1,0,active
+768,768,1,mobile_wallet,Otieno Transport mobile wallet,KES,2083800,2026-01-01,1,0,active
+769,769,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2982400,2026-01-01,1,0,active
+770,770,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2025600,2026-01-01,1,0,active
+771,771,1,mobile_wallet,Amina Grocery mobile wallet,KES,2130000,2026-01-01,1,0,active
+772,772,1,mobile_wallet,Grace Salon mobile wallet,KES,2327100,2026-01-01,1,0,active
+773,773,1,mobile_wallet,Otieno Transport mobile wallet,KES,2284700,2026-01-01,1,0,active
+774,774,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2684700,2026-01-01,1,0,active
+775,775,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1305100,2026-01-01,1,0,active
+776,776,1,mobile_wallet,Amina Grocery mobile wallet,KES,1861100,2026-01-01,1,0,active
+777,777,1,mobile_wallet,Grace Salon mobile wallet,KES,2337500,2026-01-01,1,0,active
+778,778,1,mobile_wallet,Otieno Transport mobile wallet,KES,2343000,2026-01-01,1,0,active
+779,779,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1452500,2026-01-01,1,0,active
+780,780,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2859800,2026-01-01,1,0,active
+781,781,1,mobile_wallet,Amina Grocery mobile wallet,KES,1907100,2026-01-01,1,0,active
+782,782,1,mobile_wallet,Grace Salon mobile wallet,KES,1807100,2026-01-01,1,0,active
+783,783,1,mobile_wallet,Otieno Transport mobile wallet,KES,2417800,2026-01-01,1,0,active
+784,784,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1274700,2026-01-01,1,0,active
+785,785,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1188800,2026-01-01,1,0,active
+786,786,1,mobile_wallet,Amina Grocery mobile wallet,KES,1622100,2026-01-01,1,0,active
+787,787,1,mobile_wallet,Grace Salon mobile wallet,KES,1447400,2026-01-01,1,0,active
+788,788,1,mobile_wallet,Otieno Transport mobile wallet,KES,1604000,2026-01-01,1,0,active
+789,789,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2316900,2026-01-01,1,0,active
+790,790,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,895300,2026-01-01,1,0,active
+791,791,1,mobile_wallet,Amina Grocery mobile wallet,KES,2535300,2026-01-01,1,0,active
+792,792,1,mobile_wallet,Grace Salon mobile wallet,KES,1380700,2026-01-01,1,0,active
+793,793,1,mobile_wallet,Otieno Transport mobile wallet,KES,2215400,2026-01-01,1,0,active
+794,794,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1079200,2026-01-01,1,0,active
+795,795,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1852400,2026-01-01,1,0,active
+796,796,1,mobile_wallet,Amina Grocery mobile wallet,KES,2672100,2026-01-01,1,0,active
+797,797,1,mobile_wallet,Grace Salon mobile wallet,KES,1705700,2026-01-01,1,0,active
+798,798,1,mobile_wallet,Otieno Transport mobile wallet,KES,1280800,2026-01-01,1,0,active
+799,799,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1269900,2026-01-01,1,0,active
+800,800,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2589100,2026-01-01,1,0,active
+801,801,1,mobile_wallet,Amina Grocery mobile wallet,KES,975900,2026-01-01,1,0,active
+802,802,1,mobile_wallet,Grace Salon mobile wallet,KES,1164700,2026-01-01,1,0,active
+803,803,1,mobile_wallet,Otieno Transport mobile wallet,KES,1013100,2026-01-01,1,0,active
+804,804,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2613800,2026-01-01,1,0,active
+805,805,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2415300,2026-01-01,1,0,active
+806,806,1,mobile_wallet,Amina Grocery mobile wallet,KES,2982300,2026-01-01,1,0,active
+807,807,1,mobile_wallet,Grace Salon mobile wallet,KES,1382400,2026-01-01,1,0,active
+808,808,1,mobile_wallet,Otieno Transport mobile wallet,KES,1360100,2026-01-01,1,0,active
+809,809,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1725100,2026-01-01,1,0,active
+810,810,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2467000,2026-01-01,1,0,active
+811,811,1,mobile_wallet,Amina Grocery mobile wallet,KES,1150700,2026-01-01,1,0,active
+812,812,1,mobile_wallet,Grace Salon mobile wallet,KES,1165000,2026-01-01,1,0,active
+813,813,1,mobile_wallet,Otieno Transport mobile wallet,KES,2675800,2026-01-01,1,0,active
+814,814,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2974400,2026-01-01,1,0,active
+815,815,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,847200,2026-01-01,1,0,active
+816,816,1,mobile_wallet,Amina Grocery mobile wallet,KES,1700100,2026-01-01,1,0,active
+817,817,1,mobile_wallet,Grace Salon mobile wallet,KES,2504600,2026-01-01,1,0,active
+818,818,1,mobile_wallet,Otieno Transport mobile wallet,KES,1907500,2026-01-01,1,0,active
+819,819,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1090700,2026-01-01,1,0,active
+820,820,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1595700,2026-01-01,1,0,active
+821,821,1,mobile_wallet,Amina Grocery mobile wallet,KES,1094900,2026-01-01,1,0,active
+822,822,1,mobile_wallet,Grace Salon mobile wallet,KES,2568300,2026-01-01,1,0,active
+823,823,1,mobile_wallet,Otieno Transport mobile wallet,KES,2231300,2026-01-01,1,0,active
+824,824,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1462500,2026-01-01,1,0,active
+825,825,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,915800,2026-01-01,1,0,active
+826,826,1,mobile_wallet,Amina Grocery mobile wallet,KES,997700,2026-01-01,1,0,active
+827,827,1,mobile_wallet,Grace Salon mobile wallet,KES,2332600,2026-01-01,1,0,active
+828,828,1,mobile_wallet,Otieno Transport mobile wallet,KES,1885200,2026-01-01,1,0,active
+829,829,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2576400,2026-01-01,1,0,active
+830,830,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2011000,2026-01-01,1,0,active
+831,831,1,mobile_wallet,Amina Grocery mobile wallet,KES,1234500,2026-01-01,1,0,active
+832,832,1,mobile_wallet,Grace Salon mobile wallet,KES,1630700,2026-01-01,1,0,active
+833,833,1,mobile_wallet,Otieno Transport mobile wallet,KES,1700500,2026-01-01,1,0,active
+834,834,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2691400,2026-01-01,1,0,active
+835,835,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2835300,2026-01-01,1,0,active
+836,836,1,mobile_wallet,Amina Grocery mobile wallet,KES,955900,2026-01-01,1,0,active
+837,837,1,mobile_wallet,Grace Salon mobile wallet,KES,1719400,2026-01-01,1,0,active
+838,838,1,mobile_wallet,Otieno Transport mobile wallet,KES,2721700,2026-01-01,1,0,active
+839,839,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1312300,2026-01-01,1,0,active
+840,840,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1165200,2026-01-01,1,0,active
+841,841,1,mobile_wallet,Amina Grocery mobile wallet,KES,1210700,2026-01-01,1,0,active
+842,842,1,mobile_wallet,Grace Salon mobile wallet,KES,1509900,2026-01-01,1,0,active
+843,843,1,mobile_wallet,Otieno Transport mobile wallet,KES,1126600,2026-01-01,1,0,active
+844,844,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2276100,2026-01-01,1,0,active
+845,845,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,978900,2026-01-01,1,0,active
+846,846,1,mobile_wallet,Amina Grocery mobile wallet,KES,1080200,2026-01-01,1,0,active
+847,847,1,mobile_wallet,Grace Salon mobile wallet,KES,1352500,2026-01-01,1,0,active
+848,848,1,mobile_wallet,Otieno Transport mobile wallet,KES,2093700,2026-01-01,1,0,active
+849,849,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1845400,2026-01-01,1,0,active
+850,850,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1340700,2026-01-01,1,0,active
+851,851,1,mobile_wallet,Amina Grocery mobile wallet,KES,2019500,2026-01-01,1,0,active
+852,852,1,mobile_wallet,Grace Salon mobile wallet,KES,2683300,2026-01-01,1,0,active
+853,853,1,mobile_wallet,Otieno Transport mobile wallet,KES,1935800,2026-01-01,1,0,active
+854,854,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2636600,2026-01-01,1,0,active
+855,855,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2336900,2026-01-01,1,0,active
+856,856,1,mobile_wallet,Amina Grocery mobile wallet,KES,2188100,2026-01-01,1,0,active
+857,857,1,mobile_wallet,Grace Salon mobile wallet,KES,2145000,2026-01-01,1,0,active
+858,858,1,mobile_wallet,Otieno Transport mobile wallet,KES,2963300,2026-01-01,1,0,active
+859,859,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1698600,2026-01-01,1,0,active
+860,860,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2817800,2026-01-01,1,0,active
+861,861,1,mobile_wallet,Amina Grocery mobile wallet,KES,1259200,2026-01-01,1,0,active
+862,862,1,mobile_wallet,Grace Salon mobile wallet,KES,2944400,2026-01-01,1,0,active
+863,863,1,mobile_wallet,Otieno Transport mobile wallet,KES,959100,2026-01-01,1,0,active
+864,864,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,934500,2026-01-01,1,0,active
+865,865,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2076500,2026-01-01,1,0,active
+866,866,1,mobile_wallet,Amina Grocery mobile wallet,KES,905400,2026-01-01,1,0,active
+867,867,1,mobile_wallet,Grace Salon mobile wallet,KES,890200,2026-01-01,1,0,active
+868,868,1,mobile_wallet,Otieno Transport mobile wallet,KES,1421200,2026-01-01,1,0,active
+869,869,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1665600,2026-01-01,1,0,active
+870,870,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2648500,2026-01-01,1,0,active
+871,871,1,mobile_wallet,Amina Grocery mobile wallet,KES,2344900,2026-01-01,1,0,active
+872,872,1,mobile_wallet,Grace Salon mobile wallet,KES,1937600,2026-01-01,1,0,active
+873,873,1,mobile_wallet,Otieno Transport mobile wallet,KES,807900,2026-01-01,1,0,active
+874,874,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,930300,2026-01-01,1,0,active
+875,875,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1218800,2026-01-01,1,0,active
+876,876,1,mobile_wallet,Amina Grocery mobile wallet,KES,2479900,2026-01-01,1,0,active
+877,877,1,mobile_wallet,Grace Salon mobile wallet,KES,2384900,2026-01-01,1,0,active
+878,878,1,mobile_wallet,Otieno Transport mobile wallet,KES,2335500,2026-01-01,1,0,active
+879,879,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,907900,2026-01-01,1,0,active
+880,880,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2037000,2026-01-01,1,0,active
+881,881,1,mobile_wallet,Amina Grocery mobile wallet,KES,1190100,2026-01-01,1,0,active
+882,882,1,mobile_wallet,Grace Salon mobile wallet,KES,1854700,2026-01-01,1,0,active
+883,883,1,mobile_wallet,Otieno Transport mobile wallet,KES,2171200,2026-01-01,1,0,active
+884,884,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2659100,2026-01-01,1,0,active
+885,885,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1102100,2026-01-01,1,0,active
+886,886,1,mobile_wallet,Amina Grocery mobile wallet,KES,1312000,2026-01-01,1,0,active
+887,887,1,mobile_wallet,Grace Salon mobile wallet,KES,1670300,2026-01-01,1,0,active
+888,888,1,mobile_wallet,Otieno Transport mobile wallet,KES,1379000,2026-01-01,1,0,active
+889,889,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1825500,2026-01-01,1,0,active
+890,890,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1502000,2026-01-01,1,0,active
+891,891,1,mobile_wallet,Amina Grocery mobile wallet,KES,1161500,2026-01-01,1,0,active
+892,892,1,mobile_wallet,Grace Salon mobile wallet,KES,1827500,2026-01-01,1,0,active
+893,893,1,mobile_wallet,Otieno Transport mobile wallet,KES,2312000,2026-01-01,1,0,active
+894,894,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1316700,2026-01-01,1,0,active
+895,895,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2254900,2026-01-01,1,0,active
+896,896,1,mobile_wallet,Amina Grocery mobile wallet,KES,2418400,2026-01-01,1,0,active
+897,897,1,mobile_wallet,Grace Salon mobile wallet,KES,2114600,2026-01-01,1,0,active
+898,898,1,mobile_wallet,Otieno Transport mobile wallet,KES,1741700,2026-01-01,1,0,active
+899,899,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1022500,2026-01-01,1,0,active
+900,900,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1562300,2026-01-01,1,0,active
+901,901,1,mobile_wallet,Amina Grocery mobile wallet,KES,930100,2026-01-01,1,0,active
+902,902,1,mobile_wallet,Grace Salon mobile wallet,KES,2135400,2026-01-01,1,0,active
+903,903,1,mobile_wallet,Otieno Transport mobile wallet,KES,2327200,2026-01-01,1,0,active
+904,904,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2201400,2026-01-01,1,0,active
+905,905,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2058000,2026-01-01,1,0,active
+906,906,1,mobile_wallet,Amina Grocery mobile wallet,KES,942900,2026-01-01,1,0,active
+907,907,1,mobile_wallet,Grace Salon mobile wallet,KES,2818200,2026-01-01,1,0,active
+908,908,1,mobile_wallet,Otieno Transport mobile wallet,KES,1993100,2026-01-01,1,0,active
+909,909,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1128800,2026-01-01,1,0,active
+910,910,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1933300,2026-01-01,1,0,active
+911,911,1,mobile_wallet,Amina Grocery mobile wallet,KES,1486800,2026-01-01,1,0,active
+912,912,1,mobile_wallet,Grace Salon mobile wallet,KES,1709300,2026-01-01,1,0,active
+913,913,1,mobile_wallet,Otieno Transport mobile wallet,KES,1001200,2026-01-01,1,0,active
+914,914,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1637200,2026-01-01,1,0,active
+915,915,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,972500,2026-01-01,1,0,active
+916,916,1,mobile_wallet,Amina Grocery mobile wallet,KES,1718600,2026-01-01,1,0,active
+917,917,1,mobile_wallet,Grace Salon mobile wallet,KES,1896400,2026-01-01,1,0,active
+918,918,1,mobile_wallet,Otieno Transport mobile wallet,KES,920000,2026-01-01,1,0,active
+919,919,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2880300,2026-01-01,1,0,active
+920,920,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2949200,2026-01-01,1,0,active
+921,921,1,mobile_wallet,Amina Grocery mobile wallet,KES,2571900,2026-01-01,1,0,active
+922,922,1,mobile_wallet,Grace Salon mobile wallet,KES,1589600,2026-01-01,1,0,active
+923,923,1,mobile_wallet,Otieno Transport mobile wallet,KES,1378000,2026-01-01,1,0,active
+924,924,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2827000,2026-01-01,1,0,active
+925,925,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2915300,2026-01-01,1,0,active
+926,926,1,mobile_wallet,Amina Grocery mobile wallet,KES,2911300,2026-01-01,1,0,active
+927,927,1,mobile_wallet,Grace Salon mobile wallet,KES,2317100,2026-01-01,1,0,active
+928,928,1,mobile_wallet,Otieno Transport mobile wallet,KES,1739100,2026-01-01,1,0,active
+929,929,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1261000,2026-01-01,1,0,active
+930,930,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2873400,2026-01-01,1,0,active
+931,931,1,mobile_wallet,Amina Grocery mobile wallet,KES,1933300,2026-01-01,1,0,active
+932,932,1,mobile_wallet,Grace Salon mobile wallet,KES,1053500,2026-01-01,1,0,active
+933,933,1,mobile_wallet,Otieno Transport mobile wallet,KES,937000,2026-01-01,1,0,active
+934,934,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2345400,2026-01-01,1,0,active
+935,935,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1607400,2026-01-01,1,0,active
+936,936,1,mobile_wallet,Amina Grocery mobile wallet,KES,899000,2026-01-01,1,0,active
+937,937,1,mobile_wallet,Grace Salon mobile wallet,KES,943500,2026-01-01,1,0,active
+938,938,1,mobile_wallet,Otieno Transport mobile wallet,KES,850800,2026-01-01,1,0,active
+939,939,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2555700,2026-01-01,1,0,active
+940,940,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1445600,2026-01-01,1,0,active
+941,941,1,mobile_wallet,Amina Grocery mobile wallet,KES,2088300,2026-01-01,1,0,active
+942,942,1,mobile_wallet,Grace Salon mobile wallet,KES,2676900,2026-01-01,1,0,active
+943,943,1,mobile_wallet,Otieno Transport mobile wallet,KES,2123700,2026-01-01,1,0,active
+944,944,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1296200,2026-01-01,1,0,active
+945,945,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2533400,2026-01-01,1,0,active
+946,946,1,mobile_wallet,Amina Grocery mobile wallet,KES,1571100,2026-01-01,1,0,active
+947,947,1,mobile_wallet,Grace Salon mobile wallet,KES,1623200,2026-01-01,1,0,active
+948,948,1,mobile_wallet,Otieno Transport mobile wallet,KES,1744200,2026-01-01,1,0,active
+949,949,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1328900,2026-01-01,1,0,active
+950,950,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1651400,2026-01-01,1,0,active
+951,951,1,mobile_wallet,Amina Grocery mobile wallet,KES,1063200,2026-01-01,1,0,active
+952,952,1,mobile_wallet,Grace Salon mobile wallet,KES,1536200,2026-01-01,1,0,active
+953,953,1,mobile_wallet,Otieno Transport mobile wallet,KES,886100,2026-01-01,1,0,active
+954,954,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1646600,2026-01-01,1,0,active
+955,955,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1950300,2026-01-01,1,0,active
+956,956,1,mobile_wallet,Amina Grocery mobile wallet,KES,1297300,2026-01-01,1,0,active
+957,957,1,mobile_wallet,Grace Salon mobile wallet,KES,2944700,2026-01-01,1,0,active
+958,958,1,mobile_wallet,Otieno Transport mobile wallet,KES,2369400,2026-01-01,1,0,active
+959,959,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1101100,2026-01-01,1,0,active
+960,960,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1360900,2026-01-01,1,0,active
+961,961,1,mobile_wallet,Amina Grocery mobile wallet,KES,841000,2026-01-01,1,0,active
+962,962,1,mobile_wallet,Grace Salon mobile wallet,KES,1957700,2026-01-01,1,0,active
+963,963,1,mobile_wallet,Otieno Transport mobile wallet,KES,2164400,2026-01-01,1,0,active
+964,964,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,839300,2026-01-01,1,0,active
+965,965,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,1399100,2026-01-01,1,0,active
+966,966,1,mobile_wallet,Amina Grocery mobile wallet,KES,1592000,2026-01-01,1,0,active
+967,967,1,mobile_wallet,Grace Salon mobile wallet,KES,927500,2026-01-01,1,0,active
+968,968,1,mobile_wallet,Otieno Transport mobile wallet,KES,1228000,2026-01-01,1,0,active
+969,969,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,828200,2026-01-01,1,0,active
+970,970,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2785900,2026-01-01,1,0,active
+971,971,1,mobile_wallet,Amina Grocery mobile wallet,KES,2492600,2026-01-01,1,0,active
+972,972,1,mobile_wallet,Grace Salon mobile wallet,KES,2290600,2026-01-01,1,0,active
+973,973,1,mobile_wallet,Otieno Transport mobile wallet,KES,1044200,2026-01-01,1,0,active
+974,974,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2129700,2026-01-01,1,0,active
+975,975,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2810800,2026-01-01,1,0,active
+976,976,1,mobile_wallet,Amina Grocery mobile wallet,KES,2269100,2026-01-01,1,0,active
+977,977,1,mobile_wallet,Grace Salon mobile wallet,KES,2198200,2026-01-01,1,0,active
+978,978,1,mobile_wallet,Otieno Transport mobile wallet,KES,1633800,2026-01-01,1,0,active
+979,979,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,838200,2026-01-01,1,0,active
+980,980,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2026600,2026-01-01,1,0,active
+981,981,1,mobile_wallet,Amina Grocery mobile wallet,KES,2349900,2026-01-01,1,0,active
+982,982,1,mobile_wallet,Grace Salon mobile wallet,KES,1807700,2026-01-01,1,0,active
+983,983,1,mobile_wallet,Otieno Transport mobile wallet,KES,1702800,2026-01-01,1,0,active
+984,984,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2710400,2026-01-01,1,0,active
+985,985,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2878700,2026-01-01,1,0,active
+986,986,1,mobile_wallet,Amina Grocery mobile wallet,KES,2947900,2026-01-01,1,0,active
+987,987,1,mobile_wallet,Grace Salon mobile wallet,KES,1861100,2026-01-01,1,0,active
+988,988,1,mobile_wallet,Otieno Transport mobile wallet,KES,1607700,2026-01-01,1,0,active
+989,989,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1769000,2026-01-01,1,0,active
+990,990,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2319800,2026-01-01,1,0,active
+991,991,1,mobile_wallet,Amina Grocery mobile wallet,KES,983300,2026-01-01,1,0,active
+992,992,1,mobile_wallet,Grace Salon mobile wallet,KES,2283800,2026-01-01,1,0,active
+993,993,1,mobile_wallet,Otieno Transport mobile wallet,KES,826100,2026-01-01,1,0,active
+994,994,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,1412500,2026-01-01,1,0,active
+995,995,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2749400,2026-01-01,1,0,active
+996,996,1,mobile_wallet,Amina Grocery mobile wallet,KES,2015200,2026-01-01,1,0,active
+997,997,1,mobile_wallet,Grace Salon mobile wallet,KES,2632600,2026-01-01,1,0,active
+998,998,1,mobile_wallet,Otieno Transport mobile wallet,KES,2768400,2026-01-01,1,0,active
+999,999,1,mobile_wallet,Wanjiku Food Stall mobile wallet,KES,2652600,2026-01-01,1,0,active
+1000,1000,1,mobile_wallet,Moses Phone Repair mobile wallet,KES,2317700,2026-01-01,1,0,active

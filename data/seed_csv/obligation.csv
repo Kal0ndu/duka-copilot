@@ -1,0 +1,4 @@
+obligation_id,business_id,party_id,label,kind,amount_minor,amount_is_variable,cadence,day_of_month,weekday,next_due,end_date,essential,source,confidence,active
+1,1,,Monthly premises rent,rent,800000,0,monthly,1,,2026-04-01,,1,detected,0.9,1
+2,2,,Monthly premises rent,rent,800000,0,monthly,1,,2026-04-01,,1,detected,0.9,1
+3,3,,Monthly premises rent,rent,800000,0,monthly,1,,2026-04-01,,1,detected,0.9,1
