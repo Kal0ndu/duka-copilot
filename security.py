@@ -23,6 +23,7 @@ import json
 import math
 import re
 import secrets
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -80,6 +81,38 @@ AMINA_POLICY = Policy(
     loan_cap=60_000,
     loan_products=("sacco", "bank", "micro_loan"),
 )
+
+# Grace pays stock of ~KES 15,000 a week; staff wages are paid by the owner herself.
+GRACE_POLICY = Policy(
+    verified_payees={
+        "SUP-01": "STYLE SUPPLIES LTD",
+        "SUP-02": "BEAUTY HUB WHOLESALE",
+        "RENT-01": "LAKESIDE PLAZA MGMT",
+        "UTIL-01": "POWER CO TOKENS",
+    },
+    per_transaction_cap=25_000,
+    daily_cap=40_000,
+    loan_cap=50_000,
+    loan_products=("sacco", "bank", "micro_loan"),
+)
+
+# Otieno's payments are small: fuel ~KES 700, bike loan KES 2,500, rent KES 6,000.
+OTIENO_POLICY = Policy(
+    verified_payees={
+        "FUEL-01": "HIGHWAY FUEL POINT",
+        "FUEL-02": "CITY PETROL STATION",
+        "LOAN-01": "BIKE FINANCE LTD",
+        "SAV-01": "RIDERS SACCO",
+        "RENT-01": "KARIUKI HOUSING",
+    },
+    per_transaction_cap=10_000,
+    daily_cap=15_000,
+    loan_cap=30_000,
+    loan_products=("sacco", "bank", "micro_loan"),
+)
+
+POLICIES = {"amina_grocery": AMINA_POLICY, "grace_salon": GRACE_POLICY,
+            "otieno_transport": OTIENO_POLICY}
 
 
 @dataclass
@@ -209,6 +242,18 @@ class Approvals:
         req = self._requests.get(request_id)
         return dict(req["action"]) if req and req["status"] == "waiting" else None
 
+    def waiting(self):
+        """All requests waiting for the owner: {request_id: action}."""
+        return {rid: dict(r["action"]) for rid, r in self._requests.items()
+                if r["status"] == "waiting"}
+
+    def decline(self, request_id):
+        """OWNER'S APP ONLY. Turning a request down needs no PIN (it can't move money)."""
+        req = self._requests.get(request_id)
+        if not req or req["status"] != "waiting":
+            raise ApprovalError("no such request is waiting for approval")
+        req["status"] = "declined"
+
     def approve(self, request_id, pin, now=None):
         """OWNER'S APP ONLY. Returns an approval code, or raises ApprovalError."""
         now = now or datetime.now()
@@ -323,16 +368,32 @@ class AuditLog:
     def __init__(self, path):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()   # the web app writes from several threads
         ok, self.count, problem, self.head = verify_log(self.path)
         if not ok:
             raise RuntimeError(f"Audit log {self.path} has been tampered with: {problem}")
 
+    def _read_tail(self):
+        """Link to the real last entry, even if another program (e.g. the
+        command-line agent) added entries since we last wrote."""
+        if not self.path.exists():
+            return 0, GENESIS
+        with open(self.path, "rb") as f:
+            lines = f.read().splitlines()
+        if not lines:
+            return 0, GENESIS
+        last = json.loads(lines[-1])
+        return last["seq"], last["hash"]
+
     def record(self, actor, event, **details):
-        entry = {"seq": self.count + 1, "time": datetime.now().isoformat(timespec="seconds"),
-                 "actor": actor, "event": event, "details": details, "prev_hash": self.head}
-        entry = json.loads(json.dumps(entry, default=str))   # store exactly what we hash
-        entry["hash"] = entry_hash(entry)
-        with open(self.path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(entry, sort_keys=True) + "\n")
-        self.count, self.head = entry["seq"], entry["hash"]
-        return entry
+        with self._lock:
+            self.count, self.head = self._read_tail()
+            entry = {"seq": self.count + 1, "time": datetime.now().isoformat(timespec="seconds"),
+                     "actor": actor, "event": event, "details": details,
+                     "prev_hash": self.head}
+            entry = json.loads(json.dumps(entry, default=str))   # store exactly what we hash
+            entry["hash"] = entry_hash(entry)
+            with open(self.path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, sort_keys=True) + "\n")
+            self.count, self.head = entry["seq"], entry["hash"]
+            return entry

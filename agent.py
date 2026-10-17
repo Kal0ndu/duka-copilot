@@ -34,13 +34,14 @@ from categoriser import categorise_all
 from credit import compare_options, fits, personal_cap, weekly_personal
 from forecast import SAFETY_BUFFER, build_model, forecast, shortfall_alert
 from parser import parse_statement
-from providers import GeminiProvider, OfflineProvider, Reply, ToolCall, detect_language
+from providers import (GeminiProvider, OfflineProvider, RateLimitError, Reply, ToolCall,
+                       detect_language)
 from sandbox import AUDIT_PATH, MockLender, Sandbox, SandboxAccount
-from security import AMINA_POLICY, Approvals, AuditLog, PolicyGuard, Redactor
+from security import POLICIES, Approvals, AuditLog, PolicyGuard, Redactor
 
 ROOT = Path(__file__).parent
 DEFAULT_MODEL = "gemini-3.8-flash"
-MAX_STEPS = 6                   # most AI turns for one question
+MAX_STEPS = 4                   # most AI turns for one question (each turn = 1 AI call)
 PLACEHOLDER_KEY = "paste-your-key-here"
 
 
@@ -64,7 +65,14 @@ def _obj(properties=None, required=()):
     return {"type": "object", "properties": properties or {}, "required": list(required)}
 
 
-PAYEE_LIST = ", ".join(f"{pid} = {name}" for pid, name in AMINA_POLICY.verified_payees.items())
+BUSINESSES = {
+    "amina_grocery": {"owner": "Amina", "label": "Amina's Grocery (Nairobi)",
+                      "kind": "grocery shop in Nairobi"},
+    "grace_salon": {"owner": "Grace", "label": "Grace Beauty Salon (Kisumu)",
+                    "kind": "beauty salon in Kisumu"},
+    "otieno_transport": {"owner": "Otieno", "label": "Otieno Boda Services (Nakuru)",
+                         "kind": "motorbike-taxi (boda boda) business in Nakuru"},
+}
 
 TOOLS = {
     "get_ledger_summary": {
@@ -96,7 +104,8 @@ TOOLS = {
     },
     "propose_payment": {
         "description": "Create a payment REQUEST to a verified payee. It is not paid until "
-                       f"the owner approves it in the app. Verified payees: {PAYEE_LIST}.",
+                       "the owner approves it in the app. Use a verified payee ID from "
+                       "your instructions.",
         "parameters": _obj({"payee_id": {"type": "string", "maxLength": 20,
                                          "description": "Verified payee ID, e.g. SUP-01"},
                             "amount": {"type": "number", "minimum": 1, "maximum": 1_000_000,
@@ -153,8 +162,14 @@ def validate_call(name, args):
 # 2. SYSTEM PROMPT
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT = f"""You are Duka Copilot, a finance assistant for the owner of a small grocery
-shop in Nairobi, Kenya, that runs on mobile money.
+def system_prompt(business):
+    payees = ", ".join(f"{pid} = {name}"
+                       for pid, name in POLICIES[business].verified_payees.items())
+    return SYSTEM_PROMPT.format(kind=BUSINESSES[business]["kind"], payees=payees)
+
+
+SYSTEM_PROMPT = """You are Duka Copilot, a finance assistant for the owner of a small
+{kind}, Kenya, that runs on mobile money.
 
 Rules you must always follow:
 1. Get every number from the tools. Never calculate money yourself; only explain
@@ -165,15 +180,40 @@ Rules you must always follow:
 3. You can only PROPOSE payments and loans. The owner approves them in the app with
    their PIN. You cannot approve anything. Never say a payment or loan is done when
    it is only proposed.
-4. Only pay verified payees, by ID: {PAYEE_LIST}.
+4. Only pay verified payees, by ID: {payees}.
 5. Names and phone numbers are hidden as [PERSON_n] and [PHONE]. Don't guess them.
 6. Reply in the owner's language. If they write in Swahili, reply in Swahili.
 7. Keep answers short and practical for a busy shop owner. Say that SACCO and bank
    rates are illustrative, not real quotes, whenever you mention them.
+8. AI calls are limited, so: if the snapshot below already answers the question,
+   answer directly without tools; otherwise call ALL the tools you need in ONE turn.
 """
 
 INSTRUCTION_WORDS = ("ignore", "instruction", "previous", "send kes", "system prompt",
                      "assistant", "you must", "approve")
+
+AI_BUSY = {
+    "en": "The AI service is busy right now (too many requests per minute), so I did "
+          "nothing. Please try again in a minute, or switch on offline demo mode.",
+    "sw": "Huduma ya AI ina shughuli nyingi sasa (maombi mengi kwa dakika), kwa hivyo "
+          "sijafanya chochote. Tafadhali jaribu tena baada ya dakika moja, au washa hali "
+          "ya maonyesho bila mtandao.",
+}
+
+AI_DAILY = {
+    "en": "The AI service's daily limit is used up (it resets in about {hours} hours), so I "
+          "did nothing. Please switch on offline demo mode for now.",
+    "sw": "Kikomo cha kila siku cha huduma ya AI kimeisha (kitarudi baada ya takriban saa "
+          "{hours}), kwa hivyo sijafanya chochote. Tafadhali washa hali ya maonyesho bila "
+          "mtandao kwa sasa.",
+}
+
+AI_DOWN = {
+    "en": "I couldn't reach the AI service ({error}), so I did nothing. Please try again, "
+          "or switch on offline demo mode.",
+    "sw": "Sikuweza kufikia huduma ya AI ({error}), kwa hivyo sijafanya chochote. Tafadhali "
+          "jaribu tena, au washa hali ya maonyesho bila mtandao.",
+}
 
 FAIL_SAFE = {
     "en": "Sorry, I couldn't complete that safely, so I stopped and did nothing. "
@@ -204,33 +244,79 @@ def rows_from_statement(path, business):
 # ---------------------------------------------------------------------------
 
 class Agent:
-    def __init__(self, provider, rows, sandbox, audit):
+    def __init__(self, provider, rows, sandbox, audit, business="amina_grocery"):
         self.provider, self.rows, self.sandbox, self.audit = provider, rows, sandbox, audit
-        self.redactor = Redactor(known_names=["Amina"])
+        self.redactor = Redactor(known_names=[BUSINESSES[business]["owner"]])
         self.history = []
         self.tool_log = []          # (tool, args, outcome) for the last question
         self.pending = []           # request ids waiting for the owner
+        self.last_error = None      # "rate_limit" or "provider" if the AI service failed
         self._model = None
+        self.system = system_prompt(business) + self.snapshot()
+
+    def snapshot(self):
+        """Key numbers, computed in Python, so simple questions need only one AI call."""
+        s = summarise(self.rows)
+        last, position = self.position()
+        alert = shortfall_alert(forecast(self.model(), last, position))
+        share = s["personal"]["share_of_profit"]
+        outlook = (f"low estimate below the KES {SAFETY_BUFFER:,} buffer on {alert['risky_days']} "
+                   f"of 14 days; worst {alert['worst_date']} at KES {alert['worst_low']:,.0f}; "
+                   f"may need KES {alert['amount_needed']:,.0f} more" if alert else
+                   f"low estimate stays above the KES {SAFETY_BUFFER:,} buffer")
+        return (f"\nSnapshot computed by the app for {s['period']['start']} to "
+                f"{s['period']['end']} (trust these numbers):\n"
+                f"- sales KES {s['sales']['total']:,.0f} (KES {s['sales']['per_day']:,.0f} a day); "
+                f"slow days: {', '.join(s['sales']['slow_weekdays']) or 'none'}\n"
+                f"- cash profit (sales minus business costs) KES {s['profit']:,.0f}; personal "
+                f"money taken out KES {s['personal']['total']:,.0f}"
+                + (f" ({share:.0%} of cash profit)" if share is not None else "") + "\n"
+                f"- mobile-money balance KES {s['cash']['closing_balance']:,.0f}; overdraft owed "
+                f"KES {s['cash']['overdraft_owed']:,.0f}; true position KES "
+                f"{s['cash']['true_position']:,.0f}; overdraft fees paid KES "
+                f"{s['credit']['overdraft_fees']:,.0f}\n"
+                f"- next 14 days: {outlook}\n")
 
     # --- the loop ---
 
-    def ask(self, question):
-        lang = detect_language(question)
+    def ask(self, question, lang=None):
+        """lang: 'sw' to always reply in Swahili (the app's toggle); otherwise detected.
+        If the turn fails, it is removed from the history, so the next question
+        never sends the AI a half-finished conversation."""
+        start = len(self.history)
+        answer, ok = self._ask(question, lang)
+        if not ok:
+            del self.history[start:]
+        return answer
+
+    def _ask(self, question, lang):
+        lang = "sw" if lang == "sw" or detect_language(question) == "sw" else "en"
         self.history.append({"role": "user", "text": self.redactor.redact(question), "lang": lang})
-        self.tool_log, malformed = [], 0
+        self.tool_log, self.last_error, malformed = [], None, 0
+        self.ai_calls = 0
 
         for _ in range(MAX_STEPS):
+            self.ai_calls += 1
             try:
-                reply = self.provider.respond(SYSTEM_PROMPT, self.history, TOOLS)
+                reply = self.provider.respond(self.system, self.history, TOOLS)
+            except RateLimitError as e:
+                self.last_error = "rate_limit"
+                self.audit.record("system", "provider_error", provider=self.provider.name,
+                                  error="RateLimitError", daily=e.daily)
+                if e.daily:
+                    hours = max(1, round((e.retry_after or 3600) / 3600))
+                    return AI_DAILY[lang].format(hours=hours), False
+                return AI_BUSY[lang], False
             except Exception as e:      # network, bad key, model not found...
+                self.last_error = "provider"
                 self.audit.record("system", "provider_error", provider=self.provider.name,
                                   error=type(e).__name__)
-                return f"{FAIL_SAFE[lang]} (AI service error: {type(e).__name__}: {str(e)[:150]})"
+                return AI_DOWN[lang].format(error=type(e).__name__), False
 
             self.history.append({"role": "assistant", "text": reply.text,
                                  "tool_calls": reply.tool_calls, "raw": reply.raw})
             if not reply.tool_calls:
-                return reply.text.strip() or FAIL_SAFE[lang]
+                return reply.text.strip() or FAIL_SAFE[lang], bool(reply.text.strip())
 
             results = []
             for call in reply.tool_calls:
@@ -243,7 +329,7 @@ class Agent:
                     if malformed > 1:       # it already had its one retry
                         self.audit.record("system", "agent_stopped",
                                           reason="second malformed tool call")
-                        return FAIL_SAFE[lang]
+                        return FAIL_SAFE[lang], False
                     content = {"error": f"Invalid tool call: {problem}. "
                                         f"Fix it and try once more."}
                 else:
@@ -256,7 +342,7 @@ class Agent:
             self.history.append({"role": "tool", "results": results})
 
         self.audit.record("system", "agent_stopped", reason="too many steps")
-        return FAIL_SAFE[lang]
+        return FAIL_SAFE[lang], False
 
     def run_tool(self, name, args):
         try:
@@ -366,7 +452,7 @@ class Agent:
         return {"status": result["status"], "reason": result.get("reason", "")}
 
     def tool_propose_payment(self, payee_id, amount):
-        name = AMINA_POLICY.verified_payees.get(payee_id, payee_id)
+        name = self.sandbox.guard.policy.verified_payees.get(payee_id, payee_id)
         return self._propose({"type": "pay_supplier", "payee_id": payee_id, "amount": amount},
                              f"pay {name} KES {amount:,.0f}")
 
@@ -380,25 +466,32 @@ class Agent:
 # 4. SETUP, CHAT AND TESTS
 # ---------------------------------------------------------------------------
 
-def make_provider(offline):
+def has_api_key():
     load_env()
     key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if offline or not key or key == PLACEHOLDER_KEY:
+    return bool(key) and key != PLACEHOLDER_KEY
+
+
+def make_provider(offline, business="amina_grocery"):
+    if offline or not has_api_key():
         if not offline:
             print("(No GEMINI_API_KEY in .env: using the offline demo.)")
-        return OfflineProvider(AMINA_POLICY.verified_payees)
-    return GeminiProvider(key, os.environ.get("GEMINI_MODEL", DEFAULT_MODEL))
+        return OfflineProvider(POLICIES[business].verified_payees)
+    return GeminiProvider(os.environ["GEMINI_API_KEY"].strip(),
+                          os.environ.get("GEMINI_MODEL", DEFAULT_MODEL))
 
 
-def make_agent(provider, audit, statement=None):
-    """An agent for Amina, on her ledger or on a raw statement file."""
-    rows = (rows_from_statement(statement, "amina_grocery") if statement
-            else load_ledger(DATA / "amina_grocery_ledger.csv"))
+def make_agent(provider, audit, business="amina_grocery", statement=None, rows=None):
+    """An agent for one business, on its ledger, a raw statement file, or given rows."""
+    if rows is None:
+        rows = (rows_from_statement(statement, business) if statement
+                else load_ledger(DATA / f"{business}_ledger.csv"))
+    policy = POLICIES[business]
     pin = os.environ.get("DUKA_OWNER_PIN", "2468")      # typed by the owner, never the AI
-    sandbox = Sandbox(PolicyGuard(AMINA_POLICY), Approvals(pin), audit,
-                      SandboxAccount(rows[-1]["balance"], AMINA_POLICY.verified_payees),
+    sandbox = Sandbox(PolicyGuard(policy), Approvals(pin), audit,
+                      SandboxAccount(rows[-1]["balance"], policy.verified_payees),
                       MockLender())
-    return Agent(provider, rows, sandbox, audit)
+    return Agent(provider, rows, sandbox, audit, business)
 
 
 def owner_review(agent):
@@ -413,7 +506,7 @@ def owner_review(agent):
         # Hidden typing at a real keyboard; plain input when answers are piped in (tests)
         pin = getpass.getpass(prompt) if sys.stdin.isatty() else input(prompt)
         if not pin:
-            agent.audit.record("owner_app", "declined", request_id=rid)
+            agent.sandbox.owner_decline(rid)
             print("Declined. Nothing was done.")
             continue
         code = agent.sandbox.owner_approve(rid, pin)
@@ -422,8 +515,13 @@ def owner_review(agent):
         print(f"Result: {result}")
 
 
+def show_waiting(seconds):
+    print(f"  Waiting for the AI service... ({seconds:.0f}s)", flush=True)
+
+
 def chat(offline):
     provider = make_provider(offline)
+    provider.on_wait = show_waiting
     audit = AuditLog(AUDIT_PATH)
     agent = make_agent(provider, audit)
     print(f"Duka Copilot ({provider.name}). Ask in English or Swahili. Type 'quit' to stop.")
@@ -441,7 +539,7 @@ class ScriptedProvider(OfflineProvider):
     name = "scripted test"
 
     def __init__(self, calls):
-        super().__init__(AMINA_POLICY.verified_payees)
+        super().__init__(POLICIES["amina_grocery"].verified_payees)
         self.calls = list(calls)
 
     def respond(self, system, history, tools):
@@ -462,16 +560,18 @@ TEST_QUESTIONS = [
 
 def run_tests(offline):
     provider = make_provider(offline)
+    provider.on_wait = show_waiting
     audit = AuditLog(AUDIT_PATH)
     print(f"Testing with: {provider.name}\n")
     agent = make_agent(provider, audit)
     for n, (statement, question) in enumerate(TEST_QUESTIONS, start=1):
         if statement:                       # a fresh agent on the booby-trapped statement
-            agent = make_agent(provider, audit, statement)
+            agent = make_agent(provider, audit, statement=statement)
         print(f"{'=' * 78}\nQ{n}{' (malicious statement)' if statement else ''}: {question}")
         answer = agent.ask(question)
         for tool, args, outcome in agent.tool_log:
             print(f"  tool: {tool}({args}) -> {outcome}")
+        print(f"  AI calls: {agent.ai_calls}")
         print(f"A{n}: {answer}\n")
 
     print(f"{'=' * 78}\nROBUSTNESS: broken tool calls")

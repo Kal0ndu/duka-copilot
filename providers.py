@@ -17,6 +17,9 @@ History format (the same for every provider):
 """
 
 import re
+import threading
+import time
+from collections import deque
 from dataclasses import dataclass, field
 
 
@@ -64,16 +67,77 @@ def detect_language(text):
 # Gemini
 # ---------------------------------------------------------------------------
 
+class RateLimitError(Exception):
+    """The AI service is still saying 'too many requests' after our retries.
+    daily=True means the DAILY quota is used up: retrying soon won't help."""
+
+    def __init__(self, message, daily=False, retry_after=None):
+        super().__init__(message)
+        self.daily, self.retry_after = daily, retry_after
+
+
+def retry_delay(error, default=15):
+    """Seconds the service asked us to wait (its 'retryDelay'), else the default."""
+    match = re.search(r"retryDelay['\"]?\s*:\s*['\"]?(\d+(?:\.\d+)?)s", str(error.details))
+    return float(match.group(1)) if match else default
+
+
+def is_daily_limit(error, delay):
+    """A per-day quota (or a wait of over a minute) can't be fixed by retrying now."""
+    return "PerDay" in str(error.details) or delay > 60
+
+
 class GeminiProvider(Provider):
     name = "Gemini"
+    MAX_RETRIES = 3                 # extra tries after a "too many requests" (429) error
+    _recent_calls = deque()         # shared by every Gemini provider in this program,
+    _lock = threading.Lock()        # so the whole app stays under the per-minute limit
 
-    def __init__(self, api_key, model):
+    def __init__(self, api_key, model, per_minute=5):
         from google import genai            # imported here so offline mode needs no SDK
-        from google.genai import types
-        self.types = types
+        from google.genai import errors, types
+        self.types, self.errors = types, errors
         self.model = model
         self.name = f"Gemini ({model})"
         self.client = genai.Client(api_key=api_key)
+        self.per_minute = per_minute        # free tier: 5 requests per minute
+        self.on_wait = None                 # function(seconds): show "Waiting for the AI service..."
+
+    def _wait(self, seconds):
+        if self.on_wait:
+            self.on_wait(seconds)
+        time.sleep(seconds)
+
+    def _space_calls(self):
+        """Wait until fewer than `per_minute` calls were made in the last 60 seconds."""
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                while self._recent_calls and now - self._recent_calls[0] >= 60:
+                    self._recent_calls.popleft()
+                if len(self._recent_calls) < self.per_minute:
+                    self._recent_calls.append(now)
+                    return
+                wait = 60 - (now - self._recent_calls[0]) + 0.5
+            self._wait(wait)
+
+    def _generate(self, contents, config):
+        """One AI call, spaced out, retrying up to 3 times on 'too many requests'."""
+        for attempt in range(self.MAX_RETRIES + 1):
+            self._space_calls()
+            try:
+                return self.client.models.generate_content(
+                    model=self.model, contents=contents, config=config)
+            except self.errors.ClientError as e:
+                if e.code != 429:
+                    raise
+                delay = retry_delay(e)
+                if is_daily_limit(e, delay):
+                    raise RateLimitError("daily quota used up", daily=True,
+                                         retry_after=delay) from e
+                if attempt == self.MAX_RETRIES:
+                    raise RateLimitError("still too many requests after retrying") from e
+                self._wait(delay)
 
     def respond(self, system, history, tools):
         t = self.types
@@ -86,8 +150,7 @@ class GeminiProvider(Provider):
             # Our code runs every tool (after checking it), never the SDK by itself
             automatic_function_calling=t.AutomaticFunctionCallingConfig(disable=True),
         )
-        response = self.client.models.generate_content(
-            model=self.model, contents=self._contents(history), config=config)
+        response = self._generate(self._contents(history), config)
 
         content = response.candidates[0].content if response.candidates else None
         parts = (content.parts or []) if content else []
@@ -185,14 +248,14 @@ class OfflineProvider(Provider):
         share = r["personal"]["share_of_profit"]
         if sw:
             return (f"Biashara yako ({r['period']['start']} hadi {r['period']['end']}): mauzo "
-                    f"{kes(s['total'])}, wastani {kes(s['per_day'])} kwa siku. Faida baada ya "
-                    f"gharama za biashara: {kes(r['profit'])}. Pesa za matumizi binafsi: "
+                    f"{kes(s['total'])}, wastani {kes(s['per_day'])} kwa siku. Faida ya pesa "
+                    f"taslimu (mauzo ukiondoa gharama za biashara): {kes(r['profit'])}. Pesa za matumizi binafsi: "
                     f"{kes(r['personal']['total'])} ({share:.0%} ya faida). Hali halisi: "
                     f"{kes(c['true_position'])} (salio ukiondoa deni la overdraft "
                     f"{kes(c['overdraft_owed'])}). Siku dhaifu: {', '.join(s['slow_weekdays'])}.")
         return (f"Your business ({r['period']['start']} to {r['period']['end']}): sales "
-                f"{kes(s['total'])}, {kes(s['per_day'])} a day on average. Profit after "
-                f"business costs: {kes(r['profit'])}. Personal money taken out: "
+                f"{kes(s['total'])}, {kes(s['per_day'])} a day on average. Cash profit "
+                f"(sales minus business costs): {kes(r['profit'])}. Personal money taken out: "
                 f"{kes(r['personal']['total'])} ({share:.0%} of profit). True position: "
                 f"{kes(c['true_position'])} (balance minus {kes(c['overdraft_owed'])} overdraft "
                 f"owed). Overdraft fees so far: {kes(r['credit']['overdraft_fees'])}. "
