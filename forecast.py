@@ -25,29 +25,24 @@ from datetime import timedelta
 from math import sqrt
 from statistics import pstdev
 
-from analytics import BUSINESSES, DATA, WEEKDAYS, load_ledger
+from analytics import (BUSINESSES, DATA, OVERDRAFT_DAILY_FEE, WEEKDAYS, date_range,
+                       end_of_day_balances, load_ledger, true_positions)
 
 HORIZON = 14              # days to forecast
 SAFETY_BUFFER = 3000      # KES the owner wants to keep; an owner setting
 MIN_HIT_RATE = 0.6        # a payment is "recurring" if it happens in 60%+ of its slots
 MIN_HITS = 2              # ... and at least twice
 RANGE_Z = 1.28            # 1.28 standard deviations each side = about an 80% range
+OUTLIER_SHARE = 0.5       # a one-off payment bigger than half a typical day's sales
+                          # is an outlier: listed, but not spread over every day
 
 # Borrowing reacts to shortfalls, so the forecast leaves it out.
 BORROWING = {"overdraft_drawdown", "overdraft_repayment", "loan_disbursement"}
-
-# Published fees of the generic mobile overdraft (to move to credit.py in Step 6)
-OVERDRAFT_ACCESS_FEE = 0.01     # 1% of the amount when drawn
-OVERDRAFT_DAILY_FEE = 0.005     # 0.5% of the amount owed per day
 
 SCHEDULES = {
     "weekly": lambda d: d.weekday(),    # slot = day of the week
     "monthly": lambda d: d.day,         # slot = date of the month
 }
-
-
-def date_range(start, end):
-    return [start + timedelta(days=i) for i in range((end - start).days + 1)]
 
 
 def daily_flows(rows):
@@ -56,18 +51,6 @@ def daily_flows(rows):
     for r in rows:
         flows[r["date"]][r["Category"]] += r["in"] - r["out"]
     return flows
-
-
-def end_of_day_balances(rows, dates):
-    """Balance at the end of each date (days with no transactions carry over)."""
-    last = {}
-    for r in rows:                      # rows are oldest first
-        last[r["date"]] = r["balance"]
-    balances, bal = {}, rows[0]["balance"] - rows[0]["in"] + rows[0]["out"]
-    for d in dates:
-        bal = last.get(d, bal)
-        balances[d] = bal
-    return balances
 
 
 def detect_recurring(flows, dates):
@@ -104,15 +87,27 @@ def build_model(rows):
 
     patterns, explained = detect_recurring(flows, dates)
 
-    # Everything else (one-off payments etc.) becomes a small daily average
-    other = sum(amount for d in dates for cat, amount in flows[d].items()
-                if cat not in BORROWING and cat != "sales" and (d, cat) not in explained)
-    model = {"sales_avg": sales_avg, "patterns": patterns, "other_per_day": other / len(dates)}
+    # Everything else becomes a small daily average, except unusually large
+    # one-offs (e.g. a school fee), which would wrongly add a bit to every day
+    typical_sales = sum(flows[d].get("sales", 0) for d in dates) / len(dates)
+    other, outliers = 0.0, {}
+    for d in dates:
+        for cat, amount in flows[d].items():
+            if cat in BORROWING or cat == "sales" or (d, cat) in explained:
+                continue
+            if abs(amount) > OUTLIER_SHARE * typical_sales:
+                outliers[(d, cat)] = amount
+            else:
+                other += amount
+    model = {"sales_avg": sales_avg, "patterns": patterns,
+             "other_per_day": other / len(dates), "outliers": outliers}
 
     # How far real days differed from the model -> width of the range
+    # (one-offs are left out here too, so they don't widen every day's range)
     residuals = []
     for d in dates:
-        actual = sum(a for cat, a in flows[d].items() if cat not in BORROWING)
+        actual = sum(a for cat, a in flows[d].items()
+                     if cat not in BORROWING and (d, cat) not in outliers)
         residuals.append(actual - predict_day(model, d)["net"])
     model["daily_error"] = pstdev(residuals)
     return model
@@ -150,37 +145,6 @@ def shortfall_alert(days, buffer=SAFETY_BUFFER):
     return {"first_date": risky[0]["date"], "risky_days": len(risky),
             "worst_date": worst["date"], "worst_low": worst["low"],
             "amount_needed": buffer - worst["low"]}
-
-
-def overdraft_owed_by_day(rows, dates):
-    """Overdraft owed (with fees) at the end of each date, worked out from the
-    drawdowns and repayments in the statement plus the overdraft's fees.
-    Assumes nothing was owed before the statement starts."""
-    events = defaultdict(list)
-    for r in rows:
-        if r["Category"] in ("overdraft_drawdown", "overdraft_repayment"):
-            events[r["date"]].append(r)
-
-    owed, fees_until, result = 0.0, None, {}
-    for d in dates:
-        for r in events[d]:
-            if owed > 0:            # add daily fees since they were last added
-                owed += round(owed * OVERDRAFT_DAILY_FEE * (d - fees_until).days)
-            fees_until = d
-            if r["Category"] == "overdraft_drawdown":
-                owed += round(r["in"] * (1 + OVERDRAFT_ACCESS_FEE))
-            else:
-                owed = max(0.0, owed - r["out"])
-        pending = round(owed * OVERDRAFT_DAILY_FEE * (d - fees_until).days) if owed else 0
-        result[d] = owed + pending
-    return result
-
-
-def true_positions(rows, dates):
-    """Balance minus overdraft owed, at the end of each date."""
-    balances = end_of_day_balances(rows, dates)
-    owed = overdraft_owed_by_day(rows, date_range(rows[0]["date"], dates[-1]))
-    return {d: balances[d] - owed[d] for d in dates}
 
 
 def backtest(rows, days=HORIZON):
@@ -238,6 +202,8 @@ def print_forecast(name, rows, model, days, position):
         if abs(p["amount"]) >= 500:
             print(f"    {p['category']:<20} {describe_pattern(p):<17} ~KES {-p['amount']:>8,.0f}")
     print(f"    (smaller and one-off items: ~KES {-model['other_per_day']:,.0f} per day)")
+    for (d, cat), amount in sorted(model["outliers"].items()):
+        print(f"    left out as a one-off: {cat} KES {abs(amount):,.0f} on {d:%d %b}")
 
     print(f"\n  {'Date':<11}{'Sales':>8}{'Low':>10}{'Expected':>10}{'High':>10}   Big payments due")
     for d in days:

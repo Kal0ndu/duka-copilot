@@ -8,7 +8,8 @@ Reads data/<business>_ledger.csv (made by build_ledger.py) and works out:
   3. business costs and profit (sales minus business costs)
   4. personal money mixed in (cash withdrawals, family, school fees)
   5. credit use (overdraft and loans)
-  6. cash position (opening, closing, lowest balance)
+  6. cash position (opening, closing, lowest balance) and the TRUE POSITION:
+     closing balance minus overdraft owed (with fees)
 
 summarise() returns a plain dictionary. Later the AI agent gets this
 dictionary as a tool result: Python does the maths, the AI only explains it.
@@ -34,6 +35,15 @@ PERSONAL = ["personal_withdrawal", "family_transfer", "personal_payment"]
 
 SLOW_DAY_THRESHOLD = 0.8   # a weekday is "slow" if below 80% of the daily average
 
+# Fees of the generic mobile overdraft (the same as generate_data.py).
+# forecast.py and credit.py use these too.
+OVERDRAFT_ACCESS_FEE = 0.01     # 1% of the amount when drawn
+OVERDRAFT_DAILY_FEE = 0.005     # 0.5% of the amount owed per day
+
+
+def date_range(start, end):
+    return [start + timedelta(days=i) for i in range((end - start).days + 1)]
+
 
 def load_ledger(path):
     with open(path, newline="", encoding="utf-8") as f:
@@ -54,10 +64,53 @@ def totals_by_category(rows, categories, field):
     return {c: round(v, 2) for c, v in totals.items() if v > 0}
 
 
+def end_of_day_balances(rows, dates):
+    """Balance at the end of each date (days with no transactions carry over)."""
+    last = {}
+    for r in rows:                      # rows are oldest first
+        last[r["date"]] = r["balance"]
+    balances, bal = {}, rows[0]["balance"] - rows[0]["in"] + rows[0]["out"]
+    for d in dates:
+        bal = last.get(d, bal)
+        balances[d] = bal
+    return balances
+
+
+def overdraft_owed_by_day(rows, dates):
+    """Overdraft owed (with fees) at the end of each date, worked out from the
+    drawdowns and repayments in the statement plus the overdraft's fees.
+    Assumes nothing was owed before the statement starts."""
+    events = defaultdict(list)
+    for r in rows:
+        if r["Category"] in ("overdraft_drawdown", "overdraft_repayment"):
+            events[r["date"]].append(r)
+
+    owed, fees_until, result = 0.0, None, {}
+    for d in dates:
+        for r in events[d]:
+            if owed > 0:            # add daily fees since they were last added
+                owed += round(owed * OVERDRAFT_DAILY_FEE * (d - fees_until).days)
+            fees_until = d
+            if r["Category"] == "overdraft_drawdown":
+                owed += round(r["in"] * (1 + OVERDRAFT_ACCESS_FEE))
+            else:
+                owed = max(0.0, owed - r["out"])
+        pending = round(owed * OVERDRAFT_DAILY_FEE * (d - fees_until).days) if owed else 0
+        result[d] = owed + pending
+    return result
+
+
+def true_positions(rows, dates):
+    """Balance minus overdraft owed, at the end of each date."""
+    balances = end_of_day_balances(rows, dates)
+    owed = overdraft_owed_by_day(rows, date_range(rows[0]["date"], dates[-1]))
+    return {d: balances[d] - owed[d] for d in dates}
+
+
 def summarise(rows):
     """Turn a ledger (list of rows) into a business health summary."""
     start, end = rows[0]["date"], rows[-1]["date"]
-    all_dates = [start + timedelta(days=i) for i in range((end - start).days + 1)]
+    all_dates = date_range(start, end)
 
     # --- 1. Sales per day (days with no sales count as 0) ---
     sales_by_date = {d: 0.0 for d in all_dates}
@@ -98,6 +151,11 @@ def summarise(rows):
         "loans_received": total("loan_disbursement", "in"),
         "loans_repaid": total("loan_repayment", "out"),
     }
+    owed = overdraft_owed_by_day(rows, all_dates)[end]
+    # Fees = everything repaid or still owed, minus what was actually borrowed
+    credit["overdraft_owed"] = owed
+    credit["overdraft_fees"] = round(credit["overdraft_repaid"] + owed
+                                     - credit["overdraft_borrowed"], 2)
 
     # --- 6. Cash position ---
     first, lowest = rows[0], min(rows, key=lambda r: r["balance"])
@@ -124,6 +182,8 @@ def summarise(rows):
         "cash": {
             "opening_balance": round(opening, 2),
             "closing_balance": rows[-1]["balance"],
+            "overdraft_owed": owed,
+            "true_position": rows[-1]["balance"] - owed,
             "lowest_balance": lowest["balance"],
             "lowest_balance_date": str(lowest["date"]),
         },
@@ -157,7 +217,8 @@ def print_summary(name, s):
         print(f"    {cat:<18} {kes(v)}")
 
     print(f"  Overdraft: used {credit['overdraft_times_used']} times, "
-          f"borrowed {kes(credit['overdraft_borrowed'])}, repaid {kes(credit['overdraft_repaid'])}")
+          f"borrowed {kes(credit['overdraft_borrowed'])}, repaid {kes(credit['overdraft_repaid'])}, "
+          f"fees {kes(credit['overdraft_fees'])}")
     if credit["loans_received"] or credit["loans_repaid"]:
         print(f"  Loans: received {kes(credit['loans_received'])}, "
               f"repaid {kes(credit['loans_repaid'])}")
@@ -165,6 +226,8 @@ def print_summary(name, s):
         print(f"  Savings (SACCO): {kes(s['savings'])}")
     print(f"  Cash: opening {kes(cash['opening_balance'])}, closing {kes(cash['closing_balance'])}, "
           f"lowest {kes(cash['lowest_balance'])} on {cash['lowest_balance_date']}")
+    print(f"  True position: balance {kes(cash['closing_balance'])} - overdraft owed "
+          f"{kes(cash['overdraft_owed'])} = {kes(cash['true_position'])}")
     print(f"  Transactions for the owner to confirm: {s['needs_owner_review']}")
 
 
