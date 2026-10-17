@@ -24,6 +24,7 @@ HOW TO RUN
 import getpass
 import math
 import os
+import re
 import sys
 from collections import defaultdict
 from datetime import date
@@ -228,6 +229,60 @@ def looks_like_instructions(text):
     return sum(w in t for w in INSTRUCTION_WORDS) >= 2
 
 
+# ---------------------------------------------------------------------------
+# NUMBER VERIFICATION: every amount in the AI's answer must come from Python
+# ---------------------------------------------------------------------------
+
+# Things that contain digits but are not amounts: dates, times, IDs, [PERSON_1]
+NOT_AMOUNTS = re.compile(r"\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}:\d{2}\b|\b\d{1,2}/\d{1,2}\b"
+                         r"|\b[A-Za-z]+-[A-Za-z0-9]+\b|\[[A-Z_0-9]+\]")
+NUMBER = re.compile(r"-?\d{1,3}(?:,\d{3})+(?:\.\d+)?%?|-?\d+(?:\.\d+)?%?")
+ROUNDING = 0.005            # an answer may round a figure by up to 0.5%
+
+CHECK_FAILED = {
+    "en": "I couldn't confirm every number in my answer against the app's calculations, "
+          "so here are the exact figures instead:",
+    "sw": "Sikuweza kuthibitisha kila namba katika jibu langu dhidi ya hesabu za programu, "
+          "kwa hivyo hizi hapa takwimu kamili:",
+}
+
+
+def numbers_in_text(text):
+    """[(value, is_percent)] for every amount of 100 or more, and every percentage."""
+    found = []
+    for m in NUMBER.finditer(NOT_AMOUNTS.sub(" ", str(text))):
+        token = m.group()
+        value = float(token.rstrip("%").replace(",", ""))
+        if token.endswith("%") or abs(value) >= 100:
+            found.append((value, token.endswith("%")))
+    return found
+
+
+def numbers_in_data(data):
+    """Every number inside tool results (nested dicts, lists and text)."""
+    if isinstance(data, bool):
+        return []
+    if isinstance(data, (int, float)):
+        return [float(data)]
+    if isinstance(data, str):
+        return [v for v, _ in numbers_in_text(data)]
+    items = data.values() if isinstance(data, dict) else data if isinstance(
+        data, (list, tuple)) else []
+    return [n for item in items for n in numbers_in_data(item)]
+
+
+def unverified_numbers(answer, sources):
+    """Amounts in the answer that match nothing in the sources (sign ignored)."""
+    known = numbers_in_data(sources)
+    ratios = [k * 100 for k in known if abs(k) < 10]        # 0.17 -> 17%
+    bad = []
+    for value, is_percent in numbers_in_text(answer):
+        candidates = known + ratios if is_percent else known
+        if not any(abs(abs(value) - abs(k)) <= max(1.0, ROUNDING * abs(k)) for k in candidates):
+            bad.append(f"{value:,.0f}{'%' if is_percent else ''}")
+    return bad
+
+
 def rows_from_statement(path, business):
     """Raw statement -> ledger-style rows (same shape as load_ledger)."""
     txns, _ = parse_statement(path)
@@ -251,8 +306,10 @@ class Agent:
         self.tool_log = []          # (tool, args, outcome) for the last question
         self.pending = []           # request ids waiting for the owner
         self.last_error = None      # "rate_limit" or "provider" if the AI service failed
+        self.answer_verified = None # did the last answer pass the number check?
         self._model = None
-        self.system = system_prompt(business) + self.snapshot()
+        self._snapshot = self.snapshot()
+        self.system = system_prompt(business) + self._snapshot
 
     def snapshot(self):
         """Key numbers, computed in Python, so simple questions need only one AI call."""
@@ -289,11 +346,26 @@ class Agent:
             del self.history[start:]
         return answer
 
+    def check_answer(self, text, question, lang, turn_start):
+        """Every amount the AI quotes must appear in this question's tool results,
+        the Python snapshot, or the owner's question. If not, show the tool output."""
+        results = [r for m in self.history[turn_start:] if m["role"] == "tool"
+                   for r in m["results"] if "error" not in r["content"]]
+        bad = unverified_numbers(text, [self._snapshot, question] + [r["content"] for r in results])
+        self.answer_verified = not bad
+        self.audit.record("system", "answer_check", passed=not bad, unverified=bad[:10])
+        if not bad:
+            return text
+        formatter = OfflineProvider(self.sandbox.guard.policy.verified_payees)
+        figures = [formatter.describe_result(r["name"], r["content"], lang) for r in results]
+        return "\n\n".join([CHECK_FAILED[lang]] + (figures or [self._snapshot.strip()]))
+
     def _ask(self, question, lang):
         lang = "sw" if lang == "sw" or detect_language(question) == "sw" else "en"
+        turn_start = len(self.history)
         self.history.append({"role": "user", "text": self.redactor.redact(question), "lang": lang})
         self.tool_log, self.last_error, malformed = [], None, 0
-        self.ai_calls = 0
+        self.ai_calls, self.answer_verified = 0, None
 
         for _ in range(MAX_STEPS):
             self.ai_calls += 1
@@ -316,7 +388,10 @@ class Agent:
             self.history.append({"role": "assistant", "text": reply.text,
                                  "tool_calls": reply.tool_calls, "raw": reply.raw})
             if not reply.tool_calls:
-                return reply.text.strip() or FAIL_SAFE[lang], bool(reply.text.strip())
+                text = reply.text.strip()
+                if not text:
+                    return FAIL_SAFE[lang], False
+                return self.check_answer(text, question, lang, turn_start), True
 
             results = []
             for call in reply.tool_calls:

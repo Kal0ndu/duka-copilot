@@ -214,7 +214,16 @@ class OfflineProvider(Provider):
     def _plan(self, text):
         t = text.lower()
         amounts = parse_amounts(t)
-        if any(w in t for w in ("pay ", "lipa", "nilipe", "mlipe")):
+        loan = any(w in t for w in ("loan", "mkopo", "credit", "borrow", "kukopa"))
+        if loan and any(w in t for w in ("take", "get ", "apply", "request", "chukua", "omba")):
+            months = re.search(r"(\d+)\s*(?:months?|miezi)", t)
+            days = (int(months.group(1)) * 30 if months else
+                    365 if ("year" in t or "mwaka" in t) else 180)
+            product = ("bank" if "bank" in t or "benki" in t else
+                       "micro_loan" if "micro" in t or "mobile" in t else "sacco")
+            return ToolCall("propose_loan", {"product": product, "term_days": days,
+                                             "amount": amounts[0] if amounts else 0})
+        if any(w in t for w in ("pay ", "lipa", "nilipe", "mlipe", "send ", "tuma")):
             payee = next((pid for pid, name in self.payees.items()
                           if pid.lower() in t or name.lower() in t
                           or name.split()[0].lower() in t), None)
@@ -222,7 +231,7 @@ class OfflineProvider(Provider):
                 payee = "[PHONE]"
             return ToolCall("propose_payment", {"payee_id": payee or "unknown",
                                                 "amount": amounts[0] if amounts else 0})
-        if any(w in t for w in ("loan", "mkopo", "credit", "borrow", "kukopa")):
+        if loan:
             months = re.search(r"(\d+)\s*(?:months?|miezi)", t)
             return ToolCall("compare_credit", {
                 "amount": next((a for a in amounts if a >= 1000), 45_000),
@@ -235,6 +244,11 @@ class OfflineProvider(Provider):
         return ToolCall("get_business_health", {})
 
     # --- answer templates (numbers come only from the tool results) ---
+
+    def describe_result(self, tool, result, lang="en"):
+        """Plain-words version of one tool result (also used when an AI answer
+        fails the number check)."""
+        return self._answer(tool, result, lang)
 
     def _answer(self, tool, r, lang):
         sw = lang == "sw"

@@ -184,8 +184,9 @@ def kes(x):
     return f"KES {x:,.0f}"
 
 
-def main():
-    rows = load_ledger(DATA / f"{BUSINESS}_ledger.csv")
+def headline(business=BUSINESS, amount=None, days=DEFAULT_TERM):
+    """All the numbers behind the comparison and the headline saving."""
+    rows = load_ledger(DATA / f"{business}_ledger.csv")
     summary = summarise(rows)
     last_date = rows[-1]["date"]
     position = true_positions(rows, [last_date])[last_date]
@@ -194,21 +195,39 @@ def main():
     # Amount: what the forecast says she needs to stay safe, rounded up to 5,000
     alert = shortfall_alert(forecast(model, last_date, position))
     needed = alert["amount_needed"] if alert else 0
-    amount = float(sys.argv[1]) if len(sys.argv) > 1 else max(5000, ceil(needed / 5000) * 5000)
-    days = int(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_TERM
-
-    print(f"{BUSINESS}: true position {kes(position)}; "
-          f"forecast says she needs {kes(needed)} to stay safe")
-    print(f"Comparing a loan of {kes(amount)} over {days} days "
-          f"(the loan first clears the overdraft)\n")
+    amount = amount or max(5000, ceil(needed / 5000) * 5000)
 
     options = compare_options(amount, days)
-    current = weekly_personal(model)
-    print(f"  {'Option':<19}{'Total repaid':>14}{'Cost':>11}{'Annual cost':>13}"
-          f"{'Fits now?':>11}   Fits if personal money is at most")
     for o in options:
         o["fits_now"] = fits(model, o, last_date, position, amount)
         o["cap"] = personal_cap(model, o, last_date, position, amount)
+    h = {"position": position, "needed": needed, "amount": amount, "days": days,
+         "options": options, "current": weekly_personal(model), "best": None,
+         "fees": summary["credit"]["overdraft_fees"], "period_days": summary["period"]["days"]}
+
+    # Headline: the overdraft habit vs the cheapest option that can fit
+    fitting = [o for o in options if o["cap"] is not None]
+    if fitting:
+        h["best"] = min(fitting, key=lambda o: o["cost"])
+        h["habit_per_year"] = h["fees"] * 365 / h["period_days"]
+        h["best_per_year"] = h["best"]["cost"] * 365 / days
+        h["saving_per_year"] = h["habit_per_year"] - h["best_per_year"]
+    return h
+
+
+def main():
+    h = headline(amount=float(sys.argv[1]) if len(sys.argv) > 1 else None,
+                 days=int(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_TERM)
+    amount, days, options, current = h["amount"], h["days"], h["options"], h["current"]
+
+    print(f"{BUSINESS}: true position {kes(h['position'])}; "
+          f"forecast says she needs {kes(h['needed'])} to stay safe")
+    print(f"Comparing a loan of {kes(amount)} over {days} days "
+          f"(the loan first clears the overdraft)\n")
+
+    print(f"  {'Option':<19}{'Total repaid':>14}{'Cost':>11}{'Annual cost':>13}"
+          f"{'Fits now?':>11}   Fits if personal money is at most")
+    for o in options:
         cap = f"{kes(o['cap'])} a week" if o["cap"] is not None else "never"
         print(f"  {o['name']:<19}{o['total_repaid']:>14,.0f}{o['cost']:>11,.0f}"
               f"{o['annual_cost']:>12.0%} {'yes' if o['fits_now'] else 'no':>10}   {cap}")
@@ -218,20 +237,16 @@ def main():
     print(f"  Personal money now: about {kes(current)} a week "
           f"(withdrawals, family transfers, school fees)")
 
-    # Headline: the overdraft habit vs the cheapest option that can fit
-    fitting = [o for o in options if o["cap"] is not None]
-    if not fitting:
+    best = h["best"]
+    if best is None:
         print("\nNo option fits, even with no personal money at all.")
         return
-    best = min(fitting, key=lambda o: o["cost"])
-    habit_per_year = summary["credit"]["overdraft_fees"] * 365 / summary["period"]["days"]
-    best_per_year = best["cost"] * 365 / days
     print(f"\nHEADLINE")
-    print(f"  Overdraft habit: {kes(summary['credit']['overdraft_fees'])} in fees in "
-          f"{summary['period']['days']} days = about {kes(habit_per_year)} a year")
+    print(f"  Overdraft habit: {kes(h['fees'])} in fees in "
+          f"{h['period_days']} days = about {kes(h['habit_per_year'])} a year")
     print(f"  Cheapest option that can fit: {best['name']} at {kes(best['cost'])} per "
-          f"{days} days = about {kes(best_per_year)} a year")
-    print(f"  Saving: about {kes(habit_per_year - best_per_year)} a year")
+          f"{days} days = about {kes(h['best_per_year'])} a year")
+    print(f"  Saving: about {kes(h['saving_per_year'])} a year")
 
     print(f"\nWEEKLY PERSONAL-MONEY CAP")
     if best["fits_now"]:
