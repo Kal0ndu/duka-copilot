@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.financial_health import FinancialHealthAnalyzer
 from core.charts import chart_cashflow_trend, PRIMARY_GREEN, SECONDARY_BLUE, ACCENT_CORAL, AMBER_WARNING
@@ -12,6 +13,9 @@ from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
 st.set_page_config(page_title="Financial Health — Duka", page_icon="🩺", layout="wide")
+# ---- Authentication Gate ----
+require_auth()
+
 
 # Initialize session and check for data
 SessionManager.init_session()

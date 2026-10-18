@@ -3,6 +3,7 @@ import streamlit as st
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from sandbox.mock_lender import MockLender
 from core.cost_engine import CostEngine
@@ -13,6 +14,9 @@ from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
 st.set_page_config(page_title="Financing — Duka", page_icon="💰", layout="wide")
+# ---- Authentication Gate ----
+require_auth()
+
 
 st.title("💰 Digital Financing & Loan Cost Advisor")
 st.caption("Compare digital micro-credit products in Kenya with transparent Effective Annual Rate (EAR) and cashflow affordability.")

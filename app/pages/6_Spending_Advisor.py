@@ -6,11 +6,15 @@ import pandas as pd
 from datetime import datetime
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.spending_advisor import SpendingAdvisor
 from core.config import config as cfg
 
 st.set_page_config(page_title="Spending Advisor — Duka", page_icon="💡")
+# ---- Authentication Gate ----
+require_auth()
+
 
 st.title("💡 Spending Advisor")
 st.caption("Make smarter spending decisions with data-backed advice.")

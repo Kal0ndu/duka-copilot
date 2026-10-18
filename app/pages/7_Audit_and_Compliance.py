@@ -5,12 +5,16 @@ import hashlib
 from pathlib import Path
 from datetime import datetime
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.redaction import Redactor
 from core.config import Config
 from app.session_helpers import SessionManager
 
 st.set_page_config(page_title="Audit & Security — Duka", page_icon="🛡️", layout="wide")
+# ---- Authentication Gate ----
+require_auth()
+
 
 # Initialize session
 SessionManager.init_session()

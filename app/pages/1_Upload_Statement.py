@@ -3,6 +3,7 @@ import streamlit as st
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.adapters.mobile_money_ke import MobileMoneyKeAdapter
 from core.redaction import Redactor
@@ -11,6 +12,9 @@ from app.sample_loader import MOCK_PROFILES, load_sample_business
 from app.session_helpers import SessionManager
 
 st.set_page_config(page_title="Upload Statement — Duka", page_icon="📄", layout="wide")
+# ---- Authentication Gate ----
+require_auth()
+
 
 st.title("📄 Statement Upload & SME Profiles")
 st.caption("Upload your M-Pesa / mobile money statement CSV or choose a pre-loaded Kenyan small business profile.")

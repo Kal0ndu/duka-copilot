@@ -4,11 +4,15 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.expense_tracker import ExpenseTracker, RecurringExpenseManager
 from core.business_setup import BusinessSetup
 
 st.set_page_config(page_title="Expense Setup — Duka", page_icon="📋")
+# ---- Authentication Gate ----
+require_auth()
+
 
 st.title("📋 Expense Setup")
 st.caption("Manage recurring expenses and auto-detect patterns.")

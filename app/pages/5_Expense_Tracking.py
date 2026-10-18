@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.expense_tracker import RecurringExpenseManager
 from core.business_setup import BusinessSetup
@@ -13,6 +14,9 @@ from core.config import config as cfg
 import sqlite3
 
 st.set_page_config(page_title="Expense Tracking — Duka", page_icon="📊")
+# ---- Authentication Gate ----
+require_auth()
+
 
 st.title("📊 Expense Tracking")
 st.caption("Track expenses against budgets and upcoming obligations.")

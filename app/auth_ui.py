@@ -414,22 +414,78 @@ def check_auth():
     return True
 
 
+
+def validate_and_refresh_session():
+    """Check if auth token is still valid; clear stale state if not.
+
+    Returns True if authenticated, False otherwise.
+    Call this at the top of protected pages for session validation.
+    """
+    token = st.session_state.get("auth_token")
+    if not token:
+        return False
+
+    session = decode_session(token)
+    if not session:
+        # Token invalid or expired — clear all auth state
+        st.session_state.pop("auth_token", None)
+        st.session_state.pop("auth_user", None)
+        st.session_state.pop("business_id", None)
+        st.session_state.pop("auth_session", None)
+        # Clean up cached user contexts
+        for key in list(st.session_state.keys()):
+            if key.startswith("_user_context_"):
+                del st.session_state[key]
+        return False
+
+    # Token valid — ensure auth_user is populated
+    if "auth_user" not in st.session_state:
+        st.session_state.auth_user = {
+            "user_id": session.user_id,
+            "display_name": session.display_name,
+            "phone_hash": session.phone_hash,
+            "role": session.role,
+        }
+
+    return True
+
+
 def render_logout_button():
-    """Render a logout button in the sidebar."""
+    """Render a logout button in the sidebar.
+
+    Clears all auth-related session state on logout and
+    redirects to the Login page.
+    """
     if st.session_state.get("auth_token"):
         with st.sidebar:
             st.divider()
             user = st.session_state.get("auth_user", {})
             st.caption(f"👤 {user.get('display_name', 'User')}")
             if st.button("🚪 Log Out", use_container_width=True):
+                # Clear all auth state
                 st.session_state.pop("auth_token", None)
                 st.session_state.pop("auth_user", None)
-                st.rerun()
+                st.session_state.pop("auth_session", None)
+                st.session_state.pop("business_id", None)
+                # Clean up cached user contexts
+                for key in list(st.session_state.keys()):
+                    if key.startswith("_user_context_"):
+                        del st.session_state[key]
+                st.switch_page("pages/Login.py")
 
 
 def require_auth():
-    """Gate: if not authenticated, show login prompt and stop rendering."""
-    if not check_auth():
+    """Gate: if not authenticated, show login prompt and stop rendering.
+
+    Validates the session token, clears stale state on expiry,
+    and presents a friendly login redirect for unauthenticated users.
+    """
+    if not validate_and_refresh_session():
         st.warning("🔐 Please log in to access Duka.")
         st.markdown("[Log In](Login)  |  [Sign Up](Sign_Up)")
         st.stop()
+
+def require_auth_with_redirect():
+    """Gate: redirect to Login page instead of showing inline prompt."""
+    if not validate_and_refresh_session():
+        st.switch_page("pages/Login.py")

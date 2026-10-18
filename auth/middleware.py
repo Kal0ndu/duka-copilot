@@ -35,6 +35,63 @@ def get_current_session() -> Optional[Session]:
     return session
 
 
+def validate_and_refresh_session() -> bool:
+    """Validate the current session token and refresh if possible.
+
+    Returns True if the session is valid, False otherwise.
+    Clears stale state on expiry/invalidation.
+
+    Call this at the top of protected pages as a lightweight auth check.
+    """
+    token = _st().session_state.get("auth_token")
+    if not token:
+        return False
+
+    session = decode_session(token)
+    if not session:
+        # Token invalid or expired — clear all auth state
+        _st().session_state.pop("auth_token", None)
+        _st().session_state.pop("auth_user", None)
+        _st().session_state.pop("auth_session", None)
+        _st().session_state.pop("business_id", None)
+        # Clean up cached user contexts
+        for key in list(_st().session_state.keys()):
+            if key.startswith("_user_context_"):
+                del _st().session_state[key]
+        return False
+
+    # Token valid — ensure session is stored
+    _st().session_state["auth_session"] = session
+
+    # Ensure auth_user is populated
+    if "auth_user" not in _st().session_state:
+        _st().session_state["auth_user"] = {
+            "user_id": session.user_id,
+            "display_name": session.display_name,
+            "phone_hash": session.phone_hash,
+            "role": session.role,
+        }
+
+    return True
+
+
+def clear_auth_state() -> None:
+    """Completely clear all authentication state from the session.
+
+    Use this on logout, session expiry, or auth errors.
+    """
+    keys_to_clear = [
+        "auth_token", "auth_user", "auth_session", "business_id",
+    ]
+    for key in keys_to_clear:
+        _st().session_state.pop(key, None)
+
+    # Clean up cached user contexts
+    for key in list(_st().session_state.keys()):
+        if key.startswith("_user_context_"):
+            del _st().session_state[key]
+
+
 def require_auth(page_func: Callable = None, *, redirect: bool = True):
     """Decorator: require authentication to view a page.
 
@@ -47,18 +104,19 @@ def require_auth(page_func: Callable = None, *, redirect: bool = True):
         require_auth()
         if not _st().session_state.auth_session:
             _st().stop()
+
+    Validates the session token, clears stale state on expiry,
+    and redirects unauthenticated users to the Login page.
     """
     if page_func is None:
         # Called as @require_auth() with parens
         def decorator(fn):
             @functools.wraps(fn)
             def wrapper(*args, **kwargs):
-                session = get_current_session()
-                if session:
-                    _st().session_state.auth_session = session
+                if validate_and_refresh_session():
                     return fn(*args, **kwargs)
                 elif redirect:
-                    _st().warning("Please log in to access this page.")
+                    _st().warning("🔐 Please log in to access this page.")
                     _st().switch_page("pages/Login.py")
                 else:
                     _st().stop()
@@ -68,12 +126,10 @@ def require_auth(page_func: Callable = None, *, redirect: bool = True):
     # Called as @require_auth (without parens)
     @functools.wraps(page_func)
     def wrapper(*args, **kwargs):
-        session = get_current_session()
-        if session:
-            _st().session_state.auth_session = session
+        if validate_and_refresh_session():
             return page_func(*args, **kwargs)
         else:
-            _st().warning("Please log in to access this page.")
+            _st().warning("🔐 Please log in to access this page.")
             _st().switch_page("pages/Login.py")
     return wrapper
 
@@ -85,21 +141,22 @@ def require_role(*allowed_roles: str):
         @require_role('owner', 'manager')
         def SettingsPage():
             ...
+
+    Validates authentication first, then checks role authorization.
     """
     def decorator(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
-            session = get_current_session()
-            if not session:
-                _st().warning("Please log in to access this page.")
+            if not validate_and_refresh_session():
+                _st().warning("🔐 Please log in to access this page.")
                 _st().switch_page("pages/Login.py")
                 return
 
-            if session.role not in allowed_roles:
-                _st().error(f"Access denied. Your role '{session.role}' cannot access this page.")
+            session = _st().session_state.get("auth_session")
+            if session and session.role not in allowed_roles:
+                _st().error(f"⛔ Access denied. Your role '{session.role}' cannot access this page.")
                 _st().stop()
 
-            _st().session_state.auth_session = session
             return fn(*args, **kwargs)
         return wrapper
     return decorator

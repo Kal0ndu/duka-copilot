@@ -4,10 +4,14 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.business_setup import BusinessSetup
 
 st.set_page_config(page_title="Business Setup — Duka", page_icon="🏪")
+# ---- Authentication Gate ----
+require_auth()
+
 
 st.title("🏪 Business Setup")
 st.caption("Register your business and customize financial tracking.")
