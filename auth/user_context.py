@@ -85,6 +85,7 @@ class UserContext:
         return {
             "business_summary": {"business_id": self.business_id, "name": self._business_name()},
             "summary": summary,
+            "top_expense_categories": self._top_expense_categories(),
             "health": health,
             "obligations": obligations,
             "forecast": forecast,
@@ -95,8 +96,15 @@ class UserContext:
 
     # ---- sub-computations ----
 
+    # The 30-day window ends at the latest transaction, not today, so an
+    # uploaded statement that ended weeks ago still produces real figures.
+    _WINDOW_START = (
+        "date((SELECT MAX(local_date) FROM transaction_ledger "
+        "WHERE business_id = ? AND voided = 0), '-30 days')"
+    )
+
     def _summary(self) -> Dict[str, Any]:
-        """Revenue, expenses, margins — last 30 days."""
+        """Revenue, expenses, margins — the 30 days up to the latest transaction."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
 
@@ -107,16 +115,22 @@ class UserContext:
                  COUNT(*) AS txn_count
                FROM transaction_ledger
                WHERE business_id = ?
-                 AND local_date >= date('now', '-30 days')
+                 AND local_date >= """ + self._WINDOW_START + """
                  AND voided = 0""",
+            (self.business_id, self.business_id),
+        ).fetchone()
+
+        span = conn.execute(
+            """SELECT MIN(local_date), MAX(local_date) FROM transaction_ledger
+               WHERE business_id = ? AND voided = 0""",
             (self.business_id,),
         ).fetchone()
 
         # Current balance (latest row in the ledger)
         bal_row = conn.execute(
-            """SELECT balance_minor FROM transaction_ledger
-               WHERE business_id = ? AND voided = 0
-               ORDER BY ts DESC LIMIT 1""",
+            """SELECT balance_after_minor FROM transaction_ledger
+               WHERE business_id = ? AND voided = 0 AND balance_after_minor IS NOT NULL
+               ORDER BY local_date DESC, ts DESC, txn_id DESC LIMIT 1""",
             (self.business_id,),
         ).fetchone()
         conn.close()
@@ -124,10 +138,12 @@ class UserContext:
         revenue = row["revenue"] if row else 0
         expenses = row["expenses"] if row else 0
         txn_count = row["txn_count"] if row else 0
-        opening_balance = bal_row["balance_minor"] if bal_row else 0
+        opening_balance = bal_row["balance_after_minor"] if bal_row else 0
 
         return {
-            "period": "last_30_days",
+            "period": "last_30_days_of_data",
+            "data_from": span[0] if span else None,
+            "data_to": span[1] if span else None,
             "revenue_kes": round(revenue / 100.0, 2),
             "expenses_kes": round(expenses / 100.0, 2),
             "net_kes": round((revenue - expenses) / 100.0, 2),
@@ -138,28 +154,48 @@ class UserContext:
         }
 
     def _obligations(self) -> List[Dict[str, Any]]:
-        """Upcoming recurring expenses — next 14 days."""
+        """Upcoming payments due in the next 14 days.
+
+        Merges the three places bills are recorded: obligation (detected from
+        statements), recurring_expense (entered in Business Setup) and
+        standing_order (the Standing Orders page)."""
+        sources = [
+            ("detected", """SELECT label, amount_minor, next_due, cadence FROM obligation
+                            WHERE business_id = ? AND active = 1
+                              AND next_due <= date('now', '+14 days')"""),
+            ("owner_entered", """SELECT description AS label, amount_minor, next_due, cadence
+                                 FROM recurring_expense
+                                 WHERE business_id = ? AND active = 1
+                                   AND next_due <= date('now', '+14 days')"""),
+            ("standing_order", """SELECT label, amount_minor, next_due, cadence FROM standing_order
+                                  WHERE business_id = ? AND status = 'active'
+                                    AND next_due <= date('now', '+14 days')"""),
+            # Already-generated but unpaid instances (next_due has moved past them).
+            ("awaiting_authorization", """SELECT s.label, p.amount_minor, p.due_date AS next_due, s.cadence
+                                          FROM scheduled_payment p JOIN standing_order s USING (standing_order_id)
+                                          WHERE p.business_id = ?
+                                            AND p.status IN ('pending','notified','authorized','stk_sent','failed')"""),
+        ]
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            """SELECT label, amount_minor, next_due, cadence
-               FROM obligation
-               WHERE business_id = ? AND active = 1
-                 AND next_due <= date('now', '+14 days')
-               ORDER BY next_due""",
-            (self.business_id,),
-        ).fetchall()
+        out: List[Dict[str, Any]] = []
+        for source, sql in sources:
+            try:
+                rows = conn.execute(sql, (self.business_id,)).fetchall()
+            except sqlite3.OperationalError:
+                continue  # table not created yet on this database
+            out.extend(
+                {
+                    "label": r["label"],
+                    "amount_kes": round(r["amount_minor"] / 100.0, 2),
+                    "due_date": r["next_due"],
+                    "frequency": r["cadence"],
+                    "source": source,
+                }
+                for r in rows
+            )
         conn.close()
-
-        return [
-            {
-                "label": r["label"],
-                "amount_kes": round(r["amount_minor"] / 100.0, 2),
-                "due_date": r["next_due"],
-                "frequency": r["cadence"],
-            }
-            for r in rows
-        ]
+        return sorted(out, key=lambda o: o["due_date"] or "")
 
     def _forecast(
         self,
@@ -299,10 +335,12 @@ class UserContext:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         rows = conn.execute(
-            """SELECT local_date, channel, amount_minor, category, direction
-               FROM transaction_ledger
-               WHERE business_id = ? AND voided = 0
-               ORDER BY ts DESC LIMIT ?""",
+            """SELECT t.local_date, t.channel, t.amount_minor, t.direction,
+                      LOWER(COALESCE(c.code, 'unclassified')) AS category
+               FROM transaction_ledger t
+               LEFT JOIN category c ON c.category_id = t.category_id
+               WHERE t.business_id = ? AND t.voided = 0
+               ORDER BY t.local_date DESC, t.ts DESC, t.txn_id DESC LIMIT ?""",
             (self.business_id, limit),
         ).fetchall()
         conn.close()
@@ -318,12 +356,32 @@ class UserContext:
             for r in rows
         ]
 
+    def _top_expense_categories(self, limit: int = 6) -> List[Dict[str, Any]]:
+        """Where the money went in the latest 30 days of data."""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """SELECT LOWER(COALESCE(c.code, 'unclassified')) AS category,
+                      SUM(t.amount_minor) AS total_minor, COUNT(*) AS n
+               FROM transaction_ledger t
+               LEFT JOIN category c ON c.category_id = t.category_id
+               WHERE t.business_id = ? AND t.voided = 0 AND t.direction = 'out'
+                 AND t.local_date >= """ + self._WINDOW_START + """
+               GROUP BY category ORDER BY total_minor DESC LIMIT ?""",
+            (self.business_id, self.business_id, limit),
+        ).fetchall()
+        conn.close()
+        return [
+            {"category": r["category"], "amount_kes": round(r["total_minor"] / 100.0, 2), "count": r["n"]}
+            for r in rows
+        ]
+
     def _business_name(self) -> str:
         """Fetch the business name for the context header."""
         try:
             conn = sqlite3.connect(self.db_path)
             row = conn.execute(
-                "SELECT business_name FROM business WHERE id = ?",
+                "SELECT name_token FROM business WHERE business_id = ?",
                 (self.business_id,),
             ).fetchone()
             conn.close()

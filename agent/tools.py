@@ -55,6 +55,9 @@ class ProposeLoanRequestArgs(BaseModel):
 class GetCachedContextArgs(BaseModel):
     pass  # no args needed — context is injected by the orchestrator
 
+class GetPaymentPrioritiesArgs(BaseModel):
+    pass  # scoped to the active business by the orchestrator
+
 class SearchTransactionsScopedArgs(BaseModel):
     query: str = Field(min_length=1, max_length=200)
     category: Optional[str] = Field(default=None, pattern=r"^(sales|expense|transfer|fee|other)?$")
@@ -158,6 +161,23 @@ TOOL_REGISTRY: Dict[str, ToolSpec] = {
         schema=BaseModel,
         exposed_to_llm=False,
         returns="Sandbox receipt",
+    ),
+    "authorize_scheduled_payment": ToolSpec(
+        name="authorize_scheduled_payment", tier="T2",
+        description="Owner taps Authorize: send an M-Pesa STK prompt for a scheduled payment. UI only, never exposed to LLM.",
+        schema=BaseModel,
+        exposed_to_llm=False,
+        returns="STK prompt sent to the owner's phone",
+    ),
+    "get_payment_priorities": ToolSpec(
+        name="get_payment_priorities", tier="T0",
+        description=(
+            "List upcoming standing-order payments ranked by priority (score, band, reasons, status). "
+            "Read-only: use it to explain what to pay first. You cannot pay or authorize anything; "
+            "the owner authorizes each payment on the Standing Orders page and confirms with their M-Pesa PIN."
+        ),
+        schema=GetPaymentPrioritiesArgs,
+        returns="Ranked list of open payments with priority reasons",
     ),
     "get_cached_context": ToolSpec(
         name="get_cached_context", tier="T0",

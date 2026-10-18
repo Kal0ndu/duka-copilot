@@ -1,5 +1,6 @@
 """Adapter for Kenyan mobile money statements (CSV format)."""
 import io
+import re
 import pandas as pd
 from .base import StatementAdapter, CANONICAL_COLUMNS
 
@@ -70,8 +71,12 @@ class MobileMoneyKeAdapter(StatementAdapter):
             df.columns = [c.strip() for c in df.columns]
             records = []
             for _, row in df.iterrows():
-                paid_in = self._parse_kes(row.get("Paid In", row.get("Money In", 0)))
-                withdrawn = self._parse_kes(row.get("Withdrawn", row.get("Money Out", 0)))
+                status = str(row.get("Transaction Status", "Completed")).strip().lower()
+                if status and status not in ("completed", "nan"):
+                    continue
+                paid_in = abs(self._parse_kes(row.get("Paid In", row.get("Money In", 0))))
+                # Real exports write withdrawals as negative numbers ("-200.00").
+                withdrawn = abs(self._parse_kes(row.get("Withdrawn", row.get("Money Out", 0))))
                 balance = self._parse_kes(row.get("Balance", 0))
                 details = str(row.get("Details", row.get("Description", "")))
                 receipt = str(row.get("Receipt No.", row.get("Receipt", "")))
@@ -90,9 +95,9 @@ class MobileMoneyKeAdapter(StatementAdapter):
                     continue
 
                 channel = self._infer_channel(details)
-                date_str = ts.split()[0] if " " in ts else ts
-                # Normalize date to ISO format (YYYY-MM-DD)
-                normalized_date = self._normalize_date(date_str)
+                # Exports mix "2026-10-15 21:58:49", "15/10/2026 21:51" and
+                # "Oct 15, 2026 08:32 PM"; parse the whole timestamp, not its first word.
+                ts, normalized_date = self._normalize_ts(ts)
 
                 records.append({
                     "date": normalized_date,
@@ -130,6 +135,20 @@ class MobileMoneyKeAdapter(StatementAdapter):
             "debits": debits,
             "net": credits - debits,
         }
+
+    @classmethod
+    def _normalize_ts(cls, ts: str) -> tuple:
+        """Return (ISO timestamp 'YYYY-MM-DD HH:MM:SS', ISO date) for a raw timestamp."""
+        raw = str(ts).strip()
+        try:
+            if re.match(r'^\d{4}-\d{2}-\d{2}', raw):
+                parsed = pd.to_datetime(raw)
+            else:
+                parsed = pd.to_datetime(raw, format='mixed', dayfirst=True)
+            return parsed.strftime('%Y-%m-%d %H:%M:%S'), parsed.strftime('%Y-%m-%d')
+        except (ValueError, TypeError):
+            date_part = cls._normalize_date(raw.split()[0] if " " in raw else raw)
+            return raw, date_part
 
     @staticmethod
     def _normalize_date(date_str: str) -> str:
@@ -178,11 +197,15 @@ class MobileMoneyKeAdapter(StatementAdapter):
     def _infer_channel(details: str) -> str:
         """Infer the channel from transaction details text."""
         d = details.lower()
-        if "till" in d or "buy goods" in d or "lipa na" in d:
+        if "till" in d or "buy goods" in d or "lipa na" in d or "merchant payment" in d:
             return "till"
+        if "customer payment to" in d:  # Pochi la Biashara
+            return "send"
+        if "transfer from bank" in d:
+            return "deposit"
         if "send" in d or "sent to" in d or "transfer to" in d:
             return "send"
-        if "receive" in d or "received from" in d:
+        if "receive" in d or "received from" in d or "payment from" in d:
             return "receive"
         if "withdraw" in d or "agent" in d:
             return "withdraw"

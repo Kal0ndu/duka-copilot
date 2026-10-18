@@ -126,12 +126,34 @@ http://localhost:8501
 
 ### 7. First Steps in the App
 
-1. **Upload Statement** → Use one of the generated CSV files from `data/mock_data/`
+1. **Upload Statement** → Upload an M-Pesa PDF (password-protected is fine) or CSV, or use a file from `data/mock_data/`. It is saved to your ledger and becomes the assistant's context.
 2. **Review Ledger** → Verify categorizations, correct as needed
 3. **View Insights** → See revenue, costs, margins, best trading days
 4. **Forecast** → Check 14-30 day balance forecast with alerts
 5. **Financing** → Compare credit options by cost
-6. **Chat** → Ask the AI copilot questions about your business
+6. **Standing Orders** → Set up regular payments; Duka ranks and reminds, you authorize each one
+7. **Chat** → Ask the AI copilot questions about your business
+
+### 8. Standing Orders: M-Pesa Daraja and Twilio
+
+Duka never pays on its own. For each due payment it sends an in-app and SMS
+reminder ranked by priority. The owner taps **Authorize & pay**, which sends an
+M-Pesa STK prompt to their own phone, and the money only moves once they
+enter their PIN.
+
+1. Create a sandbox app at https://developer.safaricom.co.ke and fill in
+   `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET` and `DARAJA_PASSKEY` in `.env`
+   (`DARAJA_SHORTCODE=174379` is Safaricom's sandbox paybill). Use
+   `DARAJA_ENV=simulated` to demo without Daraja.
+2. For SMS set `SMS_PROVIDER=twilio` plus `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
+   and `TWILIO_PHONE_FROM`. Twilio trial accounts only text verified numbers.
+3. In the app, open **Standing Orders → Notification settings** and save your
+   login phone number. Prompts can only go to that number.
+4. Schedule reminders so they go out even when nobody opens the app:
+   ```bash
+   # crontab -e : every day at 07:00
+   0 7 * * * cd /path/to/duka && .venv/bin/python -m core.standing_orders
+   ```
 
 ---
 

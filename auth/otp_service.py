@@ -126,21 +126,14 @@ def send_otp(phone: str, code: str) -> bool:
         return True
 
     if SMS_PROVIDER == 'twilio':
-        try:
-            from twilio.rest import Client
-            client = Client(
-                os.getenv('TWILIO_ACCOUNT_SID'),
-                os.getenv('TWILIO_AUTH_TOKEN')
-            )
-            message = client.messages.create(
-                body=f"Your Duka verification code is: {code}. Expires in {OTP_EXPIRY_MINUTES} min.",
-                from_=os.getenv('TWILIO_PHONE_FROM'),
-                to=phone
-            )
-            return message.sid is not None
-        except Exception as e:
-            print(f"Twilio send failed: {e}")
-            return False
+        from integrations.sms import send_sms
+        result = send_sms(
+            phone,
+            f"Your Duka verification code is: {code}. Expires in {OTP_EXPIRY_MINUTES} min.",
+        )
+        if not result.ok:
+            print(f"Twilio send failed: {result.error}")
+        return result.ok
 
     print(f"OTP for {phone}: {code}  (unknown provider: {SMS_PROVIDER})")
     return True

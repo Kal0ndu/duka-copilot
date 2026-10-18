@@ -196,13 +196,18 @@ def _signup_otp(db_path: str):
             if not result.success:
                 st.error(result.message)
             else:
-                user = create_user(
+                # Hash the password before storing
+                password_hash, password_salt = hash_password(st.session_state.signup_password)
+                user_id = create_user(
                     db_path,
                     phone_hash=st.session_state.signup_phone_hash,
                     display_name=st.session_state.signup_display_name,
-                    password=st.session_state.signup_password
+                    password_hash=password_hash,
+                    password_salt=password_salt
                 )
-                if user:
+                if user_id:
+                    # Fetch the created user record
+                    user = get_user_by_id(db_path, user_id)
                     st.session_state.signup_step = "complete"
                     st.session_state.signup_user = user
                     st.rerun()

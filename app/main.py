@@ -50,6 +50,22 @@ with st.sidebar:
     st.title("Duka Copilot", icon=":material/storefront:")
     st.caption("AI CFO & business intelligence for Kenyan SMEs")
 
+    # Payments waiting for the owner's authorization
+    if get_business_id():
+        try:
+            from core.standing_orders import StandingOrderService
+            _due = [p for p in StandingOrderService().open_payments(get_business_id())
+                    if p["status"] in ("pending", "notified", "failed")]
+        except Exception:
+            _due = []
+        if _due:
+            _urgent = sum(1 for p in _due if p["priority_band"] in ("critical", "high"))
+            st.warning(
+                f"{len(_due)} payment(s) to authorize" + (f", {_urgent} urgent" if _urgent else ""),
+                icon=":material/notifications_active:",
+            )
+            st.page_link("pages/12_Standing_Orders.py", label="Review payments", icon=":material/event_repeat:")
+
     # Active Business Profile
     profile = st.session_state.get("business_profile")
     if profile:

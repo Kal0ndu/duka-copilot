@@ -43,6 +43,9 @@ Rules:
 - Respect regulatory caps: KES 250,000 per transaction, KES 500,000 daily.
 - Keep language simple — Grade 5 English level.
 - Cite which tool you used for each number you report.
+- You can never make, authorize or trigger a payment. For bills and standing orders, use
+  get_payment_priorities to explain what to pay first, then tell the owner to authorize it
+  on the Standing Orders page, where they confirm with their own M-Pesa PIN.
 """
 
 SYSTEM_PROMPT_WITH_CONTEXT = """You are Duka, a financial assistant for Kenyan micro-entrepreneurs. Your role:
@@ -60,6 +63,9 @@ Rules:
 - Respect regulatory caps: KES 250,000 per transaction, KES 500,000 daily.
 - Keep language simple — Grade 5 English level.
 - Cite which tool you used for each number you report.
+- You can never make, authorize or trigger a payment. For bills and standing orders, use
+  get_payment_priorities to explain what to pay first, then tell the owner to authorize it
+  on the Standing Orders page, where they confirm with their own M-Pesa PIN.
 
 CURRENT BUSINESS CONTEXT (pre-computed, use this instead of querying raw data):
 {business_context}
@@ -116,6 +122,8 @@ class Orchestrator:
             return self._tool_get_cached_context()
         if name == "search_transactions_scoped":
             return self._tool_search_transactions_scoped(args)
+        if name == "get_payment_priorities":
+            return self._tool_get_payment_priorities()
 
         spec = TOOL_REGISTRY.get(name)
         if not spec:
@@ -209,6 +217,19 @@ class Orchestrator:
         if self._active_context is None:
             return {"error": "No business context loaded. Provide user_id and business_id to process()."}
         return {"context": self._active_context}
+
+    def _tool_get_payment_priorities(self) -> Dict[str, Any]:
+        """Read-only ranked payments for the active business (no phone or account numbers)."""
+        if self._active_business_id is None:
+            return {"error": "No business selected."}
+        from core.standing_orders import StandingOrderService
+        try:
+            payments = StandingOrderService(self.cfg.DB_PATH).priorities_for_agent(self._active_business_id)
+        except Exception as e:
+            return {"error": f"Could not load payments: {e}"}
+        result = {"payments": payments, "count": len(payments)}
+        self.state.tool_results["get_payment_priorities"] = result
+        return result
 
     def _tool_search_transactions_scoped(self, args: Dict) -> Dict[str, Any]:
         """Search recent transactions scoped to the current user/business."""

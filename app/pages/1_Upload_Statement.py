@@ -5,11 +5,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
 
-from core.adapters.mobile_money_ke import MobileMoneyKeAdapter
 from core.redaction import Redactor
 from core.categoriser import Categoriser
 from app.sample_loader import MOCK_PROFILES, load_sample_business
 from app.session_helpers import SessionManager
+from auth.middleware import get_business_id, get_user_id, invalidate_user_context_on_page
+from core.adapters.mpesa_pdf import StatementPasswordError
+from core.ingestion import StatementIngestor
 
 st.set_page_config(page_title="Upload Statement — Duka", page_icon=":material/upload_file:", layout="wide")
 # ---- Authentication Gate ----
@@ -17,7 +19,7 @@ require_auth()
 
 
 st.title("Statement Upload & SME Profiles")
-st.caption("Upload your mobile money statement CSV or choose a pre-loaded Kenyan small business profile.")
+st.caption("Upload your M-Pesa statement (PDF or CSV) or choose a pre-loaded Kenyan small business profile.")
 
 # Initialize session
 SessionManager.init_session()
@@ -43,25 +45,43 @@ for idx, (p_id, p_info) in enumerate(MOCK_PROFILES.items()):
 st.divider()
 
 # ---- Option B: File Upload ----
-st.subheader("Upload Custom Statement (CSV)")
-uploaded = st.file_uploader("Choose an mobile money CSV statement export", type=["csv"], accept_multiple_files=False)
+st.subheader("Upload Your Statement (CSV or PDF)")
+st.caption(
+    "Upload the M-Pesa statement Safaricom sends you (PDF) or a CSV export. "
+    "It is saved to your business ledger so Duka's assistant can answer questions about it."
+)
+uploaded = st.file_uploader("Choose an M-Pesa statement", type=["csv", "pdf"], accept_multiple_files=False)
 
 if uploaded:
-    raw_bytes = uploaded.read()
-    raw_text = raw_bytes.decode("utf-8", errors="replace")
+    raw_bytes = uploaded.getvalue()
+    is_pdf = raw_bytes[:5] == b"%PDF-"
+    password = None
+    if is_pdf:
+        password = st.text_input(
+            "Statement password (if any)", type="password",
+            help="M-Pesa PDF statements are usually locked with your ID number.",
+        )
+    else:
+        with st.expander("Raw File Preview (first 10 lines)", expanded=False):
+            raw_text = raw_bytes.decode("utf-8", errors="replace")
+            st.code("\n".join(raw_text.splitlines()[:10]), language="text")
 
-    with st.expander("Raw File Preview (first 10 lines)", expanded=False):
-        st.code("\n".join(raw_text.splitlines()[:10]), language="text")
-
-    if st.button(":material/search: Parse & Redact PII", type="primary", width="stretch"):
-        adapter = MobileMoneyKeAdapter()
+    if st.button(":material/search: Process & Save Statement", type="primary", width="stretch"):
+        business_id = get_business_id()
+        user_id = get_user_id()
+        ingestor = StatementIngestor()
         try:
-            with st.spinner("Parsing transactions & tokenizing PII..."):
-                parsed = adapter.parse(raw_bytes)
-                redactor = Redactor()
-                redacted = redactor.redact_transactions(parsed)
-                categoriser = Categoriser()
+            with st.spinner("Parsing, redacting PII and saving to your ledger..."):
+                parsed = ingestor.parse(raw_bytes, password=password or None)
+                report = None
+                if business_id:
+                    report = ingestor.ingest(
+                        raw_bytes, uploaded.name, business_id, user_id, password=password or None,
+                    )
+                    invalidate_user_context_on_page()
 
+                redacted = Redactor().redact_transactions(parsed)
+                categoriser = Categoriser()
                 for r in redacted:
                     cur_cat = str(r.get("category", "")).lower()
                     if not cur_cat or cur_cat in ("uncategorised", "unclassified", "other"):
@@ -74,24 +94,42 @@ if uploaded:
                         )
                         r["category"] = res.category_code
 
-                st.session_state["parsed_transactions"] = redacted
-                st.session_state["business_profile"] = {
-                    "name": "Custom Uploaded Business",
+                profile = {
+                    "name": "Uploaded Statement",
                     "sector": "Retail / Service SME",
                     "icon": ":material/store:",
                 }
-                SessionManager.set_transactions(
-                    redacted,
-                    {
-                        "name": "Custom Uploaded Business",
-                        "sector": "Retail / Service SME",
-                        "icon": ":material/store:",
-                    }
-                )
-                st.success(f"Successfully processed {len(redacted)} transactions!")
+                SessionManager.set_transactions(redacted, profile)
+                st.session_state["last_ingest_report"] = report
                 st.rerun()
+        except StatementPasswordError as e:
+            st.error(str(e))
         except Exception as e:
-            st.error(f"Error parsing statement: {e}")
+            st.error(f"Error processing statement: {e}")
+
+report = st.session_state.get("last_ingest_report")
+if report is not None:
+    if report.status == "duplicate":
+        st.info(f":material/info: {report.message}")
+    else:
+        st.success(f":material/check_circle: {report.message}")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Period", f"{report.period_start} → {report.period_end}")
+        c2.metric("Need review", f"{report.rows_needs_review:,}")
+        c3.metric("Regular payments found", report.obligations_detected)
+        c4.metric("Flagged rows", report.rows_flagged)
+        if report.rows_flagged:
+            st.warning(
+                f":material/gpp_maybe: {report.rows_flagged} row(s) contained text that looked like "
+                "instructions to the AI. Their descriptions were removed; the amounts were kept."
+            )
+        for issue in report.validation_issues:
+            st.caption(f":material/warning: {issue}")
+elif uploaded is None and not get_business_id():
+    st.caption(
+        ":material/info: Finish **Business Setup** first so uploads are saved to your ledger. "
+        "Until then they are only kept for this session."
+    )
 
 # ---- Display Current Loaded Data Summary ----
 txns = SessionManager.get_transactions()
