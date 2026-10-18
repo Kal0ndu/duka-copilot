@@ -51,12 +51,13 @@ class Redactor:
         return f"<{entity_type}_{self._counter:04d}>"
 
     def redact(self, text: str) -> RedactionResult:
-        """Replace all PII with tokens. Return redacted text and token map."""
+        """Replace all PII with tokens. Return redacted text and token map.
+
+        None is treated like empty input (never raises) — this is a security
+        boundary and must never fail closed by throwing, which could let a
+        caller's bare except swallow the error and forward unredacted text.
+        """
         if text is None:
-            import inspect
-            frame = inspect.currentframe().f_back
-            if frame and "test_redaction.py" in frame.f_code.co_filename:
-                raise TypeError("text cannot be None")
             return RedactionResult(redacted="", tokens={}, pii_found=[], injection_flags=[])
 
         tokens: Dict[str, str] = {}

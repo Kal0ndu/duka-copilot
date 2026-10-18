@@ -12,7 +12,7 @@ from core.charts import chart_cashflow_trend, PRIMARY_GREEN, SECONDARY_BLUE, ACC
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Financial Health — Duka", page_icon="🩺", layout="wide")
+st.set_page_config(page_title="Financial Health — Duka", page_icon=":material/monitor_heart:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -23,16 +23,16 @@ transactions = SessionManager.get_transactions()
 profile = SessionManager.get_profile()
 
 if not transactions:
-    st.warning("⚠️ No statement currently loaded.")
+    st.warning("No statement currently loaded.")
     st.info("Load a sample business profile to run a financial health check:")
     col1, col2, col3 = st.columns(3)
-    if col1.button("🏪 Load Amina's Grocery", use_container_width=True):
+    if col1.button(":material/storefront: Load Amina's Grocery", width="stretch"):
         SessionManager.set_transactions(load_sample_business("amina_grocery"), MOCK_PROFILES["amina_grocery"])
         st.rerun()
-    if col2.button("🚐 Load Otieno Transport", use_container_width=True):
+    if col2.button(":material/directions_bike: Load Otieno Transport", width="stretch"):
         SessionManager.set_transactions(load_sample_business("otieno_transport"), MOCK_PROFILES["otieno_transport"])
         st.rerun()
-    if col3.button("💇 Load Grace Salon", use_container_width=True):
+    if col3.button(":material/content_cut: Load Grace Salon", width="stretch"):
         SessionManager.set_transactions(load_sample_business("grace_salon"), MOCK_PROFILES["grace_salon"])
         st.rerun()
     st.stop()
@@ -42,7 +42,7 @@ biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 analyzer = FinancialHealthAnalyzer(transactions)
 report = analyzer.assess()
 
-st.title("🩺 Financial Health Dashboard")
+st.title("Financial Health Dashboard")
 st.caption(f"Comprehensive financial health check for **{biz_name}** — {report.period_start} to {report.period_end}")
 
 # ---- HEALTH SCORE CARD ----
@@ -99,7 +99,7 @@ l4.metric(
 st.divider()
 
 # ---- ROW 2: PROFITABILITY & LEVERAGE ----
-st.subheader("📊 Profitability & Leverage")
+st.subheader("Profitability & Leverage")
 p1, p2, p3, p4 = st.columns(4)
 
 p1.metric(
@@ -128,7 +128,7 @@ p4.metric(
 st.divider()
 
 # ---- ROW 3: GROWTH & STABILITY ----
-st.subheader("📈 Growth & Stability")
+st.subheader("Growth & Stability")
 g1, g2, g3, g4 = st.columns(4)
 
 rev_growth_str = f"{report.revenue_growth_pct:+.1f}%" if report.revenue_growth_pct is not None else "N/A"
@@ -169,7 +169,7 @@ with col_risks:
         st.success("No significant risk flags detected. Business appears healthy.")
 
 with col_recs:
-    st.subheader("💡 Recommendations")
+    st.subheader("Recommendations")
     if report.recommendations:
         for rec in report.recommendations:
             st.info(rec)
@@ -179,15 +179,15 @@ with col_recs:
 st.divider()
 
 # ---- CASHFLOW TREND CHART ----
-st.subheader("📉 Daily Cashflow Trend")
+st.subheader("Daily cashflow trend")
 daily_df = analyzer.daily_trend_df()
 if not daily_df.empty:
-    st.altair_chart(chart_cashflow_trend(daily_df), use_container_width=True)
+    st.altair_chart(chart_cashflow_trend(daily_df), width="stretch")
 else:
     st.info("Not enough data for trend chart.")
 
 # ---- WEEKLY SUMMARY TABLE ----
-with st.expander("📅 Weekly Revenue & Margin Summary", expanded=False):
+with st.expander("Weekly Revenue & Margin Summary", expanded=False):
     weekly_df = analyzer.weekly_summary()
     if not weekly_df.empty:
         display_df = weekly_df.copy()
@@ -196,12 +196,12 @@ with st.expander("📅 Weekly Revenue & Margin Summary", expanded=False):
         display_df["net"] = display_df["net"].apply(lambda x: f"KES {x:,.0f}")
         display_df["margin_pct"] = display_df["margin_pct"].apply(lambda x: f"{x:.1f}%")
         display_df.columns = ["Week", "Revenue", "Expenses", "Transactions", "Net", "Margin %"]
-        st.dataframe(display_df, use_container_width=True, hide_index=True)
+        st.dataframe(display_df, width="stretch", hide_index=True)
     else:
         st.info("Not enough data for weekly summary.")
 
 # ---- HEALTH SCORE BREAKDOWN ----
-with st.expander("🔍 How Is This Score Calculated?", expanded=False):
+with st.expander(":material/help: How this score is calculated", expanded=False):
     st.markdown("""
     The **Duka Financial Health Score** is a weighted composite from 0–100:
 

@@ -10,7 +10,7 @@ from core.charts import chart_aging_buckets
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Working Capital — Duka", page_icon="💳", layout="wide")
+st.set_page_config(page_title="Working Capital — Duka", page_icon=":material/credit_card:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -21,16 +21,16 @@ transactions = SessionManager.get_transactions()
 profile = SessionManager.get_profile()
 
 if not transactions:
-    st.warning("⚠️ No statement currently loaded.")
+    st.warning("No statement currently loaded.")
     st.info("Load a sample business profile to inspect working capital cycles and customer credit aging:")
     col1, col2, col3 = st.columns(3)
-    if col1.button("🏪 Load Amina's Grocery", use_container_width=True):
+    if col1.button(":material/storefront: Load Amina's Grocery", width="stretch"):
         SessionManager.set_transactions(load_sample_business("amina_grocery"), MOCK_PROFILES["amina_grocery"])
         st.rerun()
-    if col2.button("🚐 Load Otieno Transport", use_container_width=True):
+    if col2.button(":material/directions_bike: Load Otieno Transport", width="stretch"):
         SessionManager.set_transactions(load_sample_business("otieno_transport"), MOCK_PROFILES["otieno_transport"])
         st.rerun()
-    if col3.button("💇 Load Grace Salon", use_container_width=True):
+    if col3.button(":material/content_cut: Load Grace Salon", width="stretch"):
         SessionManager.set_transactions(load_sample_business("grace_salon"), MOCK_PROFILES["grace_salon"])
         st.rerun()
     st.stop()
@@ -39,7 +39,7 @@ analyzer = WorkingCapitalAnalyzer(transactions)
 wc_metrics = analyzer.compute_working_capital_metrics()
 biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 
-st.title("💳 Working Capital & Aging Management")
+st.title("Working Capital & Aging Management")
 st.caption(f"Track customer store credit (*kitabu*), supplier payables, and cash conversion cycle for **{biz_name}**.")
 
 # ---- ROW 1: WORKING CAPITAL KPIS ----
@@ -70,10 +70,10 @@ w4.metric(
 
 # Operational efficiency row
 sub_c1, sub_c2, sub_c3 = st.columns(3)
-sub_c1.caption(f"⏱️ **Days Sales Outstanding (DSO):** {wc_metrics['dso_days']} days to collect cash")
-sub_c2.caption(f"⏳ **Days Payable Outstanding (DPO):** {wc_metrics['dpo_days']} days to settle supplier bills")
+sub_c1.caption(f":material/timer: **Days sales outstanding (DSO):** {wc_metrics['dso_days']} days to collect cash")
+sub_c2.caption(f":material/hourglass_empty: **Days payable outstanding (DPO):** {wc_metrics['dpo_days']} days to settle supplier bills")
 overdue_ar = wc_metrics["overdue_receivables_kes"]
-sub_c3.caption(f"⚠️ **Total Overdue Receivables:** KES {overdue_ar:,.0f}")
+sub_c3.caption(f"**Total Overdue Receivables:** KES {overdue_ar:,.0f}")
 
 st.divider()
 
@@ -81,21 +81,21 @@ st.divider()
 col_ar_chart, col_ap_chart = st.columns(2)
 
 with col_ar_chart:
-    st.subheader("📊 Customer Credit Aging (A/R)")
+    st.subheader("Customer Credit Aging (A/R)")
     st.caption("Breakdown of customer debts by overdue age.")
     ar_buckets = wc_metrics["ar_buckets"]
-    st.altair_chart(chart_aging_buckets(ar_buckets, title="Customer Aging"), use_container_width=True)
+    st.altair_chart(chart_aging_buckets(ar_buckets, title="Customer Aging"), width="stretch")
 
 with col_ap_chart:
-    st.subheader("📑 Supplier Payables Aging (A/P)")
+    st.subheader(":material/description: Supplier payables aging (A/P)")
     st.caption("Upcoming and overdue payments to suppliers.")
     ap_buckets = wc_metrics["ap_buckets"]
-    st.altair_chart(chart_aging_buckets(ap_buckets, title="Payables Aging"), use_container_width=True)
+    st.altair_chart(chart_aging_buckets(ap_buckets, title="Payables Aging"), width="stretch")
 
 st.divider()
 
 # ---- SECTION 3: CUSTOMER CREDIT BOOK (KITABU) & REMINDER GENERATOR ----
-st.subheader("📖 Customer Credit Book (*Duka Kitabu*)")
+st.subheader(":material/menu_book: Customer credit book (*Duka Kitabu*)")
 st.caption("Active store credit balances with one-click collection reminders.")
 
 receivables = wc_metrics["receivables_list"]
@@ -112,10 +112,10 @@ if receivables:
             "Days Overdue": f"{r.days_overdue} days" if r.days_overdue > 0 else "Current",
             "Aging Bucket": r.bucket,
         })
-    st.dataframe(rec_table, use_container_width=True)
+    st.dataframe(rec_table, width="stretch")
 
     # Friendly Reminder Generator
-    st.markdown("#### 📱 Automated Payment Reminder Generator")
+    st.markdown("##### Automated Payment Reminder Generator")
     st.caption("Select an overdue customer to generate a courteous SMS or WhatsApp payment reminder:")
 
     overdue_customers = [r for r in receivables if r.days_overdue > 0]
@@ -131,14 +131,14 @@ if receivables:
     if selected_cust:
         st.markdown(f"**Draft SMS / WhatsApp for {selected_cust.counterparty} ({selected_cust.phone_token}):**")
         st.code(selected_cust.reminder_msg, language="text")
-        st.button("📋 Copy Message Text", key="btn_copy_sms", on_click=lambda: None)
+        st.button("Copy Message Text", key="btn_copy_sms", on_click=lambda: None)
 else:
     st.info("No active customer receivables.")
 
 st.divider()
 
 # ---- SECTION 4: UPCOMING PAYABLES & BILLS SCHEDULE ----
-st.subheader("🗓️ Accounts Payable & Supplier Bills Schedule")
+st.subheader("Accounts Payable & Supplier Bills Schedule")
 st.caption("Obligations to settle to maintain good supplier credit terms and avoid service disruption.")
 
 payables = wc_metrics["payables_list"]
@@ -151,9 +151,9 @@ if payables:
             "Category / Details": p.phone_token,
             "Amount Due (KES)": f"{p.amount_kes:,.2f}",
             "Due Date": p.due_date,
-            "Status": "⚠️ Overdue" if p.days_overdue > 0 else "🟢 Upcoming",
+            "Status": "Overdue" if p.days_overdue > 0 else ":material/check_circle: Upcoming",
             "Aging Bucket": p.bucket,
         })
-    st.dataframe(pay_table, use_container_width=True)
+    st.dataframe(pay_table, width="stretch")
 else:
     st.info("No active supplier payables.")

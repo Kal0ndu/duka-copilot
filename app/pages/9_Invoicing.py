@@ -13,7 +13,7 @@ from core.pos_engine import POSEngine
 from core.ai_sales_assistant import AISalesAssistant
 from app.session_helpers import SessionManager
 
-st.set_page_config(page_title="Invoicing — Duka", page_icon="📋", layout="wide")
+st.set_page_config(page_title="Invoicing — Duka", page_icon=":material/description:", layout="wide")
 
 # ---- Session & Auth ----
 SessionManager.init_session()
@@ -27,23 +27,23 @@ inv_prod_mgr = InventoryManager()
 pos = POSEngine()
 ai_asst = AISalesAssistant()
 
-st.title("📋 Invoicing & Quotations")
+st.title("Invoicing & Quotations")
 st.caption(f"Manage invoices, quotations, and customer billing for **{biz_name}**")
 
 # ---- Navigation Tabs ----
 tab_overview, tab_new_invoice, tab_new_quotation, tab_manage, tab_payments = st.tabs([
-    "📊 Overview",
-    "➕ Create Invoice",
-    "📝 Create Quotation",
-    "🔍 Manage",
-    "💳 Payments & Follow-Ups"
+    "Overview",
+    "Create Invoice",
+    ":material/edit_note: Create quotation",
+    ":material/search: Manage",
+    "Payments & Follow-Ups"
 ])
 
 # ============================================================================
 # TAB 1: OVERVIEW — Dashboard
 # ============================================================================
 with tab_overview:
-    st.subheader("📊 Invoicing Dashboard")
+    st.subheader("Invoicing Dashboard")
     
     # Fetch summary data
     outstanding_invoices = inv_mgr.get_outstanding_invoices(biz_id)
@@ -96,10 +96,10 @@ with tab_overview:
     st.divider()
     
     # ---- Outstanding Invoices List ----
-    st.subheader("💰 Outstanding Invoices (Sorted by Due Date)")
+    st.subheader("Outstanding Invoices (Sorted by Due Date)")
     
     if not outstanding_invoices:
-        st.success("✅ All invoices paid! No outstanding balance.")
+        st.success("All invoices paid! No outstanding balance.")
     else:
         # Sort by due date (overdue first)
         sorted_invoices = sorted(
@@ -129,14 +129,14 @@ with tab_overview:
         
         st.dataframe(
             df_outstanding.style.apply(highlight_status, axis=1),
-            use_container_width=True
+            width="stretch"
         )
 
 # ============================================================================
 # TAB 2: CREATE INVOICE
 # ============================================================================
 with tab_new_invoice:
-    st.subheader("➕ Create New Invoice")
+    st.subheader("Create New Invoice")
     
     with st.form("create_invoice_form"):
         col_cust, col_date, col_due = st.columns(3)
@@ -187,7 +187,7 @@ with tab_new_invoice:
                 with col4:
                     st.caption(f"KES {item['line_total_minor']/100:,.0f}")
                 with col5:
-                    if st.button("✕", key=f"remove_{idx}", use_container_width=True):
+                    if st.button(":material/close:", key=f"remove_{idx}", width="stretch"):
                         st.session_state.invoice_items.pop(idx)
                         st.rerun()
         
@@ -248,7 +248,7 @@ with tab_new_invoice:
             apply_vat = st.checkbox("Apply VAT (16%)", value=True)
         
         # Add button
-        if col_add.form_submit_button("➕ Add Item", use_container_width=True):
+        if col_add.form_submit_button(":material/add: Add Item", width="stretch"):
             if not description:
                 st.error("Please enter item description")
             elif item_qty <= 0 or item_price <= 0:
@@ -303,7 +303,7 @@ with tab_new_invoice:
             col_action1, col_action2 = st.columns(2)
             
             with col_action1:
-                if st.form_submit_button("💾 Save as Draft", use_container_width=True):
+                if st.form_submit_button(":material/save: Save as Draft", width="stretch"):
                     # Convert session line items to InvoiceLineItem objects
                     line_items = [
                         InvoiceLineItem(
@@ -330,12 +330,12 @@ with tab_new_invoice:
                         status="draft",
                         created_by=profile.get("phone", "pos_user") if profile else "pos_user",
                     )
-                    st.success(f"✅ Invoice saved as draft: {invoice.invoice_number}")
+                    st.success(f"Invoice saved as draft: {invoice.invoice_number}")
                     st.session_state.invoice_items = []
                     st.rerun()
             
             with col_action2:
-                if st.form_submit_button("✈️ Create & Send", use_container_width=True, type="primary"):
+                if st.form_submit_button(":material/send: Create & Send", width="stretch", type="primary"):
                     # Convert session line items to InvoiceLineItem objects
                     line_items = [
                         InvoiceLineItem(
@@ -362,7 +362,7 @@ with tab_new_invoice:
                         status="sent",
                         created_by=profile.get("phone", "pos_user") if profile else "pos_user",
                     )
-                    st.success(f"✅ Invoice created and marked as sent: {invoice.invoice_number}")
+                    st.success(f"Invoice created and marked as sent: {invoice.invoice_number}")
                     st.session_state.invoice_items = []
                     st.rerun()
         else:
@@ -372,7 +372,7 @@ with tab_new_invoice:
 # TAB 3: CREATE QUOTATION
 # ============================================================================
 with tab_new_quotation:
-    st.subheader("📝 Create New Quotation")
+    st.subheader("Create New Quotation")
     st.caption("Create an estimate/quotation for a customer. Convert to invoice when accepted.")
     
     with st.form("create_quotation_form"):
@@ -423,7 +423,7 @@ with tab_new_quotation:
                 with col4:
                     st.caption(f"KES {item['line_total_minor']/100:,.0f}")
                 with col5:
-                    if st.button("✕", key=f"remove_quote_{idx}", use_container_width=True):
+                    if st.button(":material/close:", key=f"remove_quote_{idx}", width="stretch"):
                         st.session_state.quotation_items.pop(idx)
                         st.rerun()
         
@@ -461,7 +461,7 @@ with tab_new_quotation:
         with col_vat_q:
             apply_vat_q = st.checkbox("Apply VAT", value=True, key="quote_vat")
         
-        if col_add_q.form_submit_button("➕ Add Item", use_container_width=True):
+        if col_add_q.form_submit_button(":material/add: Add Item", width="stretch"):
             if not item_desc_q:
                 st.error("Please enter item description")
             else:
@@ -510,7 +510,7 @@ with tab_new_quotation:
             )
             
             # ---- Submit ----
-            if st.form_submit_button("📤 Create Quotation", type="primary", use_container_width=True):
+            if st.form_submit_button(":material/upload: Create Quotation", type="primary", width="stretch"):
                 # Convert session line items to QuotationLineItem objects
                 line_items_q = [
                     QuotationLineItem(
@@ -535,7 +535,7 @@ with tab_new_quotation:
                     terms=terms,
                     created_by=profile.get("phone", "pos_user") if profile else "pos_user",
                 )
-                st.success(f"✅ Quotation created: {quotation.quotation_number}")
+                st.success(f"Quotation created: {quotation.quotation_number}")
                 st.session_state.quotation_items = []
                 st.rerun()
         else:
@@ -545,7 +545,7 @@ with tab_new_quotation:
 # TAB 4: MANAGE INVOICES & QUOTATIONS
 # ============================================================================
 with tab_manage:
-    st.subheader("🔍 Manage Invoices & Quotations")
+    st.subheader("Manage Invoices & Quotations")
     
     manage_tab1, manage_tab2 = st.tabs(["Invoices", "Quotations"])
     
@@ -591,7 +591,7 @@ with tab_manage:
                 for inv in filtered_invs
             ])
             
-            st.dataframe(df_invs, use_container_width=True, hide_index=True)
+            st.dataframe(df_invs, width="stretch", hide_index=True)
             
             # ---- Actions on Selected Invoice ----
             st.divider()
@@ -607,7 +607,7 @@ with tab_manage:
                 col_act1, col_act2, col_act3 = st.columns(3)
                 
                 # View details
-                if col_act1.button("👁️ View Details", use_container_width=True):
+                if col_act1.button(":material/visibility: View Details", width="stretch"):
                     st.info(f"""
                     **Invoice:** {inv_to_manage.invoice_number}
                     **Customer:** {inv_to_manage.customer_name_token}
@@ -618,7 +618,7 @@ with tab_manage:
                     """)
                 
                 # Record payment
-                if col_act2.button("💳 Record Payment", use_container_width=True):
+                if col_act2.button(":material/credit_card: Record Payment", width="stretch"):
                     with st.form(f"payment_form_{inv_to_manage.invoice_id}"):
                         payment_amt = st.number_input(
                             "Payment Amount (KES)",
@@ -631,22 +631,22 @@ with tab_manage:
                             "Payment Method",
                             ["cash", "m_pesa", "bank_transfer", "cheque", "other"]
                         )
-                        if st.form_submit_button("✅ Record", use_container_width=True):
+                        if st.form_submit_button(":material/check_circle: Record", width="stretch"):
                             inv_mgr.record_payment(
                                 inv_to_manage.invoice_id,
                                 int(payment_amt * 100),
                                 payment_method_sel
                             )
-                            st.success("✅ Payment recorded!")
+                            st.success("Payment recorded!")
                             st.rerun()
                 
                 # Send reminder
-                if col_act3.button("📧 Send Reminder", use_container_width=True):
+                if col_act3.button(":material/mail: Send Reminder", width="stretch"):
                     # Generate reminder tasks for this specific invoice
                     # by calling generate_payment_reminders
                     tasks = ai_asst.generate_payment_reminders(biz_id)
                     if tasks:
-                        st.success("✅ Follow-up task created. Check AI Follow-Ups tab.")
+                        st.success("Follow-up task created. Check AI Follow-Ups tab.")
                     else:
                         st.info("Follow-up task already pending or invoice already paid.")
     
@@ -671,7 +671,7 @@ with tab_manage:
                 for q in all_quotes
             ])
             
-            st.dataframe(df_quotes, use_container_width=True, hide_index=True)
+            st.dataframe(df_quotes, width="stretch", hide_index=True)
             
             # ---- Quotation Actions ----
             st.divider()
@@ -687,7 +687,7 @@ with tab_manage:
                 
                 col_q1, col_q2, col_q3 = st.columns(3)
                 
-                if col_q1.button("👁️ View", key="view_quote", use_container_width=True):
+                if col_q1.button(":material/visibility: View", key="view_quote", width="stretch"):
                     st.info(f"""
                     **Quotation:** {quote_to_manage.quotation_number}
                     **Customer:** {quote_to_manage.customer_name_token}
@@ -696,22 +696,22 @@ with tab_manage:
                     **Status:** {quote_to_manage.status}
                     """)
                 
-                if col_q2.button("📧 Send to Customer", key="send_quote", use_container_width=True):
+                if col_q2.button(":material/mail: Send to Customer", key="send_quote", width="stretch"):
                     inv_mgr.update_quotation_status(quote_to_manage.quotation_id, "sent")
-                    st.success("✅ Quotation marked as sent")
+                    st.success("Quotation marked as sent")
                     st.rerun()
                 
-                if col_q3.button("✔️ Mark Accepted → Convert to Invoice", key="convert_quote", use_container_width=True):
+                if col_q3.button(":material/check: Mark Accepted → Convert to Invoice", key="convert_quote", width="stretch"):
                     # Convert quotation to invoice
                     invoice = inv_mgr.convert_quotation_to_invoice(quote_to_manage.quotation_id)
-                    st.success(f"✅ Quotation converted to Invoice: {invoice.invoice_number}")
+                    st.success(f"Quotation converted to Invoice: {invoice.invoice_number}")
                     st.rerun()
 
 # ============================================================================
 # TAB 5: PAYMENTS & FOLLOW-UPS
 # ============================================================================
 with tab_payments:
-    st.subheader("💳 Payments & AI Follow-Ups")
+    st.subheader("Payments & AI Follow-Ups")
     
     payments_tab1, payments_tab2 = st.tabs(["Recent Payments", "AI Follow-up Tasks"])
     
@@ -735,7 +735,7 @@ with tab_payments:
                 for p in recent_payments
             ])
             
-            st.dataframe(df_payments, use_container_width=True, hide_index=True)
+            st.dataframe(df_payments, width="stretch", hide_index=True)
             
             # Summary
             total_paid = sum(p["amount_minor"] for p in recent_payments)
@@ -748,8 +748,8 @@ with tab_payments:
         pending_tasks = ai_asst.get_pending_tasks(biz_id, limit=50)
         
         if not pending_tasks:
-            st.success("✅ No pending follow-up tasks")
-            if st.button("🔄 Generate New Follow-up Tasks"):
+            st.success("No pending follow-up tasks")
+            if st.button(":material/refresh: Generate New Follow-up Tasks"):
                 result = ai_asst.generate_all_tasks(biz_id)
                 st.success(f"Created {result['total_new_tasks']} follow-up tasks")
                 st.rerun()
@@ -757,26 +757,26 @@ with tab_payments:
             st.write(f"**{len(pending_tasks)} pending tasks:**")
             
             for task in pending_tasks:
-                with st.expander(f"📋 {task.task_type.replace('_', ' ').title()} — {task.customer_name_token}"):
+                with st.expander(f"{task.task_type.replace('_', ' ').title()} — {task.customer_name_token}"):
                     st.write(f"**Entity:** {task.entity_type.upper()} #{task.entity_id}")
                     st.write(f"**Suggested Action:** {task.ai_suggested_action}")
                     st.info(f"**Message:** {task.message_template}")
                     
                     col_done, col_skip = st.columns(2)
                     
-                    if col_done.button("✅ Done", key=f"complete_{task.task_id}"):
+                    if col_done.button(":material/check_circle: Done", key=f"complete_{task.task_id}"):
                         ai_asst.complete_task(
                             task.task_id,
                             "contacted_payment_promised",
                             profile.get("phone") if profile else None
                         )
-                        st.success("✅ Task marked done")
+                        st.success("Task marked done")
                         st.rerun()
                     
-                    if col_skip.button("⏭️ Skip", key=f"skip_{task.task_id}"):
+                    if col_skip.button(":material/skip_next: Skip", key=f"skip_{task.task_id}"):
                         ai_asst.skip_task(task.task_id)
-                        st.success("⏭️ Task skipped")
+                        st.success("Task skipped")
                         st.rerun()
 
 st.divider()
-st.caption("💡 **Tip:** Use the POS Dashboard to quickly create sales, then convert them to invoices here for credit customers.")
+st.caption("**Tip:** Use the POS Dashboard to quickly create sales, then convert them to invoices here for credit customers.")

@@ -1,0 +1,77 @@
+# Duka — Professional SME Finance Platform Theme
+# Dark mode, trustworthy palette with warm Kenyan-inspired accents
+
+[theme]
+base = "dark"
+primaryColor = "#F59E0B"             # Warm amber/gold — approachable, trustworthy
+backgroundColor = "#0F172A"          # Deep slate
+secondaryBackgroundColor = "#1E293B" # Slightly lighter slate
+codeBackgroundColor = "#1E293B"
+textColor = "#F1F5F9"                # Light text
+linkColor = "#60A5FA"
+borderColor = "#334155"
+codeTextColor = "#CBD5E1"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "8px"                   # Slightly softer rounding
+buttonRadius = "8px"
+
+# Typography — Inter for clean readability
+font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+baseFontSize = 14
+baseFontWeight = 400
+codeFontSize = "13px"
+headingFontSizes = ["28px", "22px", "18px", "16px", "14px", "12px"]
+headingFontWeights = [700, 600, 600, 600, 500, 500]
+linkUnderline = false
+
+# Semantic colors
+greenColor = "#34D399"  # Positive/gains
+redColor = "#F87171"    # Negative/losses
+yellowColor = "#FBBF24" # Warnings/caution
+orangeColor = "#F59E0B" # Alerts — matches primary
+blueColor = "#60A5FA"   # Informational
+violetColor = "#A78BFA" # Accent
+grayColor = "#94A3B8"   # Neutral/secondary text
+
+# Chart colors — distinguishable palette
+chartCategoricalColors = [
+    "#F59E0B",
+    "#60A5FA",
+    "#34D399",
+    "#A78BFA",
+    "#F87171",
+    "#38BDF8",
+    "#94A3B8",
+    "#FB923C",
+]
+
+# Sequential colors — warm amber gradient
+chartSequentialColors = [
+    "#78350F",
+    "#92400E",
+    "#B45309",
+    "#D97706",
+    "#F59E0B",
+    "#FBBF24",
+    "#FCD34D",
+    "#FDE68A",
+    "#FEF3C7",
+    "#FFFBEB",
+]
+
+# Dataframe styling
+dataframeBorderColor = "#334155"
+dataframeHeaderBackgroundColor = "#1E293B"
+dataframeHeaderTextColor = "#F8FAFC"
+
+# Sidebar — slightly darker for contrast
+[theme.sidebar]
+backgroundColor = "#0B1320"
+secondaryBackgroundColor = "#1E293B"
+codeBackgroundColor = "#1E293B"
+textColor = "#F1F5F9"
+borderColor = "#334155"
+primaryColor = "#F59E0B"

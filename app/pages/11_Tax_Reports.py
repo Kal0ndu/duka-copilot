@@ -12,7 +12,7 @@ from core.pos_engine import POSEngine
 from core.invoice_manager import InvoiceManager
 from app.session_helpers import SessionManager
 
-st.set_page_config(page_title="Tax Reports — Duka", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Tax Reports — Duka", page_icon=":material/analytics:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -25,7 +25,7 @@ tax = TaxManager()
 pos = POSEngine()
 inv_mgr = InvoiceManager()
 
-st.title("📊 Tax Reports & KRA Filing")
+st.title("Tax Reports & KRA Filing")
 st.caption("VAT summaries, tax liability calculations, and KRA iTax preparation.")
 
 # ---- Period Selector ----
@@ -38,11 +38,11 @@ with col_p2:
                                 format_func=lambda m: datetime(2000, m, 1).strftime("%B"))
 
 # ---- Generate Report ----
-if st.button("🔍 Generate Tax Report", type="primary", use_container_width=True):
+if st.button(":material/search: Generate Tax Report", type="primary", width="stretch"):
     report = tax.get_vat_report(biz_id, report_year, report_month)
 
     st.divider()
-    st.subheader(f"📋 VAT Report — {datetime(report_year, report_month, 1).strftime('%B %Y')}")
+    st.subheader(f"VAT Report — {datetime(report_year, report_month, 1).strftime('%B %Y')}")
 
     # KPI Row
     k1, k2, k3, k4 = st.columns(4)
@@ -59,10 +59,10 @@ if st.button("🔍 Generate Tax Report", type="primary", use_container_width=Tru
 
     # ---- Sales VAT Breakdown ----
     tab_sales, tab_invoices, tab_purchases, tab_kra = st.tabs([
-        "🛒 Sales VAT",
-        "📋 Invoice VAT",
-        "📥 Purchase VAT",
-        "📄 KRA Filing"
+        "Sales VAT",
+        "Invoice VAT",
+        "Purchase VAT",
+        ":material/description: KRA filing"
     ])
 
     with tab_sales:
@@ -108,26 +108,26 @@ if st.button("🔍 Generate Tax Report", type="primary", use_container_width=Tru
             st.info("No purchase VAT data for this period. Add purchase records to track input VAT.")
 
     with tab_kra:
-        st.subheader("📄 KRA iTax Filing Summary")
+        st.subheader("KRA iTax Filing Summary")
         kra_text = tax.format_kra_vat_return(biz_id, report_year, report_month)
         st.code(kra_text, language=None)
 
         st.info(
-            "📋 **Instructions:** Copy the summary above into your KRA iTax VAT return form. "
+            "**Instructions:** Copy the summary above into your KRA iTax VAT return form. "
             "Verify all figures before final submission. This is a convenience summary only."
         )
 
         # Save tax summary
-        if st.button("💾 Save Tax Summary for Records"):
+        if st.button(":material/save: Save Tax Summary for Records"):
             summary = tax.generate_monthly_summary(biz_id, report_year, report_month)
             if summary:
-                st.success(f"✅ Tax summary saved for {report['period']} (ID: {summary.summary_id})")
+                st.success(f"Tax summary saved for {report['period']} (ID: {summary.summary_id})")
             else:
                 st.warning("Could not save summary. It may already exist for this period.")
 
 # ---- Saved Tax Summaries ----
 st.divider()
-st.subheader("📁 Saved Tax Summaries")
+st.subheader("Saved tax summaries")
 
 summaries = tax.list_summaries(biz_id, limit=12)
 
@@ -135,7 +135,7 @@ if not summaries:
     st.info("No saved tax summaries. Generate a report and save it.")
 else:
     for s in summaries:
-        status_icon = {"draft": "📝", "submitted": "✅", "acknowledged": "📋"}.get(s.status, "📄")
+        status_icon = {"draft": ":material/edit:", "submitted": ":material/check_circle:", "acknowledged": ":material/list_alt:"}.get(s.status, ":material/description:")
         with st.expander(
             f"{status_icon} **{s.period_month}** — Net VAT: KES {s.net_vat_payable_minor/100:,.2f} — {s.status.upper()}"
         ):
@@ -154,9 +154,9 @@ else:
                 index=["draft", "submitted", "acknowledged"].index(s.status),
                 key=f"status_{s.summary_id}"
             )
-            if col_up2.button("💾 Update", key=f"update_{s.summary_id}"):
+            if col_up2.button(":material/save: Update", key=f"update_{s.summary_id}"):
                 tax.update_tax_summary_status(s.summary_id, new_status)
                 st.rerun()
 
 st.divider()
-st.caption("💡 **Tip:** VAT on purchases (input tax) reduces your net VAT payable. Make sure to record all business purchases.")
+st.caption("**Tip:** VAT on purchases (input tax) reduces your net VAT payable. Make sure to record all business purchases.")

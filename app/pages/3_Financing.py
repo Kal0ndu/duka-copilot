@@ -13,12 +13,12 @@ from core.config import Config
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Financing — Duka", page_icon="💰", layout="wide")
+st.set_page_config(page_title="Financing — Duka", page_icon=":material/payments:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
 
-st.title("💰 Digital Financing & Loan Cost Advisor")
+st.title("Digital Financing & Loan Cost Advisor")
 st.caption("Compare digital micro-credit products in Kenya with transparent Effective Annual Rate (EAR) and cashflow affordability.")
 
 # Initialize session and check for data
@@ -27,15 +27,15 @@ transactions = SessionManager.get_transactions()
 profile = SessionManager.get_profile()
 
 if not transactions:
-    st.info("💡 Load a sample business to auto-evaluate loan affordability against real operating cashflow:")
+    st.info("Load a sample business to auto-evaluate loan affordability against real operating cashflow:")
     col1, col2, col3 = st.columns(3)
-    if col1.button("🏪 Load Amina's Grocery", key="f_load_amina", use_container_width=True):
+    if col1.button(":material/storefront: Load Amina's Grocery", key="f_load_amina", width="stretch"):
         SessionManager.set_transactions(load_sample_business("amina_grocery"), MOCK_PROFILES["amina_grocery"])
         st.rerun()
-    if col2.button("🚐 Load Otieno Transport", key="f_load_otieno", use_container_width=True):
+    if col2.button(":material/directions_bike: Load Otieno Transport", key="f_load_otieno", width="stretch"):
         SessionManager.set_transactions(load_sample_business("otieno_transport"), MOCK_PROFILES["otieno_transport"])
         st.rerun()
-    if col3.button("💇 Load Grace Salon", key="f_load_grace", use_container_width=True):
+    if col3.button(":material/content_cut: Load Grace Salon", key="f_load_grace", width="stretch"):
         SessionManager.set_transactions(load_sample_business("grace_salon"), MOCK_PROFILES["grace_salon"])
         st.rerun()
 
@@ -79,12 +79,12 @@ m4.metric("Highest EAR (Most Expensive)", f"{highest_ear:.1f}%", delta="High Cos
 st.divider()
 
 # ---- PRODUCT COMPARISON CHART ----
-st.subheader("📊 Disbursed Amount vs. Total Repayable")
+st.subheader("Disbursed Amount vs. Total Repayable")
 st.caption("Inspect the true cost gap between what you receive in your M-Pesa vs what you must repay.")
-st.altair_chart(chart_loan_comparison(offers), use_container_width=True)
+st.altair_chart(chart_loan_comparison(offers), width="stretch")
 
 # ---- OFFERS TABLE ----
-st.subheader("📋 Digital Loan Products Ranked by Effective Annual Rate (EAR)")
+st.subheader("Digital Loan Products Ranked by Effective Annual Rate (EAR)")
 table_rows = []
 for o in offers:
     daily_repay_kes = o.daily_repayment_minor / 100.0
@@ -97,15 +97,15 @@ for o in offers:
         "Daily Repayment": f"KES {daily_repay_kes:,.0f}/day",
         "EAR % (True Cost)": f"{o.ear_pct:.1f}%",
         "TCC % (Fee & Interest)": f"{o.tcc_pct:.1f}%",
-        "Affordability": "✅ Affordable" if is_ok else "⚠️ Exceeds Budget",
+        "Affordability": "Affordable" if is_ok else "Exceeds Budget",
     })
 
-st.dataframe(table_rows, use_container_width=True)
+st.dataframe(table_rows, width="stretch")
 
 # ---- AFFORDABILITY CHECKER & CFO ADVISORY ----
 if best:
     st.divider()
-    st.subheader(f"🏆 Top Recommended Product: {best.lender} ({best.product})")
+    st.subheader(f"Top Recommended Product: {best.lender} ({best.product})")
 
     engine = CostEngine()
     best_daily_kes = best.daily_repayment_minor / 100.0
@@ -119,17 +119,17 @@ if best:
     with col_res1:
         if check["affordable"]:
             st.success(
-                f"✅ **Cashflow Check Passed:** The required repayment of **KES {best_daily_kes:,.0f}/day** "
+                f"**Cashflow Check Passed:** The required repayment of **KES {best_daily_kes:,.0f}/day** "
                 f"leaves sufficient operating surplus above your daily safety buffer."
             )
         else:
             st.error(
-                f"⚠️ **Cashflow Warning:** The required repayment of **KES {best_daily_kes:,.0f}/day** "
+                f"**Cashflow Warning:** The required repayment of **KES {best_daily_kes:,.0f}/day** "
                 f"exceeds your safe daily surplus. Consider choosing a longer repayment term (e.g. 60 days) to lower the daily burden."
             )
 
     with col_res2:
-        st.markdown("#### 💡 Duka CFO Cost Transparency Tip:")
+        st.markdown("##### Duka CFO Cost Transparency Tip:")
         st.info(
             f"Lenders often market loans as having 'just 1% daily interest' or 'low flat fee'. "
             f"Over a {term}-day term, that compounds to an Effective Annual Rate (EAR) of "

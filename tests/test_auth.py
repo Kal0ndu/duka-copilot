@@ -72,6 +72,7 @@ def db_path():
         CREATE TABLE IF NOT EXISTS authentication_session (
             session_id INTEGER PRIMARY KEY,
             user_id INTEGER NOT NULL,
+            phone_hash TEXT,
             business_id INTEGER NOT NULL DEFAULT 0,
             jwt_token_hash TEXT NOT NULL,
             ip_address TEXT NOT NULL DEFAULT '127.0.0.1',

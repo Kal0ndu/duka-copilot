@@ -10,7 +10,7 @@ from core.invoice_manager import InvoiceManager
 from core.ai_sales_assistant import AISalesAssistant
 from app.session_helpers import SessionManager
 
-st.set_page_config(page_title="POS Dashboard — Duka", page_icon="🛒", layout="wide")
+st.set_page_config(page_title="POS Dashboard — Duka", page_icon=":material/shopping_cart:", layout="wide")
 
 SessionManager.init_session()
 profile = SessionManager.get_profile()
@@ -21,13 +21,13 @@ inv_mgr = InventoryManager()
 inv = InvoiceManager()
 ai = AISalesAssistant()
 
-st.title("🛒 POS Dashboard")
+st.title("POS Dashboard")
 st.caption("Point of Sale: quick sales, daily summary, and recent transactions.")
 
 # ---- POS Settings Check ----
 pos_settings = pos.get_pos_setting(biz_id)
 if pos_settings is None:
-    st.warning("⚠️ POS not configured for this business. Set up below:")
+    st.warning("POS not configured for this business. Set up below:")
     with st.form("pos_setup"):
         biz_name = st.text_input("Business Name", value=profile.get("name", "") if profile else "")
         biz_phone = st.text_input("Business Phone")
@@ -63,7 +63,7 @@ st.divider()
 col_left, col_right = st.columns([2, 3])
 
 with col_left:
-    st.subheader("🛍️ Quick Sale")
+    st.subheader("Quick Sale")
     with st.form("quick_sale"):
         product_opts = {f"{p.name} (KES {p.selling_price:,.2f} | Stock: {p.current_stock_qty})": p for p in products if p.current_stock_qty > 0}
         if not product_opts:
@@ -73,7 +73,7 @@ with col_left:
             payment_method = st.selectbox("Payment", ["cash", "m_pesa", "card", "cheque", "credit"])
             customer_name = st.text_input("Customer Name (optional)", placeholder="Walk-in customer")
             notes = st.text_area("Notes (optional)")
-            submitted = st.form_submit_button("💰 Complete Sale", use_container_width=True, type="primary")
+            submitted = st.form_submit_button(":material/payments: Complete Sale", width="stretch", type="primary")
 
             if submitted and selected_names:
                 settings = pos.get_pos_setting(biz_id)
@@ -98,13 +98,13 @@ with col_left:
                     notes=notes or None,
                     created_by_user=profile.get("phone", "pos_user") if profile else "pos_user",
                 )
-                st.success(f"✅ Sale {sale.sale_number} completed — KES {sale.total_amount_minor/100:,.2f}")
-                with st.expander("🧾 Receipt"):
+                st.success(f"Sale {sale.sale_number} completed — KES {sale.total_amount_minor/100:,.2f}")
+                with st.expander("Receipt"):
                     st.code(pos.format_receipt(sale, settings))
                 st.rerun()
 
 with col_right:
-    st.subheader("📋 Recent Sales")
+    st.subheader("Recent Sales")
     recent_sales = pos.get_sales_for_business(biz_id, limit=20)
     if not recent_sales:
         st.info("No sales yet. Make your first sale!")
@@ -119,7 +119,7 @@ st.divider()
 bot1, bot2 = st.columns(2)
 
 with bot1:
-    st.subheader("⚠️ Reorder Alerts")
+    st.subheader("Reorder Alerts")
     if alerts:
         for p in alerts:
             st.warning(f"**{p.name}** — {p.current_stock_qty} left (reorder at {p.reorder_level_qty})")
@@ -131,21 +131,21 @@ with bot2:
     pending = ai.get_pending_tasks(biz_id, limit=10)
     if not pending:
         st.info("No pending follow-ups. Generate new tasks:")
-        if st.button("🔄 Generate Follow-up Tasks"):
+        if st.button(":material/refresh: Generate Follow-up Tasks"):
             result = ai.generate_all_tasks(biz_id)
             st.success(f"Created {result['total_new_tasks']} tasks")
             st.rerun()
     else:
         for t in pending:
-            icon = "📧" if t.task_type == "payment_reminder" else "📋" if t.task_type == "quotation_follow_up" else "⚠️"
+            icon = ":material/mail:" if t.task_type == "payment_reminder" else ":material/list_alt:" if t.task_type == "quotation_follow_up" else ":material/warning:"
             st.write(f"{icon} **{t.task_type.replace('_',' ').title()}** — {t.customer_name_token or 'Unknown'}")
             with st.expander("Details"):
                 st.caption(t.message_template)
                 st.caption(f"*Suggested:* {t.ai_suggested_action}")
                 col_a, col_b = st.columns(2)
-                if col_a.button("✅ Done", key=f"done_{t.task_id}"):
+                if col_a.button(":material/check_circle: Done", key=f"done_{t.task_id}"):
                     ai.complete_task(t.task_id, "contacted_payment_promised", profile.get("phone") if profile else None)
                     st.rerun()
-                if col_b.button("⏭️ Skip", key=f"skip_{t.task_id}"):
+                if col_b.button(":material/skip_next: Skip", key=f"skip_{t.task_id}"):
                     ai.skip_task(t.task_id)
                     st.rerun()

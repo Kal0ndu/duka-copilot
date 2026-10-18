@@ -71,12 +71,17 @@ CREATE TABLE business (
   employee_count INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','suspended','closed')),
   is_synthetic INTEGER NOT NULL DEFAULT 1 CHECK (is_synthetic IN (0,1)),
+  owner_user_id INTEGER REFERENCES app_user(user_id),
+  owner_phone_hash TEXT REFERENCES app_user(phone_hash),
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
   updated_at TEXT
 );
 
 CREATE TABLE app_user (
   user_id INTEGER PRIMARY KEY,
+  phone_hash TEXT NOT NULL UNIQUE,
+  phone_verified INTEGER NOT NULL DEFAULT 0 CHECK (phone_verified IN (0,1)),
+  display_name TEXT NOT NULL,
   display_token TEXT NOT NULL,
   locale TEXT NOT NULL DEFAULT 'en',
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','disabled')),
@@ -86,8 +91,10 @@ CREATE TABLE app_user (
 CREATE TABLE business_member (
   business_id INTEGER NOT NULL REFERENCES business(business_id),
   user_id INTEGER NOT NULL REFERENCES app_user(user_id),
+  phone_hash TEXT NOT NULL REFERENCES app_user(phone_hash),
   role TEXT NOT NULL CHECK (role IN ('owner','manager','accountant','viewer')),
-  PRIMARY KEY (business_id, user_id)
+  PRIMARY KEY (business_id, user_id),
+  UNIQUE (business_id, phone_hash)
 );
 
 -- #### DOMAIN: Parties and payees
@@ -850,7 +857,7 @@ SELECT event_type, COALESCE(decision,'n/a') AS decision, COUNT(*) AS events FROM
 -- =====================================================================
 -- SEED / REFERENCE DATA
 -- =====================================================================
-INSERT INTO schema_migration(version, description) VALUES (1, 'Initial full SME data model');
+INSERT INTO schema_migration(version, description) VALUES (0, 'Initial full SME data model (schema.sql baseline)');
 
 INSERT INTO currency(code, name, minor_unit) VALUES ('KES','Kenyan shilling',2), ('USD','US dollar',2);
 INSERT INTO platform(code, name, country_code, adapter_name) VALUES ('mobile_money_ke','Mobile money (Kenya)','KE','MobileMoneyKeAdapter');

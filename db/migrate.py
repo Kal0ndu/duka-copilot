@@ -11,14 +11,49 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from core.config import Config
+
 
 class MigrationRunner:
     """Run SQL migrations from db/migrations/ directory."""
 
-    def __init__(self, db_path="duka.db"):
-        self.db_path = db_path
+    def __init__(self, db_path=None):
+        # Default to the same database the app actually reads (Config.DB_PATH),
+        # not a throwaway file in the current working directory.
+        self.db_path = db_path or Config.DB_PATH
         self.migrations_dir = Path(__file__).parent / "migrations"
-        
+        self.schema_path = Path(__file__).parent / "schema.sql"
+
+    def load_base_schema_if_needed(self):
+        """Load db/schema.sql if the target database has no tables yet.
+
+        Incremental files under db/migrations/ assume the base schema
+        (business, app_user, transaction_ledger, ...) already exists —
+        this bootstraps a brand-new database file the same way
+        data/generate_synthetic.py does, so --latest works from scratch.
+        """
+        db_file = Path(self.db_path)
+        is_empty = not db_file.exists() or db_file.stat().st_size == 0
+        if not is_empty:
+            with sqlite3.connect(self.db_path) as conn:
+                count = conn.execute(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
+                ).fetchone()[0]
+                is_empty = count == 0
+
+        if not is_empty:
+            return
+
+        db_file.parent.mkdir(parents=True, exist_ok=True)
+        print(f"📦 {self.db_path} has no tables yet — loading base schema.sql...")
+        with open(self.schema_path, "r") as f:
+            sql_script = f.read()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.executescript(sql_script)
+            conn.commit()
+        print("✅ Base schema loaded.")
+
     def init_schema_tracking(self):
         """Create schema_migration table if it doesn't exist."""
         with sqlite3.connect(self.db_path) as conn:
@@ -86,6 +121,7 @@ class MigrationRunner:
     
     def run_pending(self):
         """Run all pending migrations."""
+        self.load_base_schema_if_needed()
         self.init_schema_tracking()
         pending = self.get_pending_migrations()
         
@@ -103,7 +139,7 @@ class MigrationRunner:
             if self.run_migration(version, filename, filepath):
                 success_count += 1
             else:
-                print(f"❌ Migration 001 failed. Stopping.")
+                print(f"❌ Migration {version} ({filename}) failed. Stopping.")
                 return False
         
         print(f"\n✅ Successfully applied {success_count}/{len(pending)} migration(s)")

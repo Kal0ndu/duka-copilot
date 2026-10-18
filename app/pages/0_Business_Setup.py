@@ -8,12 +8,12 @@ from app.auth_ui import require_auth
 
 from core.business_setup import BusinessSetup
 
-st.set_page_config(page_title="Business Setup — Duka", page_icon="🏪")
+st.set_page_config(page_title="Business Setup — Duka", page_icon=":material/storefront:")
 # ---- Authentication Gate ----
 require_auth()
 
 
-st.title("🏪 Business Setup")
+st.title("Business Setup")
 st.caption("Register your business and customize financial tracking.")
 
 setup = BusinessSetup()
@@ -27,10 +27,10 @@ if business_id:
         st.success(f"✓ Registered: **{profile.name_token}** ({profile.sector})")
 
     tab1, tab2, tab3, tab4 = st.tabs([
-        "💰 Recurring Expenses",
-        "🏷️ Categories",
-        "🎯 Financial Goals",
-        "⚙️ Settings",
+        "Recurring Expenses",
+        "Categories",
+        ":material/flag: Financial goals",
+        "Settings",
     ])
 
     # Tab 1: Recurring Expenses
@@ -58,7 +58,7 @@ if business_id:
             day = st.number_input("Day of month (if monthly/quarterly)", value=1, min_value=1, max_value=31)
             is_variable = st.checkbox("Variable amount?")
 
-            if st.form_submit_button("➕ Add Expense"):
+            if st.form_submit_button(":material/add: Add Expense"):
                 expense_id = setup.add_recurring_expense(
                     business_id=business_id,
                     expense_type=exp_type,
@@ -172,7 +172,7 @@ if business_id:
                     min_value=0, max_value=50,
                 )
 
-            if st.form_submit_button("💾 Save Goals"):
+            if st.form_submit_button(":material/save: Save Goals"):
                 setup.set_financial_goals(
                     business_id=business_id,
                     revenue_target=int(revenue_target * 100),
@@ -222,7 +222,7 @@ else:
         with col4:
             employee_count = st.number_input("Number of employees", value=1, min_value=0, max_value=1000)
 
-        if st.form_submit_button("🚀 Create Business"):
+        if st.form_submit_button(":material/rocket_launch: Create business"):
             biz_id = setup.register_business(
                 name=business_name,
                 sector=sector,

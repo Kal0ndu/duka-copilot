@@ -14,42 +14,22 @@ BEGIN TRANSACTION;
 -- =====================================================================
 -- TABLE 1: app_user (Core user authentication)
 -- =====================================================================
-CREATE TABLE IF NOT EXISTS app_user (
-  user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  
-  -- Phone (primary login method)
-  phone_hash TEXT NOT NULL UNIQUE,
-  phone_verified INTEGER NOT NULL DEFAULT 0 CHECK (phone_verified IN (0,1)),
-  
-  -- Email (secondary; backup recovery)
-  email_hash TEXT UNIQUE,
-  email_verified INTEGER NOT NULL DEFAULT 0 CHECK (email_verified IN (0,1)),
-  
-  -- Display info
-  display_name TEXT NOT NULL,
-  
-  -- Authentication
-  password_hash TEXT,
-  password_salt TEXT,
-  
-  -- Preferences
-  locale TEXT NOT NULL DEFAULT 'en',
-  timezone TEXT NOT NULL DEFAULT 'Africa/Nairobi',
-  
-  -- Status
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','disabled','suspended')),
-  
-  -- Activity tracking
-  last_login_at TEXT,
-  last_login_ip TEXT,
-  
-  -- Timestamps
-  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-  updated_at TEXT
-);
+-- app_user already exists from db/schema.sql's base definition (user_id,
+-- phone_hash, phone_verified, display_name, display_token, locale, status,
+-- created_at) — add the auth columns this migration needs instead of
+-- CREATE TABLE IF NOT EXISTS, which would silently no-op against the
+-- existing table and skip every column below.
+ALTER TABLE app_user ADD COLUMN email_hash TEXT;
+ALTER TABLE app_user ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0 CHECK (email_verified IN (0,1));
+ALTER TABLE app_user ADD COLUMN password_hash TEXT;
+ALTER TABLE app_user ADD COLUMN password_salt TEXT;
+ALTER TABLE app_user ADD COLUMN timezone TEXT NOT NULL DEFAULT 'Africa/Nairobi';
+ALTER TABLE app_user ADD COLUMN last_login_at TEXT;
+ALTER TABLE app_user ADD COLUMN last_login_ip TEXT;
+ALTER TABLE app_user ADD COLUMN updated_at TEXT;
 
 CREATE INDEX IF NOT EXISTS ix_app_user_phone ON app_user(phone_hash);
-CREATE INDEX IF NOT EXISTS ix_app_user_email ON app_user(email_hash);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_app_user_email ON app_user(email_hash);
 CREATE INDEX IF NOT EXISTS ix_app_user_status ON app_user(status) WHERE status != 'active';
 
 -- =====================================================================
@@ -60,6 +40,7 @@ CREATE TABLE IF NOT EXISTS kyc_profile (
   
   -- Link to user
   user_id INTEGER NOT NULL UNIQUE REFERENCES app_user(user_id) ON DELETE CASCADE,
+  phone_hash TEXT REFERENCES app_user(phone_hash),
   
   -- KYC Status
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','verified','flagged')),
@@ -104,6 +85,7 @@ CREATE TABLE IF NOT EXISTS authentication_session (
   
   -- User & Business Context
   user_id INTEGER NOT NULL REFERENCES app_user(user_id) ON DELETE CASCADE,
+  phone_hash TEXT REFERENCES app_user(phone_hash),
   business_id INTEGER NOT NULL REFERENCES business(business_id) ON DELETE CASCADE,
   
   -- JWT Token Tracking (store hash, never raw token)
@@ -195,24 +177,30 @@ CREATE INDEX IF NOT EXISTS ix_audit_phone ON audit_login(phone_hash, created_at)
 -- =====================================================================
 -- TABLE 6: business_member (Multi-role business access)
 -- =====================================================================
-CREATE TABLE IF NOT EXISTS business_member (
-  member_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  business_id INTEGER NOT NULL REFERENCES business(business_id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES app_user(user_id) ON DELETE CASCADE,
-  
-  -- Role-based access control
-  role TEXT NOT NULL CHECK (role IN ('owner','manager','accountant','viewer')),
-  
-  -- Access control
-  is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
-  
-  -- Timestamps
-  added_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-  updated_at TEXT,
-  
-  UNIQUE (business_id, user_id)
-);
+-- business_member already exists from db/schema.sql (business_id, user_id,
+-- phone_hash NOT NULL, role; composite PRIMARY KEY (business_id, user_id)).
+-- CREATE TABLE IF NOT EXISTS would silently no-op here too, so add the
+-- missing columns db/sessions.py depends on (member_id, is_active, added_at,
+-- updated_at) instead. SQLite can't ALTER in a new INTEGER PRIMARY KEY onto
+-- an existing table, so member_id is backed by the table's implicit rowid
+-- (business_member isn't WITHOUT ROWID) via a trigger, giving the same
+-- auto-incrementing-identifier behaviour db/sessions.py expects from
+-- cursor.lastrowid.
+ALTER TABLE business_member ADD COLUMN member_id INTEGER;
+ALTER TABLE business_member ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1));
+ALTER TABLE business_member ADD COLUMN added_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'));
+ALTER TABLE business_member ADD COLUMN updated_at TEXT;
 
+UPDATE business_member SET member_id = rowid WHERE member_id IS NULL;
+
+CREATE TRIGGER IF NOT EXISTS trg_business_member_id
+AFTER INSERT ON business_member
+WHEN NEW.member_id IS NULL
+BEGIN
+  UPDATE business_member SET member_id = NEW.rowid WHERE rowid = NEW.rowid;
+END;
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_business_member_id ON business_member(member_id);
 CREATE INDEX IF NOT EXISTS ix_business_member_user ON business_member(user_id, is_active);
 CREATE INDEX IF NOT EXISTS ix_business_member_role ON business_member(business_id, role);
 
@@ -239,7 +227,7 @@ CREATE TABLE IF NOT EXISTS business_invite (
   -- Timing
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
   expires_at TEXT NOT NULL,
-  accepted_at TEXT,
+  accepted_at TEXT
   
 );
 CREATE INDEX IF NOT EXISTS ix_invite_code ON business_invite(invite_code);
@@ -248,10 +236,10 @@ CREATE INDEX IF NOT EXISTS ix_invite_business_status ON business_invite(business
 -- =====================================================================
 -- MODIFY: business table (Add ownership & KYC fields)
 -- =====================================================================
-ALTER TABLE business ADD COLUMN IF NOT EXISTS owner_user_id INTEGER REFERENCES app_user(user_id);
-ALTER TABLE business ADD COLUMN IF NOT EXISTS kyc_required INTEGER NOT NULL DEFAULT 1 CHECK (kyc_required IN (0,1));
-ALTER TABLE business ADD COLUMN IF NOT EXISTS kyc_verified_by_user_id INTEGER REFERENCES app_user(user_id);
-ALTER TABLE business ADD COLUMN IF NOT EXISTS kyc_verified_at TEXT;
+-- owner_user_id already exists in db/schema.sql's base business table.
+ALTER TABLE business ADD COLUMN kyc_required INTEGER NOT NULL DEFAULT 1 CHECK (kyc_required IN (0,1));
+ALTER TABLE business ADD COLUMN kyc_verified_by_user_id INTEGER REFERENCES app_user(user_id);
+ALTER TABLE business ADD COLUMN kyc_verified_at TEXT;
 
 CREATE INDEX IF NOT EXISTS ix_business_owner ON business(owner_user_id);
 
@@ -276,11 +264,13 @@ WHERE revoked_at IS NULL
 CREATE VIEW IF NOT EXISTS v_user_kyc_status AS
 SELECT 
   u.user_id,
+  u.phone_hash,
   u.display_name,
   u.phone_verified,
   COALESCE(k.status, 'no_profile') AS kyc_status,
   COALESCE(k.verified_at, NULL) AS kyc_verified_at,
-  COALESCE(k.sanctio_flagged_reason, NULL) AS kyc_flag_reason
+  COALESCE(k.sanctions_result, NULL) AS sanctions_result,
+  COALESCE(k.flagged_reason, NULL) AS kyc_flag_reason
 FROM app_user u
 LEFT JOIN kyc_profile k ON u.user_id = k.user_id;
 
@@ -290,6 +280,7 @@ SELECT
   b.business_id,
   b.name_token,
   bm.user_id,
+  bm.phone_hash,
   u.display_name,
   bm.role,
   bm.is_active

@@ -151,12 +151,13 @@ def persist_session(db_path: str, session: Session, token: str,
     try:
         with sqlite3.connect(db_path) as conn:
             conn.execute("PRAGMA foreign_keys = ON")
+            ph = session.phone_hash if session.phone_hash else None
             conn.execute(
                 """INSERT INTO authentication_session
-                   (user_id, business_id, jwt_token_hash, ip_address, user_agent,
+                   (user_id, phone_hash, business_id, jwt_token_hash, ip_address, user_agent,
                     issued_at, expires_at, last_activity_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                (session.user_id, session.business_id, token_hash,
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (session.user_id, ph, session.business_id, token_hash,
                  ip_address, user_agent, issued_at, expires_at, issued_at)
             )
             conn.commit()

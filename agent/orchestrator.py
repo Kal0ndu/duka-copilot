@@ -10,6 +10,7 @@ from agent.policy_guard import PolicyGuard, PolicyViolation
 from agent.tools import TOOL_REGISTRY, get_tool_schemas_for_llm
 from agent.verify_numbers import verify_numbers
 from auth.user_context import UserContext, invalidate_user_cache, invalidate_session_context, refresh_context_if_stale
+from db.audit import log_event
 
 
 @dataclass
@@ -94,6 +95,17 @@ class Orchestrator:
         msgs.append({"role": "user", "content": user_input})
         return msgs
 
+    def _log_audit(self, event_type: str, **kwargs):
+        """Best-effort audit write. Never let logging break the agent loop."""
+        try:
+            log_event(
+                self.cfg.DB_PATH, actor=kwargs.pop("actor", "agent"),
+                event_type=event_type, business_id=self._active_business_id,
+                **kwargs,
+            )
+        except Exception:
+            pass
+
     def _execute_tool(self, name: str, args: Dict) -> Dict:
         """Execute a registered tool and return its result.
 
@@ -108,6 +120,17 @@ class Orchestrator:
         spec = TOOL_REGISTRY.get(name)
         if not spec:
             return {"error": f"Unknown tool: {name}"}
+
+        # Tier gate — enforced here, not left to the called function's
+        # convention. A tool not exposed to the LLM (e.g. execute_approved_action)
+        # or tagged T3 (forbidden) must never dispatch from this loop, even if
+        # a future _TOOL_IMPLS entry wires it up to a real implementation.
+        if not spec.exposed_to_llm or spec.tier == "T3":
+            self._log_audit(
+                "FORBIDDEN_TOOL_CALL", actor="guard", tool=name, tier=spec.tier,
+                decision="blocked", details={"args": args},
+            )
+            return {"error": f"Tool '{name}' cannot be invoked by the agent.", "blocked": True}
 
         try:
             parsed = spec.schema(**args)
@@ -124,8 +147,17 @@ class Orchestrator:
                     self._active_user_id, self._active_business_id,
                 )
 
+            self._log_audit(
+                "TOOL_CALL", tool=name, tier=spec.tier,
+                decision="error" if isinstance(result, dict) and "error" in result else "success",
+                details={"args": args},
+            )
             return result
         except Exception as e:
+            self._log_audit(
+                "TOOL_CALL", tool=name, tier=spec.tier, decision="error",
+                details={"args": args, "exception": str(e)},
+            )
             return {"error": str(e), "tool": name}
 
     def _dispatch_registered_tool(self, spec: Any, parsed_args: Any) -> Dict:
@@ -162,7 +194,12 @@ class Orchestrator:
             fn = getattr(mod, func_name, None)
             if fn is None:
                 return {"error": f"Function {func_name} not found in {module_name}"}
-            result = fn(parsed_args)
+            # Pass business context when the implementation accepts it;
+            # fall back for simpler/legacy signatures.
+            try:
+                result = fn(parsed_args, business_id=self._active_business_id, db_path=self.cfg.DB_PATH)
+            except TypeError:
+                result = fn(parsed_args)
             return result
         except Exception as e:
             return {"error": str(e), "tool": spec.name}
@@ -275,9 +312,16 @@ class Orchestrator:
         business context and injects it into the system prompt so the
         LLM works with pre-aggregated data.
         """
+        # Audit logging needs business_id scoped before the guard check below.
+        self._active_business_id = business_id
+
         try:
             sanitised, input_warnings = self.guard.guard_input(user_input)
         except PolicyViolation as e:
+            self._log_audit(
+                "INPUT_BLOCKED", actor="guard", decision="blocked",
+                details={"rule": e.rule, "detail": e.detail},
+            )
             return {"response": "I cannot process that request.", "error": str(e), "blocked": True}
 
         # Load user context if identifiers provided
@@ -306,6 +350,11 @@ class Orchestrator:
 
         caps = self.cfg.caps_minor()
         output_warnings = self.guard.guard_output(response, caps=caps)
+        if output_warnings:
+            self._log_audit(
+                "OUTPUT_WARNING", actor="guard", decision="warning",
+                details={"warnings": output_warnings},
+            )
 
         verification = verify_numbers(response, self.state.tool_results)
 

@@ -9,7 +9,7 @@ from core.inventory_manager import InventoryManager, Product, InventoryTransacti
 from core.pos_engine import POSEngine
 from app.session_helpers import SessionManager
 
-st.set_page_config(page_title="Inventory — Duka", page_icon="📦", layout="wide")
+st.set_page_config(page_title="Inventory — Duka", page_icon=":material/inventory:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -21,22 +21,22 @@ biz_id = profile.get("business_id", 1) if profile else 1
 inv_mgr = InventoryManager()
 pos = POSEngine()
 
-st.title("📦 Inventory Management")
+st.title("Inventory Management")
 st.caption("Products, stock levels, reorder alerts, and valuation.")
 
 # ---- Tabs ----
 tab_products, tab_stock, tab_alerts, tab_valuation = st.tabs([
-    "🏷️ Products",
-    "📊 Stock Movements",
-    "⚠️ Reorder Alerts",
-    "💰 Valuation"
+    "Products",
+    "Stock Movements",
+    "Reorder Alerts",
+    "Valuation"
 ])
 
 # ============================================================================
 # TAB 1: PRODUCTS
 # ============================================================================
 with tab_products:
-    st.subheader("🏷️ Product Catalog")
+    st.subheader("Product Catalog")
 
     products = inv_mgr.list_products(biz_id, active_only=False, limit=500)
 
@@ -46,7 +46,7 @@ with tab_products:
         if not products:
             st.info("No products yet. Add your first product!")
         else:
-            search = st.text_input("🔍 Search by name or SKU", key="prod_search")
+            search = st.text_input(":material/search: Search by name or SKU", key="prod_search")
             filtered = products
             if search:
                 s = search.lower()
@@ -55,7 +55,7 @@ with tab_products:
             st.caption(f"{len(filtered)} product(s) shown")
 
             for p in filtered:
-                status_icon = "🟢" if p.is_active and not p.needs_reorder else "🟡" if p.needs_reorder else "🔴"
+                status_icon = ":material/check_circle:" if p.is_active and not p.needs_reorder else ":material/warning:" if p.needs_reorder else ":material/cancel:"
                 margin = p.compute_margin_pct()
                 with st.expander(
                     f"{status_icon} **{p.name}** — KES {p.selling_price:,.2f} | Stock: {p.current_stock_qty} | Margin: {margin:.1f}%"
@@ -75,19 +75,19 @@ with tab_products:
 
                     # Quick actions
                     c_edit, c_toggle, c_restock = st.columns(3)
-                    if c_edit.button("✏️ Edit", key=f"edit_{p.product_id}"):
+                    if c_edit.button(":material/edit: Edit", key=f"edit_{p.product_id}"):
                         st.session_state[f"editing_product_{p.product_id}"] = True
                     if c_toggle.button(
-                        "🔴 Deactivate" if p.is_active else "🟢 Activate",
+                        ":material/block: Deactivate" if p.is_active else ":material/play_circle: Activate",
                         key=f"toggle_{p.product_id}"
                     ):
                         inv_mgr.toggle_product_active(p.product_id)
                         st.rerun()
-                    if c_restock.button("📥 Restock", key=f"rstk_{p.product_id}"):
+                    if c_restock.button(":material/download: Restock", key=f"rstk_{p.product_id}"):
                         st.session_state[f"restocking_{p.product_id}"] = True
 
     with col_add:
-        st.subheader("➕ Add / Edit Product")
+        st.subheader("Add / Edit Product")
         edit_id = None
         for p in products:
             if st.session_state.get(f"editing_product_{p.product_id}"):
@@ -123,8 +123,8 @@ with tab_products:
 
             barcode = st.text_input("Barcode (optional)", value=edit_product.barcode or "" if edit_product else "")
 
-            label = f"✏️ Update {edit_product.name}" if edit_product else "➕ Add Product"
-            submitted = st.form_submit_button(label, use_container_width=True, type="primary")
+            label = f":material/edit: Update {edit_product.name}" if edit_product else "Add Product"
+            submitted = st.form_submit_button(label, width="stretch", type="primary")
 
             if submitted:
                 if not name or not sku:
@@ -148,10 +148,10 @@ with tab_products:
                     )
                     if edit_product:
                         inv_mgr.update_product(p)
-                        st.success(f"✅ Updated {name}")
+                        st.success(f"Updated {name}")
                     else:
                         pid = inv_mgr.create_product(p)
-                        st.success(f"✅ Created {name} (ID: {pid})")
+                        st.success(f"Created {name} (ID: {pid})")
 
                     # Clear editing state
                     if edit_id:
@@ -162,7 +162,7 @@ with tab_products:
 # TAB 2: STOCK MOVEMENTS
 # ============================================================================
 with tab_stock:
-    st.subheader("📊 Stock Movements")
+    st.subheader("Stock Movements")
 
     movements = inv_mgr.get_stock_movement(biz_id, days=30)
 
@@ -187,14 +187,14 @@ with tab_stock:
         st.caption(f"{len(filtered_moves)} movement(s)")
 
         type_icons = {
-            "purchase": "📥", "sale": "🛒", "adjustment": "🔧",
-            "return": "↩️", "damaged": "💔", "loss": "❌"
+            "purchase": ":material/download:", "sale": ":material/shopping_cart:", "adjustment": ":material/build:",
+            "return": ":material/undo:", "damaged": ":material/broken_image:", "loss": ":material/cancel:"
         }
 
         for m in filtered_moves[:50]:
             product = inv_mgr.get_product(m.product_id)
             pname = product.name if product else f"Product #{m.product_id}"
-            icon = type_icons.get(m.type, "📦")
+            icon = type_icons.get(m.type, ":material/inventory_2:")
             st.write(
                 f"{icon} **{m.type.upper()}** — {pname} — "
                 f"{m.quantity:+d} units — {m.created_at[:10]} — "
@@ -203,7 +203,7 @@ with tab_stock:
 
     # Quick Restock Form
     st.divider()
-    st.subheader("📥 Quick Restock")
+    st.subheader("Quick Restock")
 
     products_active = inv_mgr.list_products(biz_id, active_only=True, limit=500)
 
@@ -225,7 +225,7 @@ with tab_stock:
 
         qty = st.number_input("Quantity to add", min_value=1, step=1, value=1)
         notes = st.text_input("Notes (optional)", placeholder="e.g., supplier delivery")
-        restock_submitted = st.form_submit_button("📥 Restock", use_container_width=True)
+        restock_submitted = st.form_submit_button(":material/download: Restock", width="stretch")
 
         if restock_submitted and selected:
             pid = product_opts[selected]
@@ -237,7 +237,7 @@ with tab_stock:
                 recorded_by=profile.get("phone", "system") if profile else "system",
             )
             if success:
-                st.success(f"✅ Added {qty} units")
+                st.success(f"Added {qty} units")
                 if restock_pid:
                     st.session_state.pop(f"restocking_{restock_pid}", None)
                 st.rerun()
@@ -248,12 +248,12 @@ with tab_stock:
 # TAB 3: REORDER ALERTS
 # ============================================================================
 with tab_alerts:
-    st.subheader("⚠️ Reorder Alerts")
+    st.subheader("Reorder Alerts")
 
     alerts = inv_mgr.get_reorder_alerts(biz_id)
 
     if not alerts:
-        st.success("✅ All products are well-stocked! No reorder alerts.")
+        st.success("All products are well-stocked! No reorder alerts.")
     else:
         st.warning(f"**{len(alerts)} product(s)** need reordering")
 
@@ -263,7 +263,7 @@ with tab_alerts:
                 col_a1, col_a2, col_a3 = st.columns([3, 2, 1])
                 col_a1.write(f"**{p.name}** — {p.current_stock_qty} left (reorder at {p.reorder_level_qty})")
                 col_a2.metric("Reorder Qty", p.reorder_qty)
-                if col_a3.button("📥 Restock", key=f"alert_restock_{p.product_id}"):
+                if col_a3.button(":material/download: Restock", key=f"alert_restock_{p.product_id}"):
                     st.session_state[f"restocking_{p.product_id}"] = True
                     st.rerun()
 
@@ -271,7 +271,7 @@ with tab_alerts:
 # TAB 4: VALUATION
 # ============================================================================
 with tab_valuation:
-    st.subheader("💰 Inventory Valuation")
+    st.subheader("Inventory Valuation")
 
     valuation = inv_mgr.get_inventory_valuation(biz_id)
 
@@ -288,7 +288,7 @@ with tab_valuation:
     st.divider()
 
     if valuation["by_category"]:
-        st.subheader("📂 By Category")
+        st.subheader("By category")
         for cat, data in valuation["by_category"].items():
             cat_name = cat or "Uncategorized"
             st.write(
@@ -300,4 +300,4 @@ with tab_valuation:
         st.info("No category data available. Add categories to your products.")
 
 st.divider()
-st.caption("💡 **Tip:** Products flagged with 🟡 need reordering. Use Restock to update stock levels after receiving new inventory.")
+st.caption("**Tip:** Products flagged with a yellow dot need reordering. Use Restock to update stock levels after receiving new inventory.")

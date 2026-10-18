@@ -11,23 +11,23 @@ from app.auth_ui import require_auth
 from core.spending_advisor import SpendingAdvisor
 from core.config import config as cfg
 
-st.set_page_config(page_title="Spending Advisor — Duka", page_icon="💡")
+st.set_page_config(page_title="Spending Advisor — Duka", page_icon=":material/lightbulb:")
 # ---- Authentication Gate ----
 require_auth()
 
 
-st.title("💡 Spending Advisor")
+st.title("Spending Advisor")
 st.caption("Make smarter spending decisions with data-backed advice.")
 
 business_id = st.session_state.get("business_id")
 if not business_id:
-    st.warning("⚠️ Please register your business first in **Business Setup**.")
+    st.warning("Please register your business first in **Business Setup**.")
     st.stop()
 
 advisor = SpendingAdvisor()
 
 tab_purchase, tab_allocate, tab_forecast = st.tabs(
-    ["🛒 Purchase Advice", "💰 Cash Allocation", "📈 Forecast"]
+    ["Purchase Advice", "Cash Allocation", "Forecast"]
 )
 
 # =========================================================================
@@ -62,7 +62,7 @@ with tab_purchase:
         key="expected_roi",
     )
 
-    if st.button("Analyze Purchase", type="primary", use_container_width=True):
+    if st.button("Analyze Purchase", type="primary", width="stretch"):
         with st.spinner("Analyzing..."):
             purchase_amount_minor = int(purchase_amount * 100)
             advice = advisor.advise_on_purchase(
@@ -84,13 +84,13 @@ with tab_purchase:
 
         # Reasons
         if advice.reasons:
-            st.markdown("#### Why?")
+            st.markdown("##### Why?")
             for reason in advice.reasons:
                 st.markdown(f"- {reason}")
 
         # Impact analysis
         st.divider()
-        st.markdown("#### Impact Analysis")
+        st.markdown("##### Impact Analysis")
 
         icol1, icol2, icol3 = st.columns(3)
         with icol1:
@@ -131,7 +131,7 @@ with tab_purchase:
 
         # Suggested actions
         if advice.suggested_actions:
-            st.markdown("#### Suggested Actions")
+            st.markdown("##### Suggested Actions")
             for action in advice.suggested_actions:
                 st.markdown(f"- {action}")
 
@@ -153,7 +153,7 @@ with tab_allocate:
         )
         custom_cash = int(custom_cash_kes * 100)
 
-    if st.button("Get Allocation Advice", type="primary", use_container_width=True):
+    if st.button("Get Allocation Advice", type="primary", width="stretch"):
         with st.spinner("Computing allocation..."):
             result = advisor.allocate_spending(
                 business_id=business_id,
@@ -181,7 +181,7 @@ with tab_allocate:
 
         # Allocation table
         if result.allocations:
-            st.markdown("#### Priority Allocation")
+            st.markdown("##### Priority Allocation")
 
             alloc_data = []
             for a in result.allocations:
@@ -195,14 +195,14 @@ with tab_allocate:
             alloc_df = pd.DataFrame(alloc_data)
             st.dataframe(
                 alloc_df.style.format({"Amount (KES)": "KES {:,.0f}"}),
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
 
             # Bar chart
             st.bar_chart(
                 alloc_df.set_index("Category")["Amount (KES)"],
-                use_container_width=True,
+                width="stretch",
             )
 
 # =========================================================================
@@ -220,7 +220,7 @@ with tab_forecast:
         key="forecast_horizon",
     )
 
-    if st.button("Generate Forecast", type="primary", use_container_width=True):
+    if st.button("Generate Forecast", type="primary", width="stretch"):
         with st.spinner("Running forecast..."):
             summary = advisor.get_forecast_summary(business_id, horizon_days=horizon)
 
@@ -271,13 +271,13 @@ with tab_forecast:
 
             st.line_chart(
                 chart_data.set_index("Day")[["P10 (Worst)", "P50 (Median)", "P90 (Best)"]],
-                use_container_width=True,
+                width="stretch",
             )
 
         # Shortfall alerts
         if summary["shortfalls"]:
             st.divider()
-            st.markdown("#### ⚠️ Shortfall Alerts")
+            st.markdown("##### Shortfall Alerts")
 
             for sf in summary["shortfalls"]:
                 prob_pct = sf["probability_bp"] / 100

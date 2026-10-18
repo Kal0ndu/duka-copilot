@@ -9,30 +9,30 @@ from app.auth_ui import require_auth
 from core.expense_tracker import ExpenseTracker, RecurringExpenseManager
 from core.business_setup import BusinessSetup
 
-st.set_page_config(page_title="Expense Setup — Duka", page_icon="📋")
+st.set_page_config(page_title="Expense Setup — Duka", page_icon=":material/description:")
 # ---- Authentication Gate ----
 require_auth()
 
 
-st.title("📋 Expense Setup")
+st.title("Expense Setup")
 st.caption("Manage recurring expenses and auto-detect patterns.")
 
 business_id = st.session_state.get("business_id")
 if not business_id:
-    st.warning("⚠️ Please register your business first in **Business Setup**.")
+    st.warning("Please register your business first in **Business Setup**.")
     st.stop()
 
 tracker = ExpenseTracker()
 manager = RecurringExpenseManager()
 setup = BusinessSetup()
 
-tab1, tab2 = st.tabs(["🔍 Auto-Detect Patterns", "📋 Manage Expenses"])
+tab1, tab2 = st.tabs([":material/search: Auto-detect patterns", "Manage expenses"])
 
 with tab1:
     st.subheader("Auto-Detect Recurring Expenses")
     st.caption("Scan your transaction history for repeating patterns.")
 
-    if st.button("🔍 Scan Transactions", type="primary"):
+    if st.button(":material/search: Scan transactions", type="primary"):
         with st.spinner("Analyzing transaction history..."):
             patterns = tracker.detect_recurring_expenses(business_id)
 
@@ -63,7 +63,7 @@ with tab1:
                             key=f"type_{i}"
                         )
 
-                    if st.button("➕ Add as Recurring Expense", key=f"add_{i}"):
+                    if st.button("Add as Recurring Expense", key=f"add_{i}"):
                         setup.add_recurring_expense(
                             business_id=business_id,
                             expense_type=exp_type,
@@ -95,7 +95,7 @@ with tab2:
             with col3:
                 st.write(f"{exp['cadence']}")
             with col4:
-                var_label = "📊 variable" if exp.get("is_variable") else ""
+                var_label = "variable" if exp.get("is_variable") else ""
                 st.write(f"Next: {exp['next_due'][:10] if exp['next_due'] else '—'} {var_label}")
     else:
         st.info("No recurring expenses yet. Use Auto-Detect or add them in Business Setup.")

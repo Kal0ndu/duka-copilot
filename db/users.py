@@ -155,6 +155,61 @@ def mark_phone_verified(db_path: str, user_id: int) -> bool:
         return False
 
 
+def get_user_id_by_phone_hash(db_path: str, phone_hash: str) -> Optional[int]:
+    """Resolve a phone_hash to a user_id. Returns None if not found."""
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.execute("PRAGMA foreign_keys = ON")
+            cursor = conn.execute(
+                "SELECT user_id FROM app_user WHERE phone_hash = ?",
+                (phone_hash,)
+            )
+            row = cursor.fetchone()
+            return row[0] if row else None
+    except sqlite3.OperationalError:
+        return None
+
+
+def get_user_by_phone_hash(db_path: str, phone_hash: str) -> Optional[UserRecord]:
+    """Look up a user by phone_hash (the universal identifier)."""
+    return get_user_by_phone(db_path, phone_hash)
+
+
+def phone_hash_exists(db_path: str, phone_hash: str) -> bool:
+    """Check if a phone_hash is already registered."""
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.execute("PRAGMA foreign_keys = ON")
+            cursor = conn.execute(
+                "SELECT 1 FROM app_user WHERE phone_hash = ?",
+                (phone_hash,)
+            )
+            return cursor.fetchone() is not None
+    except sqlite3.OperationalError:
+        return False
+
+
+def get_businesses_by_phone_hash(db_path: str, phone_hash: str) -> list:
+    """Get all businesses associated with a phone_hash through business_member."""
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.execute("PRAGMA foreign_keys = ON")
+            cursor = conn.execute(
+                """SELECT bm.business_id, bm.role, b.name_token
+                   FROM business_member bm
+                   JOIN business b ON bm.business_id = b.business_id
+                   WHERE bm.phone_hash = ?
+                   ORDER BY bm.business_id""",
+                (phone_hash,)
+            )
+            return [
+                {"business_id": row[0], "role": row[1], "name_token": row[2]}
+                for row in cursor.fetchall()
+            ]
+    except sqlite3.OperationalError:
+        return []
+
+
 def update_last_login(db_path: str, user_id: int, ip_address: str = "127.0.0.1") -> bool:
     """Update last login timestamp and IP."""
     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')

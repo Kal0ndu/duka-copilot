@@ -10,7 +10,7 @@ from core.charts import chart_customer_concentration
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Party Intelligence — Duka", page_icon="🤝", layout="wide")
+st.set_page_config(page_title="Party Intelligence — Duka", page_icon=":material/handshake:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -21,16 +21,16 @@ transactions = SessionManager.get_transactions()
 profile = SessionManager.get_profile()
 
 if not transactions:
-    st.warning("⚠️ No statement currently loaded.")
+    st.warning("No statement currently loaded.")
     st.info("Load a sample business profile to inspect customer relationships and supplier dependencies:")
     col1, col2, col3 = st.columns(3)
-    if col1.button("🏪 Load Amina's Grocery", use_container_width=True):
+    if col1.button(":material/storefront: Load Amina's Grocery", width="stretch"):
         SessionManager.set_transactions(load_sample_business("amina_grocery"), MOCK_PROFILES["amina_grocery"])
         st.rerun()
-    if col2.button("🚐 Load Otieno Transport", use_container_width=True):
+    if col2.button(":material/directions_bike: Load Otieno Transport", width="stretch"):
         SessionManager.set_transactions(load_sample_business("otieno_transport"), MOCK_PROFILES["otieno_transport"])
         st.rerun()
-    if col3.button("💇 Load Grace Salon", use_container_width=True):
+    if col3.button(":material/content_cut: Load Grace Salon", width="stretch"):
         SessionManager.set_transactions(load_sample_business("grace_salon"), MOCK_PROFILES["grace_salon"])
         st.rerun()
     st.stop()
@@ -42,7 +42,7 @@ concentration_risks = analyzer.get_concentration_risks()
 churn_risks = analyzer.get_churn_risks()
 biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 
-st.title("🤝 Customer & Supplier Intelligence")
+st.title("Customer & Supplier Intelligence")
 st.caption(f"Identify VIP clients, customer concentration risks, and dormant accounts for **{biz_name}**.")
 
 # ---- ROW 1: RELATIONSHIP OVERVIEW KPIS ----
@@ -69,12 +69,12 @@ c4.metric(
 st.divider()
 
 # ---- SECTION 2: CONCENTRATION RISK RADAR ----
-st.subheader("⚠️ Revenue Concentration Risk Monitor")
+st.subheader("Revenue Concentration Risk Monitor")
 st.caption("A healthy business should not rely on any single customer for more than 20% of its income.")
 
 if concentration_risks:
     st.error(
-        f"🚨 **Concentration Alert:** You have **{len(concentration_risks)}** customer(s) each representing "
+        f"**Concentration Alert:** You have **{len(concentration_risks)}** customer(s) each representing "
         "20% or more of your total business revenue! If any of them switches to a competitor, "
         "your cashflow will suffer severe disruption."
     )
@@ -85,18 +85,18 @@ if concentration_risks:
             f"*{risk.recommendation}*"
         )
 else:
-    st.success("✅ **Well-Diversified Revenue:** No single customer accounts for more than 20% of your sales.")
+    st.success("**Well-Diversified Revenue:** No single customer accounts for more than 20% of your sales.")
 
-st.altair_chart(chart_customer_concentration(customers), use_container_width=True)
+st.altair_chart(chart_customer_concentration(customers), width="stretch")
 
 st.divider()
 
 # ---- SECTION 3: CUSTOMER RFM SEGMENTATION & CHURN WATCHLIST ----
-st.subheader("👥 Customer Segments & Churn Early Warning")
+st.subheader("Customer Segments & Churn Early Warning")
 tab_all_cust, tab_churn, tab_high_val = st.tabs([
     "All Customers Ranking",
-    "⏰ Churn Watchlist (At-Risk / Dormant)",
-    "⭐ High-Value VIP Clients"
+    "Churn watchlist (At-Risk / Dormant)",
+    ":material/star: High-value VIP clients"
 ])
 
 with tab_all_cust:
@@ -113,7 +113,7 @@ with tab_all_cust:
             "Segment": c.segment,
             "Churn Risk Score": f"{c.churn_risk_score}/100",
         })
-    st.dataframe(cust_table, use_container_width=True)
+    st.dataframe(cust_table, width="stretch")
 
 with tab_churn:
     if churn_risks:
@@ -128,9 +128,9 @@ with tab_churn:
                 "Churn Probability": f"{c.churn_risk_score}%",
                 "Action Prompt": c.recommendation,
             })
-        st.dataframe(churn_table, use_container_width=True)
+        st.dataframe(churn_table, width="stretch")
 
-        st.markdown("#### 💬 Recommended Re-Engagement SMS / WhatsApp Message:")
+        st.markdown("##### :material/chat: Recommended re-engagement SMS / WhatsApp Message:")
         sample_c = churn_risks[0]
         st.code(
             f"Habari {sample_c.party_name}! We haven't seen you at {biz_name} lately and wanted to check in. "
@@ -138,7 +138,7 @@ with tab_churn:
             language="text"
         )
     else:
-        st.success("✅ All customers are currently active and engaged. Zero high churn risks detected!")
+        st.success("All customers are currently active and engaged. Zero high churn risks detected!")
 
 with tab_high_val:
     vip_cust = [c for c in customers if c.segment == "High Value"]
@@ -154,14 +154,14 @@ with tab_high_val:
                 "Last Active": c.last_interaction,
                 "Strategy": c.recommendation,
             })
-        st.dataframe(vip_table, use_container_width=True)
+        st.dataframe(vip_table, width="stretch")
     else:
         st.info("No customers classified as High Value yet.")
 
 st.divider()
 
 # ---- SECTION 4: SUPPLIER DEPENDENCY ----
-st.subheader("🚚 Supplier Spending & Vendor Reliance")
+st.subheader(":material/local_shipping: Supplier spending & vendor reliance")
 st.caption("Track who you spend the most money with and identify reliance on single vendors.")
 
 if suppliers:
@@ -177,6 +177,6 @@ if suppliers:
             "Avg Payment": f"KES {s.avg_transaction_kes:,.0f}",
             "Last Paid": s.last_interaction,
         })
-    st.dataframe(sup_table, use_container_width=True)
+    st.dataframe(sup_table, width="stretch")
 else:
     st.info("No supplier records found.")

@@ -11,19 +11,19 @@ from core.categoriser import Categoriser
 from app.sample_loader import MOCK_PROFILES, load_sample_business
 from app.session_helpers import SessionManager
 
-st.set_page_config(page_title="Upload Statement — Duka", page_icon="📄", layout="wide")
+st.set_page_config(page_title="Upload Statement — Duka", page_icon=":material/upload_file:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
 
-st.title("📄 Statement Upload & SME Profiles")
-st.caption("Upload your M-Pesa / mobile money statement CSV or choose a pre-loaded Kenyan small business profile.")
+st.title("Statement Upload & SME Profiles")
+st.caption("Upload your mobile money statement CSV or choose a pre-loaded Kenyan small business profile.")
 
 # Initialize session
 SessionManager.init_session()
 
 # ---- Option A: Pre-loaded Demo Profiles ----
-st.subheader("⚡ Quick-Load Demo Business Profiles")
+st.subheader(" Quick-Load Demo Business Profiles")
 st.markdown("Instantly test Duka's analytics, charts, and forecasts with realistic Kenyan enterprise data:")
 
 demo_cols = st.columns(3)
@@ -33,18 +33,18 @@ for idx, (p_id, p_info) in enumerate(MOCK_PROFILES.items()):
         st.markdown(f"### {p_info['icon']} {p_info['name']}")
         st.caption(f"**Sector:** {p_info['sector']}")
         st.write(p_info["description"])
-        if st.button(f"Load {p_info['name'].split()[0]}'s Data", key=f"btn_{p_id}", use_container_width=True):
+        if st.button(f"Load {p_info['name'].split()[0]}'s Data", key=f"btn_{p_id}", width="stretch"):
             with st.spinner(f"Loading {p_info['name']} statement..."):
                 txns = load_sample_business(p_id)
                 SessionManager.set_transactions(txns, p_info)
-                st.success(f"✅ Loaded {len(txns)} transactions for {p_info['name']}!")
+                st.success(f"Loaded {len(txns)} transactions for {p_info['name']}!")
                 st.rerun()
 
 st.divider()
 
 # ---- Option B: File Upload ----
-st.subheader("📤 Upload Custom Statement (CSV)")
-uploaded = st.file_uploader("Choose an M-Pesa CSV statement export", type=["csv"], accept_multiple_files=False)
+st.subheader("Upload Custom Statement (CSV)")
+uploaded = st.file_uploader("Choose an mobile money CSV statement export", type=["csv"], accept_multiple_files=False)
 
 if uploaded:
     raw_bytes = uploaded.read()
@@ -53,7 +53,7 @@ if uploaded:
     with st.expander("Raw File Preview (first 10 lines)", expanded=False):
         st.code("\n".join(raw_text.splitlines()[:10]), language="text")
 
-    if st.button("🔍 Parse & Redact PII", type="primary", use_container_width=True):
+    if st.button(":material/search: Parse & Redact PII", type="primary", width="stretch"):
         adapter = MobileMoneyKeAdapter()
         try:
             with st.spinner("Parsing transactions & tokenizing PII..."):
@@ -78,14 +78,14 @@ if uploaded:
                 st.session_state["business_profile"] = {
                     "name": "Custom Uploaded Business",
                     "sector": "Retail / Service SME",
-                    "icon": "🏪",
+                    "icon": ":material/store:",
                 }
                 SessionManager.set_transactions(
                     redacted,
                     {
                         "name": "Custom Uploaded Business",
                         "sector": "Retail / Service SME",
-                        "icon": "🏪",
+                        "icon": ":material/store:",
                     }
                 )
                 st.success(f"Successfully processed {len(redacted)} transactions!")
@@ -100,8 +100,8 @@ profile = SessionManager.get_profile()
 if txns:
     st.divider()
     active_name = profile.get("name", "Active Business") if profile else "Active Business"
-    active_icon = profile.get("icon", "🏪") if profile else "🏪"
-    st.subheader(f"📋 Current Statement: {active_icon} {active_name}")
+    active_icon = profile.get("icon", ":material/store:") if profile else ":material/store:"
+    st.subheader(f"Current Statement: {active_icon} {active_name}")
 
     credits = sum(r.get("amount", 0) for r in txns if r.get("amount", 0) > 0)
     debits = sum(abs(r.get("amount", 0)) for r in txns if r.get("amount", 0) < 0)
@@ -113,7 +113,7 @@ if txns:
     kpi3.metric("Total Outflow (Expenses)", f"KES {debits:,.0f}")
     kpi4.metric("Net Cashflow", f"KES {net:,.0f}", delta=f"{net:,.0f}")
 
-    st.markdown("#### Parsed & PII-Redacted Ledger (Sample View)")
+    st.markdown("##### Parsed & PII-Redacted Ledger (Sample View)")
     table_data = []
     for r in txns[:30]:
         amt = r.get("amount", 0)
@@ -126,6 +126,6 @@ if txns:
             "Channel": r.get("channel", "other").title(),
         })
 
-    st.dataframe(table_data, use_container_width=True)
+    st.dataframe(table_data, width="stretch")
 
-    st.info("💡 **Next Steps:** Navigate using the sidebar to explore **2. Analytics**, **3. Cashflow Forecast**, **4. Party Intelligence**, **5. Working Capital**, and **6. Financing Advisor**.")
+    st.info("**Next Steps:** Navigate using the sidebar to explore **2. Analytics**, **3. Cashflow Forecast**, **4. Party Intelligence**, **5. Working Capital**, and **6. Financing Advisor**.")

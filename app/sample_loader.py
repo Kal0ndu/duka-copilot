@@ -11,7 +11,7 @@ MOCK_PROFILES = {
         "id": "amina_grocery",
         "name": "Amina's Fresh Grocery & Kiosk",
         "sector": "Retail & Grocery (Kibera, Nairobi)",
-        "icon": "🏪",
+        "icon": ":material/store:",
         "file": "amina_grocery_statement.csv",
         "description": "High volume fresh produce, wholesaler purchases, Fuliza overdrafts, and customer credit ledger."
     },
@@ -19,7 +19,7 @@ MOCK_PROFILES = {
         "id": "otieno_transport",
         "name": "Otieno Transport & Boda Services",
         "sector": "Transport & Logistics (Mombasa Rd)",
-        "icon": "🚐",
+        "icon": ":material/directions_bus:",
         "file": "otieno_transport_statement.csv",
         "description": "Daily commuter fares, fuel station payments, spare parts, vehicle repairs, and SACCO savings."
     },
@@ -27,7 +27,7 @@ MOCK_PROFILES = {
         "id": "grace_salon",
         "name": "Grace Beauty & Hair Salon",
         "sector": "Personal Care & Services (Umoja)",
-        "icon": "💇",
+        "icon": ":material/content_cut:",
         "file": "grace_salon_statement.csv",
         "description": "Hair dressing service revenue, beauty product purchases, commercial rent, KPLC tokens, and casual wages."
     }

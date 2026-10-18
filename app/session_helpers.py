@@ -85,9 +85,9 @@ class SessionManager:
             True if data is available, False if not (page should st.stop())
         """
         if not cls.has_data():
-            st.warning("⚠️ No statement currently loaded.")
+            st.warning("No statement currently loaded.")
             st.info(
-                f"📝 To use {page_name}, please first:\n"
+                f":material/edit_note: To use {page_name}, please first:\n"
                 "1. Go to **Upload Statement** page\n"
                 "2. Upload a CSV file OR load a demo profile\n"
                 "3. Return here to view your data"
@@ -105,15 +105,15 @@ def render_data_info_banner():
     profile = SessionManager.get_profile()
 
     if txns and profile:
-        icon = profile.get("icon", "🏪")
+        icon = profile.get("icon", ":material/store:")
         name = profile.get("name", "Loaded Business")
         sector = profile.get("sector", "Unknown Sector")
 
         col1, col2, col3 = st.columns([2, 1, 1])
         with col1:
-            st.info(f"{icon} **Currently analyzing:** {name}")
+            st.info(f" **Currently analyzing:** {name}")
         with col2:
             st.caption(f"Sector: {sector}")
         with col3:
-            if st.button("🔄 Upload Different Data", use_container_width=True):
+            if st.button(":material/refresh: Upload different data", width="stretch"):
                 st.switch_page("pages/1_Upload_Statement.py")

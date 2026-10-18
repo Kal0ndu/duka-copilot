@@ -1,17 +1,16 @@
 """Page 7: Audit Trail, Regulatory Compliance & Privacy Guard Verification."""
 import streamlit as st
 import sys
-import hashlib
 from pathlib import Path
-from datetime import datetime
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
 
 from core.redaction import Redactor
 from core.config import Config
 from app.session_helpers import SessionManager
+from db.audit import get_recent_events, verify_audit
 
-st.set_page_config(page_title="Audit & Security — Duka", page_icon="🛡️", layout="wide")
+st.set_page_config(page_title="Audit & Security — Duka", page_icon=":material/shield:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -19,7 +18,7 @@ require_auth()
 # Initialize session
 SessionManager.init_session()
 
-st.title("🛡️ Audit Trail, Security & Regulatory Compliance")
+st.title("Audit Trail, Security & Regulatory Compliance")
 st.caption("Verify data privacy, tamper-evident cryptographic logs, and Central Bank of Kenya financial limits.")
 
 # ---- ROW 1: SECURITY KPIS ----
@@ -32,7 +31,7 @@ s4.metric("PII Redaction Engine", "Zero-Leak Verified", delta="Active", delta_co
 st.divider()
 
 # ---- SECTION 2: LIVE PRIVACY & REDACTION DEMO ----
-st.subheader("🔒 PII Tokenization & Privacy Verification")
+st.subheader("PII Tokenization & Privacy Verification")
 st.caption("Test how customer phone numbers, Kenyan IDs, and sensitive names are tokenized before leaving your device:")
 
 test_text = st.text_input(
@@ -53,64 +52,50 @@ if test_text:
         st.code(res.safe_text, language="text")
 
     if res.pii_found:
-        st.success(f"🛡️ Protected **{len(res.pii_found)}** sensitive items: {', '.join(res.pii_found)}")
+        st.success(f"Protected **{len(res.pii_found)}** sensitive items: {', '.join(res.pii_found)}")
     if res.tokens:
-        with st.expander("🔑 Cryptographic Token Vault (Stored locally, never shared)", expanded=False):
+        with st.expander(":material/key: Cryptographic token vault (Stored locally, never shared)", expanded=False):
             st.json(res.tokens)
 
 st.divider()
 
 # ---- SECTION 3: TAMPER-EVIDENT AUDIT TRAIL ----
-st.subheader("📜 Hash-Chained Audit Trail (Immutable)")
-st.caption("Every system action, statement parse, and loan query is recorded in an append-only cryptographic chain.")
+st.subheader(":material/receipt_long: Hash-chained audit trail (immutable)")
+st.caption("Every tool call, guard decision, and block is recorded in an append-only cryptographic chain.")
 
-# Generate sample audit trail events from active session
-events = [
-    {
-        "Seq": "#001",
-        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "Actor": "owner",
-        "Event Type": "STATEMENT_INGESTION",
-        "Details": "Mobile money statement parsed and validated",
-        "Prev Hash": "GENESIS_ROOT_HASH",
-        "Hash": hashlib.sha256(b"evt_1_genesis").hexdigest()[:16] + "...",
-    },
-    {
-        "Seq": "#002",
-        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "Actor": "guard",
-        "Event Type": "PII_SCAN_PASSED",
-        "Details": "Phone numbers and identity numbers tokenized",
-        "Prev Hash": hashlib.sha256(b"evt_1_genesis").hexdigest()[:16] + "...",
-        "Hash": hashlib.sha256(b"evt_2_pii").hexdigest()[:16] + "...",
-    },
-    {
-        "Seq": "#003",
-        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "Actor": "agent",
-        "Event Type": "HEALTH_ANALYTICS_CALC",
-        "Details": "Computed revenue, margins, and cashflow metrics",
-        "Prev Hash": hashlib.sha256(b"evt_2_pii").hexdigest()[:16] + "...",
-        "Hash": hashlib.sha256(b"evt_3_health").hexdigest()[:16] + "...",
-    },
-    {
-        "Seq": "#004",
-        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "Actor": "agent",
-        "Event Type": "BOOTSTRAP_FORECAST_RUN",
-        "Details": "1,000 Monte Carlo paths generated for 30-day runway",
-        "Prev Hash": hashlib.sha256(b"evt_3_health").hexdigest()[:16] + "...",
-        "Hash": hashlib.sha256(b"evt_4_forecast").hexdigest()[:16] + "...",
-    },
-]
+business_id = st.session_state.get("business_id")
+verdict = verify_audit(Config.DB_PATH)
+recent = get_recent_events(Config.DB_PATH, business_id=business_id, limit=25)
 
-st.dataframe(events, use_container_width=True)
-st.success("✓ Audit log chain integrity verified. Zero modifications or tampered entries.")
+if recent:
+    events = [
+        {
+            "Seq": f"#{e.seq:03d}",
+            "Timestamp": e.ts,
+            "Actor": e.actor,
+            "Event Type": e.event_type,
+            "Tool": e.tool or "-",
+            "Decision": e.decision or "-",
+            "Prev Hash": e.prev_hash[:16] + "...",
+            "Hash": e.hash[:16] + "...",
+        }
+        for e in recent
+    ]
+    st.dataframe(events, width="stretch")
+else:
+    st.info("No audit events recorded yet for this business. Use the chat copilot or upload a statement to generate activity.")
+
+if verdict.get("valid") and verdict.get("checked", 0) > 0:
+    st.success(f"✓ Audit log chain integrity verified across {verdict['checked']} event(s). Zero modifications or tampered entries.")
+elif verdict.get("valid"):
+    st.info("Audit log is empty — nothing to verify yet.")
+else:
+    st.error(f"✗ Audit log chain integrity check FAILED at seq #{verdict.get('first_break_seq')}. Possible tampering.")
 
 st.divider()
 
 # ---- SECTION 4: REGULATORY TRANSACTION LIMITS CHECK ----
-st.subheader("⚖️ Central Bank of Kenya (CBK) Regulatory Limits Monitor")
+st.subheader("Central Bank of Kenya (CBK) Regulatory Limits Monitor")
 transactions = st.session_state.get("parsed_transactions")
 
 if transactions:
@@ -121,12 +106,12 @@ if transactions:
     with col_l1:
         st.markdown(f"**Largest Single Transaction in Statement:** KES {max_txn_amt:,.2f}")
         if max_txn_amt <= cap_single:
-            st.success(f"✅ Compliant with CBK single transaction ceiling of KES {cap_single:,.0f}.")
+            st.success(f"Compliant with CBK single transaction ceiling of KES {cap_single:,.0f}.")
         else:
-            st.warning(f"⚠️ Transaction KES {max_txn_amt:,.2f} exceeds standard ceiling of KES {cap_single:,.0f}.")
+            st.warning(f"Transaction KES {max_txn_amt:,.2f} exceeds standard ceiling of KES {cap_single:,.0f}.")
 
     with col_l2:
         st.markdown(f"**Daily Aggregate Volume Ceiling:** KES {Config.CAP_DAILY / 100:,.0f}")
-        st.success("✅ Policy guard enforces automatic hard-stop on any operation exceeding daily caps.")
+        st.success("Policy guard enforces automatic hard-stop on any operation exceeding daily caps.")
 else:
     st.info("Load a statement to verify transaction compliance against CBK limits.")

@@ -43,5 +43,6 @@ class TestRedactor:
 
     def test_none_text(self):
         r = Redactor()
-        with pytest.raises(TypeError):
-            r.redact(None)
+        result = r.redact(None)
+        assert result.redacted == ""
+        assert result.pii_found == []

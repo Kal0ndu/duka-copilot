@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 import math
 
+from core.cost_engine import CostEngine
+
 
 @dataclass
 class LoanOffer:
@@ -62,14 +64,20 @@ PRODUCTS = {
 }
 
 
-def compute_ear(principal: int, total_repayable: int, term_days: int) -> float:
-    """Effective Annual Rate from total repayment.
+_cost_engine = CostEngine()
 
-    EAR = ((total / principal) ^ (365/term_days)) - 1
+
+def compute_ear(principal: int, total_repayable: int, term_days: int) -> float:
+    """Effective Annual Rate from total repayment, as a percentage.
+
+    Delegates to CostEngine.compute_ear_single so both the named-lender
+    comparison table and the generic financing-tool pipeline use the same
+    EAR formula instead of two independently maintained copies.
     """
     if term_days <= 0 or principal <= 0:
         return 0.0
-    return ((total_repayable / principal) ** (365.0 / term_days) - 1) * 100
+    _, ear = _cost_engine.compute_ear_single(principal, total_repayable, term_days)
+    return ear * 100
 
 
 def compute_tcc(principal: int, fees: int, interest: int) -> float:

@@ -18,8 +18,9 @@ An AI finance copilot for small businesses that run on mobile money. Built for t
 **Clone the repository:**
 
 ```bash
-git clone https://github.com/yourusername/duka.git
-cd duka
+git clone https://github.com/Kal0ndu/duka-copilot.git
+cd duka-copilot
+git checkout  improved
 ```
 
 **Create a virtual environment:**
@@ -67,12 +68,22 @@ CAP_PER_TXN=25000            # KES, per-transaction limit
 CAP_DAILY=50000              # KES, daily limit
 ```
 
-### 4. Generate Sample Data (Optional but Recommended)
+### 4. Set Up the Database
+
+The database (`data/duka.db`) is **not** committed to git — build it with:
+
+```bash
+python3 db/migrate.py
+```
+
+See [Database Setup](#database-setup) below for details and reset instructions.
+
+### 5. Generate Sample Data (Optional but Recommended)
 
 **Create synthetic database and CSV seed data for testing:**
 
 ```bash
-python data/generate_synthetic.py --db data/synthetic.db --output both --seed 42 --reset
+python data/generate_synthetic.py --db data/synthetic.db --output both --seed 400 --reset
 ```
 
 This creates `data/synthetic.db` from `db/schema.sql` and one portable CSV
@@ -84,7 +95,7 @@ business-linked relation:
 
 ```bash
 python data/generate_synthetic.py --output csv --csv-dir data/seed_csv_1000 \
-  --rows-per-table 1000 --days 30 --seed 42
+  --rows-per-table 1000 --days 30 --seed 400
 ```
 
 Reference tables such as `currency`, `category`, and `platform` retain the
@@ -97,7 +108,7 @@ This creates three test personas:
 - Salon (grace_salon_*)
 - Transport operator (otieno_transport_*)
 
-### 5. Launch the Application
+### 6. Launch the Application
 
 **Start the Streamlit app:**
 
@@ -113,7 +124,7 @@ The app will open at `http://localhost:8501` in your default browser.
 http://localhost:8501
 ```
 
-### 6. First Steps in the App
+### 7. First Steps in the App
 
 1. **Upload Statement** → Use one of the generated CSV files from `data/mock_data/`
 2. **Review Ledger** → Verify categorizations, correct as needed
@@ -186,20 +197,37 @@ black core/ agent/ sandbox/ --check
 
 ## Database Setup
 
-The SQLite database is automatically created on first run. To reset it:
+The database is not committed to git (`*.db` is in `.gitignore`) — after cloning,
+build it with the migration runner:
 
 ```bash
-# Remove the old database
-rm duka.db
+python3 db/migrate.py
+```
 
-# Recreate from schema
-sqlite3 duka.db < db/schema.sql
+This loads `db/schema.sql` as the base schema (if the target file has no
+tables yet), then applies any pending files in `db/migrations/` in order,
+tracked in the `schema_migration` table. It's safe to re-run — already
+applied migrations are skipped.
+
+By default it operates on `data/duka.db` (`Config.DB_PATH` / `DUKA_DB_PATH`
+env var). Check status or point it at a different file:
+
+```bash
+python3 db/migrate.py --status                 # show applied / pending migrations
+DUKA_DB_PATH=data/other.db python3 db/migrate.py  # migrate a different file
+```
+
+To reset from scratch:
+
+```bash
+rm data/duka.db
+python3 db/migrate.py
 ```
 
 To inspect the database:
 
 ```bash
-sqlite3 duka.db
+sqlite3 data/duka.db
 > .tables                    # list all tables
 > SELECT COUNT(*) FROM transaction_ledger;  # check record count
 > .quit                      # exit

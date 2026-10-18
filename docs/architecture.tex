@@ -1994,8 +1994,477 @@ def daily_business_intelligence_job(business_id):
 \end{tabularx}
 \end{center}
 
+% =====================================================================
+\section{Advanced Features: Inventory, Spending Advisor, Tax Invoicing and Quoting}
+% =====================================================================
+
+\subsection{Inventory Management System}
+
+\subsubsection{Inventory data model and lifecycle}
+
+Building on the product framework defined in Section~12.4, the inventory management module provides real-time tracking, low-stock alerts, and reorder recommendations.
+
+\begin{lstlisting}[language=SQL,caption={Expanded inventory entities}]
+CREATE TABLE inventory_transaction (
+  inv_txn_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  product_id INTEGER NOT NULL REFERENCES product(product_id),
+  txn_type TEXT NOT NULL CHECK (txn_type IN 
+    ('purchase','sale','adjustment','return','damage','written_off')),
+  quantity_change INTEGER NOT NULL,
+  reference_id TEXT,                    -- links to sales_order, purchase_order
+  reason TEXT,
+  recorded_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  FOREIGN KEY (product_id) REFERENCES product(product_id),
+  FOREIGN KEY (business_id) REFERENCES business(business_id)
+);
+
+CREATE TABLE stock_level (
+  stock_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  product_id INTEGER NOT NULL REFERENCES product(product_id),
+  as_of TEXT NOT NULL,
+  quantity_on_hand INTEGER NOT NULL,
+  quantity_reserved INTEGER NOT NULL DEFAULT 0,
+  quantity_available INTEGER GENERATED ALWAYS AS 
+    (quantity_on_hand - quantity_reserved) STORED,
+  value_at_cost_minor INTEGER,
+  stock_status TEXT CHECK (stock_status IN 
+    ('optimal','low','critical','overstock','out_of_stock')),
+  last_counted TEXT,
+  UNIQUE (business_id, product_id, as_of)
+);
+
+CREATE TABLE reorder_policy (
+  policy_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  product_id INTEGER NOT NULL REFERENCES product(product_id),
+  reorder_point_qty INTEGER NOT NULL,
+  reorder_quantity_qty INTEGER NOT NULL,
+  lead_time_days INTEGER DEFAULT 7,
+  supplier_id INTEGER REFERENCES party(party_id),
+  unit_cost_minor INTEGER NOT NULL,
+  auto_order_enabled INTEGER NOT NULL DEFAULT 0,
+  UNIQUE (business_id, product_id)
+);
+
+CREATE TABLE stock_alert (
+  alert_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  product_id INTEGER NOT NULL REFERENCES product(product_id),
+  alert_type TEXT NOT NULL CHECK (alert_type IN 
+    ('low_stock','out_of_stock','overstock','slow_moving','expiry_warning')),
+  priority TEXT CHECK (priority IN ('low','medium','high','critical')),
+  quantity_threshold INTEGER,
+  triggered_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  resolved_at TEXT,
+  action_taken TEXT,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','acknowledged','resolved'))
+);
+\end{lstlisting}
+
+\subsubsection{Inventory analytics and optimization}
+
+The system computes inventory turnover and aging:
+
+\begin{align*}
+\text{Turnover Ratio} &= \frac{\text{COGS}}{{\text{Avg Inventory Value}}}, &\quad
+\text{Days Inventory Outstanding (DIO)} &= \frac{90}{\text{Turnover Ratio}},\\
+\text{Carrying Cost} &= \text{Avg Inventory Value} \times \text{Carrying Cost\%}, &\quad
+\text{Obsolescence Risk} &= \text{items with no sales for $>60$ days}.
+\end{align*}
+
+Slow-moving items are flagged for:
+- Markdown or promotion
+- Return to supplier (if permitted)
+- Donation or write-off
+
+Reorder recommendations are computed as:
+\[
+\text{Suggested Quantity} = (\text{Reorder Point} + \text{Safety Stock}) - \text{Current Level},
+\]
+where safety stock accounts for demand variability and lead time.
+
+\subsubsection{Inventory integration with forecasting}
+
+The cash-flow forecast (Section 6.5) is enhanced to include projected inventory purchases based on reorder policies:
+\[
+\hat O^{\text{projected}}_{t+h} = \hat O^{\text{variable}}_{t+h} + \sum_{p} \mathbb{1}[\text{level}_p(t+h) < \text{ROP}_p] \times \text{EOQ}_p \times \text{cost}_p.
+\]
+This incorporates known or likely restocking into the balance forecast, improving affordability checks for financing.
+
+\subsection{Spending Advisor}
+
+\subsubsection{Spending pattern analysis}
+
+The spending advisor monitors business expenses and identifies opportunities for savings:
+
+\begin{lstlisting}[language=SQL,caption={Spending analysis entities}]
+CREATE TABLE spending_category (
+  category_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  name TEXT NOT NULL,
+  category_type TEXT NOT NULL CHECK (category_type IN 
+    ('fixed','variable','discretionary','essential')),
+  typical_monthly_minor INTEGER,
+  budget_minor INTEGER,
+  owner_notes TEXT
+);
+
+CREATE TABLE spending_analysis (
+  analysis_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  period_month TEXT NOT NULL,
+  category_id INTEGER NOT NULL REFERENCES spending_category(category_id),
+  budgeted_minor INTEGER,
+  actual_minor INTEGER,
+  variance_minor INTEGER,
+  variance_pct REAL,
+  efficiency_score INTEGER CHECK (efficiency_score BETWEEN 0 AND 100),
+  improvement_opportunity TEXT
+);
+
+CREATE TABLE supplier_benchmark (
+  benchmark_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  category TEXT NOT NULL,
+  supplier_id INTEGER REFERENCES party(party_id),
+  unit_price_minor INTEGER,
+  payment_terms_days INTEGER,
+  last_updated TEXT,
+  rank_in_category INTEGER
+);
+\end{lstlisting}
+
+\subsubsection{Spending recommendations}
+
+The advisor generates recommendations by comparing actual spending to budget, and benchmarking against typical patterns for the business sector:
+
+\begin{enumerate}
+  \item \textbf{Variance analysis:} Flag any category exceeding budget by $>15\%$; diagnose the cause (volume increase, price increase, or one-time events).
+  \item \textbf{Supplier benchmarking:} For recurring purchases (stock, utilities, rent), compare unit prices and payment terms to market rates or past suppliers.
+  \item \textbf{Opportunity scoring:} Compute savings potential in each category (e.g., ``switching suppliers could save KES 2,000/month'').
+  \item \textbf{Behavioral nudges:} Highlight discretionary spending spikes; show the impact on profit margin.
+\end{enumerate}
+
+\subsubsection{Integration with the agent}
+
+New tool: \code{get\_spending\_advice}.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.2cm}p{1.0cm}p{4.2cm}Y@{}}
+\toprule
+\textbf{Tool} & \textbf{Tier} & \textbf{Inputs} & \textbf{Output}\\
+\midrule
+\code{get\_spending\_advice} & T0 & period (month), top-N & Ranked spending anomalies, benchmarks, actionable recommendations\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Example output: ``Rent is on budget (KES 30,000). Transport costs are 18\% above budget (KES 8,800 vs. KES 7,500). Utilities are normal. Stock purchases are high this month due to a promotion you noted on market day. Recommended actions: (1) Review transport routes, (2) consider bulk purchasing or supplier switching (potential savings KES 1--2k).''
+
+\subsection{Tax Invoicing and Compliance}
+
+\subsubsection{Invoice and receipt schema}
+
+Two new entities formalize invoicing:
+
+\begin{lstlisting}[language=SQL,caption={Invoicing and tax compliance}]
+CREATE TABLE issued_invoice (
+  invoice_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  customer_id INTEGER NOT NULL REFERENCES party(party_id),
+  invoice_number TEXT UNIQUE NOT NULL,
+  issued_date TEXT NOT NULL,
+  due_date TEXT NOT NULL,
+  amount_before_tax_minor INTEGER NOT NULL,
+  tax_code TEXT CHECK (tax_code IN ('VAT_standard','VAT_exempt','no_tax')),
+  tax_rate_pct REAL,
+  tax_amount_minor INTEGER NOT NULL,
+  total_amount_minor INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'issued' CHECK (status IN 
+    ('draft','issued','partially_paid','fully_paid','cancelled','overdue')),
+  payment_received_minor INTEGER NOT NULL DEFAULT 0,
+  notes TEXT,
+  UNIQUE (business_id, invoice_number)
+);
+
+CREATE TABLE invoice_line (
+  line_id INTEGER PRIMARY KEY,
+  invoice_id INTEGER NOT NULL REFERENCES issued_invoice(invoice_id),
+  product_id INTEGER REFERENCES product(product_id),
+  description TEXT NOT NULL,
+  quantity REAL NOT NULL,
+  unit_price_minor INTEGER NOT NULL,
+  line_total_minor INTEGER NOT NULL,
+  discount_pct REAL DEFAULT 0
+);
+
+CREATE TABLE tax_summary (
+  summary_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  period_month TEXT NOT NULL,
+  tax_code TEXT NOT NULL,
+  taxable_amount_minor INTEGER,
+  tax_due_minor INTEGER,
+  tax_paid_minor INTEGER,
+  tax_due_date TEXT,
+  filing_status TEXT CHECK (filing_status IN 
+    ('not_due','pending','filed','paid','overdue')),
+  UNIQUE (business_id, period_month, tax_code)
+);
+
+CREATE TABLE tax_authority_schedule (
+  schedule_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  tax_type TEXT NOT NULL CHECK (tax_type IN ('VAT','PAYE','corporate_income')),
+  period_type TEXT CHECK (period_type IN ('monthly','quarterly','annual')),
+  due_date TEXT,
+  payment_date TEXT,
+  amount_minor INTEGER
+);
+\end{lstlisting}
+
+\subsubsection{Tax calculation and reporting}
+
+The system computes:
+
+\begin{align*}
+\text{Taxable Revenue} &= \text{Total Sales} - \text{Exempt Sales},\\
+\text{VAT Output} &= \text{Taxable Revenue} \times \text{VAT Rate},\\
+\text{VAT Input} &= \sum (\text{Purchases} \times \text{VAT Rate}),\\
+\text{VAT Net Due} &= \text{VAT Output} - \text{VAT Input}.
+\end{align*}
+
+Tools provided to the agent:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.2cm}p{1.0cm}p{4.2cm}Y@{}}
+\toprule
+\textbf{Tool} & \textbf{Tier} & \textbf{Inputs} & \textbf{Output}\\
+\midrule
+\code{draft\_invoice} & T1 & customer, items, amount, due date & Invoice draft (PDF/Markdown) with tax breakdown\\
+\code{record\_payment} & T0 & invoice\_id, amount & Reconciliation and updated status\\
+\code{compute\_tax\_liability} & T0 & period, tax type & Tax schedule, amount due, filing deadline\\
+\code{export\_tax\_report} & T1 & period, format & CSV or PDF for tax authority submission\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Tax compliance alerts}
+
+The system monitors tax deadlines and obligations:
+
+\begin{lstlisting}[language=Python,caption={Tax deadline monitoring}]
+def generate_tax_alerts(business_id):
+    alerts = []
+    for schedule in db.get_due_schedules(business_id):
+        days_until_due = (schedule.due_date - today).days
+        if days_until_due <= 14:
+            alerts.append({
+                'type': 'tax_filing_due_soon',
+                'tax_type': schedule.tax_type,
+                'due_date': schedule.due_date,
+                'amount': schedule.amount_minor,
+                'urgency': 'critical' if days_until_due <= 3 else 'high'
+            })
+    return alerts
+\end{lstlisting}
+
+\subsection{Quoting and Sales Management}
+
+\subsubsection{Quote and sales-order schema}
+
+Two entities support quote generation and sales tracking:
+
+\begin{lstlisting}[language=SQL,caption={Quoting and sales order entities}]
+CREATE TABLE quote (
+  quote_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  quote_number TEXT UNIQUE NOT NULL,
+  customer_id INTEGER REFERENCES party(party_id),
+  customer_contact TEXT,
+  quoted_date TEXT NOT NULL,
+  valid_until TEXT NOT NULL,
+  subtotal_minor INTEGER NOT NULL,
+  discount_minor INTEGER NOT NULL DEFAULT 0,
+  tax_minor INTEGER NOT NULL DEFAULT 0,
+  total_minor INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN 
+    ('draft','sent','accepted','rejected','expired','converted')),
+  conversion_reference TEXT,                      -- sales_order_id or invoice_id
+  notes TEXT,
+  UNIQUE (business_id, quote_number)
+);
+
+CREATE TABLE quote_line (
+  line_id INTEGER PRIMARY KEY,
+  quote_id INTEGER NOT NULL REFERENCES quote(quote_id),
+  product_id INTEGER REFERENCES product(product_id),
+  description TEXT NOT NULL,
+  quantity REAL NOT NULL,
+  unit_price_minor INTEGER NOT NULL,
+  line_total_minor INTEGER NOT NULL,
+  discount_applied_pct REAL DEFAULT 0
+);
+
+CREATE TABLE sales_order (
+  order_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  order_number TEXT UNIQUE NOT NULL,
+  customer_id INTEGER NOT NULL REFERENCES party(party_id),
+  quote_id INTEGER REFERENCES quote(quote_id),
+  order_date TEXT NOT NULL,
+  promised_delivery TEXT,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN 
+    ('open','in_fulfillment','fulfilled','partially_fulfilled','cancelled')),
+  total_amount_minor INTEGER NOT NULL,
+  UNIQUE (business_id, order_number)
+);
+
+CREATE TABLE fulfillment (
+  fulfillment_id INTEGER PRIMARY KEY,
+  order_id INTEGER NOT NULL REFERENCES sales_order(order_id),
+  fulfilled_date TEXT NOT NULL,
+  shipped_date TEXT,
+  received_date TEXT,
+  tracking_reference TEXT,
+  notes TEXT
+);
+
+CREATE TABLE quote_template (
+  template_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  name TEXT NOT NULL,
+  title TEXT,
+  terms_and_conditions TEXT,
+  payment_terms_days INTEGER,
+  currency TEXT DEFAULT 'KES',
+  is_default INTEGER NOT NULL DEFAULT 0
+);
+\end{lstlisting}
+
+\subsubsection{Quote generation and proposal tools}
+
+Tools to support the quoting workflow:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{4.2cm}p{1.0cm}p{4.2cm}Y@{}}
+\toprule
+\textbf{Tool} & \textbf{Tier} & \textbf{Inputs} & \textbf{Output}\\
+\midrule
+\code{draft\_quote} & T1 & customer, items, quantity, discounts & Quote (PDF/Markdown) with line totals, terms, validity period\\
+\code{send\_quote} & T1 & quote\_id, customer contact & Receipt; quote marked as \code{sent}\\
+\code{create\_sales\_order} & T1 & quote\_id (if from quote) or items & Sales order with fulfillment tracking\\
+\code{track\_fulfillment} & T0 & order\_id & Order status, delivery date, tracking reference\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Quote analysis and win-rate tracking}
+
+The system tracks quote outcomes:
+
+\begin{lstlisting}[language=SQL,caption={Quote performance metrics}]
+CREATE TABLE quote_metric (
+  metric_id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES business(business_id),
+  period_month TEXT NOT NULL,
+  quotes_sent INTEGER NOT NULL DEFAULT 0,
+  quotes_accepted INTEGER NOT NULL DEFAULT 0,
+  quotes_rejected INTEGER NOT NULL DEFAULT 0,
+  quotes_expired INTEGER NOT NULL DEFAULT 0,
+  win_rate_pct REAL,
+  avg_conversion_days INTEGER,
+  total_quoted_value_minor INTEGER,
+  total_converted_value_minor INTEGER,
+  conversion_value_pct REAL,
+  avg_discount_pct REAL
+);
+\end{lstlisting}
+
+Metrics computed:
+\begin{align*}
+\text{Win Rate} &= \frac{\text{Accepted}}{\text{Sent}} \times 100\%, &\quad
+\text{Conversion Ratio} &= \frac{\text{Value Converted}}{\text{Value Quoted}},\\
+\text{Avg Response Time} &= \text{mean}(\text{Date Accepted} - \text{Date Sent}), &\quad
+\text{Avg Discount} &= \text{mean}(\text{Discount\%}).
+\end{align*}
+
+\subsubsection{Predictive pricing and dynamic discounting}
+
+The system learns price elasticity from historical quotes and suggests optimal pricing:
+
+\begin{align*}
+\text{Win Probability} &\propto f(\text{price, customer segment, time of year}),\\
+\text{Recommended Discount} &= \arg\max_d (\text{Expected Value} = \text{Margin} \times P(\text{Win}|d)).
+\end{align*}
+
+Recommendations guide the owner toward quotes most likely to be accepted while preserving margin.
+
+\subsection{Cross-Feature Integration}
+
+\subsubsection{Inventory-to-Quote pipeline}
+
+When the agent drafts a quote, the inventory module:
+1. Checks stock availability for each item
+2. Reserves inventory if the quote is accepted
+3. Flags shortages and suggests backorder options or alternatives
+4. Updates forecasted cash flow (Section 6.5) to include the likely purchase if the quote converts
+
+\subsubsection{Spending Advisor integration}
+
+Spending patterns inform:
+- Negotiation strategy for quotes from suppliers (benchmarks show how much margin exists)
+- Budget constraints on purchasing decisions
+- Seasonal buying patterns that drive reorder timing
+
+\subsubsection{Tax compliance integration}
+
+All invoicing automatically feeds the tax summary:
+- VAT is calculated on every quote/invoice
+- Tax deadlines appear in the dashboard
+- Export-ready reports prepare the business for filing
+
+\subsubsection{Forecast impact}
+
+All four new modules feed into the enhanced cash-flow forecast (Section~6.5):
+- \textbf{Inventory:} projected purchases when stock falls below reorder point
+- \textbf{Spending:} budgeted vs. actual allocations tighten expense estimates
+- \textbf{Quoting:} conversion probability adjusts revenue forecast (upside/downside)
+- \textbf{Tax:} known tax liabilities appear as obligations
+
+\subsection{New dashboard pages}
+
+The interface is extended with:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{2.8cm}Y@{}}
+\toprule
+\textbf{Page} & \textbf{Purpose}\\
+\midrule
+Inventory & Stock levels by product, low-stock alerts, reorder recommendations, turnover analysis\\
+Spending & Budget vs. actual by category, supplier benchmarks, savings opportunities\\
+Invoicing & Invoice list, draft invoice generator, tax liability calendar, export reports\\
+Quoting & Quote templates, draft tool, quote acceptance rate, pricing analytics\\
+Sales Orders & Open orders, fulfillment status, customer order history\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Build priority for new features}
+
+If time is limited, prioritize in this order:
+\begin{enumerate}
+  \item \textbf{Inventory alerts} (low-stock, out-of-stock) — most urgent for daily operations
+  \item \textbf{Spending advisor} (budget vs. actual) — immediate visibility to cost control
+  \item \textbf{Invoice drafting} (sales and tax) — core for regulated compliance
+  \item \textbf{Quoting tool} (draft and send) — sales enablement
+  \item \textbf{Advanced analytics} (quote win-rate, price elasticity) — optimization extensions
+\end{enumerate}
+
 \subsection{Build priority under time pressure}
-If time runs short, cut in this order: application pack (FR6), RAG embeddings, PDF parsing, second adapter, then charts C8--C9. \textbf{Never cut} the policy guard, redaction, audit log, approval flow or security tests, which together carry the security score and underpin task-completion evidence.
+If time runs short, cut in this order: application pack (FR6), RAG embeddings, PDF parsing, second adapter, then charts C8--C9, advanced analytics (quote pricing, tax forecasting), then quote/invoice features. \textbf{Never cut} the policy guard, redaction, audit log, approval flow or security tests, which together carry the security score and underpin task-completion evidence.
 
 \subsection{Extensions beyond the competition}
 Additional adapters for other mobile-money platforms; owner-specific seasonality (school terms, harvest cycles); integration with real credit providers through regulated, consent-based APIs; multilingual interface (Swahili and others); and on-device models to remove external data sharing entirely.

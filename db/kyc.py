@@ -10,6 +10,7 @@ class KycProfile:
     kyc_id: int
     user_id: int
     status: str  # pending, verified, flagged
+    phone_hash: Optional[str] = None
     national_id_number_hash: Optional[str] = None
     national_id_verified_at: Optional[str] = None
     physical_address: Optional[str] = None
@@ -31,12 +32,18 @@ def create_kyc_profile(db_path: str, user_id: int,
     try:
         with sqlite3.connect(db_path) as conn:
             conn.execute("PRAGMA foreign_keys = ON")
+            # Look up phone_hash for this user
+            ph_row = conn.execute(
+                "SELECT phone_hash FROM app_user WHERE user_id = ?", (user_id,)
+            ).fetchone()
+            phone_hash = ph_row[0] if ph_row else None
+
             cursor = conn.execute(
                 """INSERT OR IGNORE INTO kyc_profile
-                   (user_id, status, national_id_number_hash, physical_address,
+                   (user_id, phone_hash, status, national_id_number_hash, physical_address,
                     postal_code, business_registration_number, created_at)
-                   VALUES (?, 'pending', ?, ?, ?, ?, ?)""",
-                (user_id, national_id_number_hash, physical_address,
+                   VALUES (?, ?, 'pending', ?, ?, ?, ?, ?)""",
+                (user_id, phone_hash, national_id_number_hash, physical_address,
                  postal_code, business_registration_number, now)
             )
             conn.commit()
@@ -52,7 +59,7 @@ def get_kyc_profile(db_path: str, user_id: int) -> Optional[KycProfile]:
             conn.execute("PRAGMA foreign_keys = ON")
             conn.row_factory = sqlite3.Row
             cursor = conn.execute(
-                """SELECT kyc_id, user_id, status, national_id_number_hash,
+                """SELECT kyc_id, user_id, phone_hash, status, national_id_number_hash,
                           national_id_verified_at, physical_address, postal_code,
                           business_registration_number, sanctions_result,
                           verified_at, created_at
@@ -65,6 +72,42 @@ def get_kyc_profile(db_path: str, user_id: int) -> Optional[KycProfile]:
             return KycProfile(
                 kyc_id=row['kyc_id'],
                 user_id=row['user_id'],
+                phone_hash=row['phone_hash'],
+                status=row['status'],
+                national_id_number_hash=row['national_id_number_hash'],
+                national_id_verified_at=row['national_id_verified_at'],
+                physical_address=row['physical_address'],
+                postal_code=row['postal_code'],
+                business_registration_number=row['business_registration_number'],
+                sanctions_result=row['sanctions_result'],
+                verified_at=row['verified_at'],
+                created_at=row['created_at'],
+            )
+    except sqlite3.OperationalError:
+        return None
+
+
+def get_kyc_by_phone_hash(db_path: str, phone_hash: str) -> Optional[KycProfile]:
+    """Get KYC profile by phone_hash (universal identifier)."""
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.execute("PRAGMA foreign_keys = ON")
+            conn.row_factory = sqlite3.Row
+            cursor = conn.execute(
+                """SELECT kyc_id, user_id, phone_hash, status, national_id_number_hash,
+                          national_id_verified_at, physical_address, postal_code,
+                          business_registration_number, sanctions_result,
+                          verified_at, created_at
+                   FROM kyc_profile WHERE phone_hash = ?""",
+                (phone_hash,)
+            )
+            row = cursor.fetchone()
+            if not row:
+                return None
+            return KycProfile(
+                kyc_id=row['kyc_id'],
+                user_id=row['user_id'],
+                phone_hash=row['phone_hash'],
                 status=row['status'],
                 national_id_number_hash=row['national_id_number_hash'],
                 national_id_verified_at=row['national_id_verified_at'],

@@ -13,17 +13,17 @@ from core.business_setup import BusinessSetup
 from core.config import config as cfg
 import sqlite3
 
-st.set_page_config(page_title="Expense Tracking — Duka", page_icon="📊")
+st.set_page_config(page_title="Expense Tracking — Duka", page_icon=":material/analytics:")
 # ---- Authentication Gate ----
 require_auth()
 
 
-st.title("📊 Expense Tracking")
+st.title("Expense Tracking")
 st.caption("Track expenses against budgets and upcoming obligations.")
 
 business_id = st.session_state.get("business_id")
 if not business_id:
-    st.warning("⚠️ Please register your business first in **Business Setup**.")
+    st.warning("Please register your business first in **Business Setup**.")
     st.stop()
 
 manager = RecurringExpenseManager()
@@ -84,7 +84,7 @@ if rows:
 
     st.dataframe(
         df.style.format({"Amount (KES)": "KES {:,.0f}"}),
-        use_container_width=True,
+        width="stretch",
     )
 
     st.bar_chart(df.set_index("Category")["Amount (KES)"])
@@ -95,7 +95,7 @@ conn.close()
 
 # ---- Upcoming Obligations ----
 st.divider()
-st.subheader("📅 Upcoming Obligations (Next 30 Days)")
+st.subheader("Upcoming Obligations (Next 30 Days)")
 
 schedule = manager.generate_schedule(business_id, months_ahead=1)
 upcoming = [s for s in schedule if s["due_date"] >= today.strftime("%Y-%m-%d")][:20]
@@ -113,7 +113,7 @@ if upcoming:
     obl_df = pd.DataFrame(obl_data)
     st.dataframe(
         obl_df.style.format({"Amount (KES)": "KES {:,.0f}"}),
-        use_container_width=True,
+        width="stretch",
     )
 
     total_due = sum(o["amount_minor"] for o in upcoming)
@@ -123,7 +123,7 @@ else:
 
 # ---- Budget Tracking ----
 st.divider()
-st.subheader("🎯 Budget vs. Actual")
+st.subheader("Budget vs. actual")
 
 configs = setup.get_category_configs(business_id)
 budget_configs = [c for c in configs if c.get("monthly_budget_minor")]
@@ -139,7 +139,7 @@ if budget_configs:
         actual = actual_row["total_minor"] if actual_row else 0
 
         pct_used = (actual / budget * 100) if budget > 0 else 0
-        status = "🔴 Over" if pct_used > 100 else ("🟡 Near" if pct_used >= threshold else "🟢 OK")
+        status = ":material/error: Over" if pct_used > 100 else (":material/warning: Near" if pct_used >= threshold else ":material/check_circle: OK")
 
         budget_data.append({
             "Category": cat_name,
@@ -156,17 +156,17 @@ if budget_configs:
             "Actual (KES)": "KES {:,.0f}",
             "% Used": "{:.1f}%",
         }),
-        use_container_width=True,
+        width="stretch",
     )
 
     over_budget = [b for b in budget_data if b["% Used"] > 100]
     near_budget = [b for b in budget_data if 80 <= b["% Used"] <= 100]
 
     if over_budget:
-        st.error(f"⚠️ **{len(over_budget)} categories over budget!**")
+        st.error(f"**{len(over_budget)} categories over budget!**")
         for b in over_budget:
             st.write(f"• {b['Category']}: KES {b['Actual (KES)']:,.0f} / KES {b['Budget (KES)']:,.0f}")
     elif near_budget:
-        st.warning(f"⚠️ **{len(near_budget)} categories near budget limit**")
+        st.warning(f"**{len(near_budget)} categories near budget limit**")
 else:
     st.info("No budgets configured. Set monthly budgets in **Business Setup → Categories**.")
