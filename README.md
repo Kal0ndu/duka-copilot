@@ -387,7 +387,8 @@ duka/
     unit/  security/  e2e/
   docs/                   # Architecture, security report, evidence
 ```
-
+ something to work on :
+ Next Steps: Navigate using the sidebar to explore 2. Analytics, 3. Cashflow Forecast, 4. Party Intelligence, 5. Working Capital, and 6. Financing Advisor.
 ## License
 
 This project is built for competition evaluation. All data is synthetic.

@@ -151,7 +151,7 @@ Duka Copilot is an \emph{agent}: a program that uses a language model to underst
 \textbf{Section} & \textbf{Content}\\
 \midrule
 2 & Problem, functional and non-functional requirements, design principles\\
-3 & System architecture: layers, components, request lifecycle, trust boundaries\\
+3 & System architecture: layers, components, request lifecycle, trust boundaries, user-scoped caching\\
 4 & Technology stack\\
 5 & Data modelling: adapter layer, entity-relationship model, physical schema\\
 6 & Data processing: redaction, categorisation, analytics, forecasting, cost engine\\
@@ -345,6 +345,349 @@ Owner's browser session & Approve/reject clicks & Only source of approval\\
 \bottomrule
 \end{tabularx}
 \end{center}
+
+\subsection{User-Scoped Data Caching Architecture}
+\label{sec:caching}
+
+\subsubsection{Design principle: scoped tools, pre-processed context}
+
+In a multi-user system, each tool must operate on data scoped to a single user and their business context, not the entire application. Additionally, tools should not repeatedly query raw database data; instead they should work with pre-processed, redacted context that has been cached and prepared for LLM decision-making. This section describes the caching layer that enforces user scoping and pre-processes data to accelerate both tool execution and model inference.
+
+\textbf{Core invariant:} \emph{every tool receives a UserContext object containing all the pre-computed, redacted, and scoped data it is permitted to access}. Tools never query the database directly; they work with cached, user-scoped views.
+
+\subsubsection{UserContext service}
+
+A new \code{UserContext} service is instantiated at login (Section~\ref{sec:auth}) and cached in the session. It holds:
+
+\begin{lstlisting}[language=Python,caption={UserContext data model}]
+class UserContext:
+    user_id: str                           # unique user identifier
+    business_id: str                       # owning business
+    
+    # Redacted ledger (pre-filtered, category-annotated)
+    ledger_df: pd.DataFrame                # cols: ts, amount_minor, direction, 
+                                           #       category, balance_after_minor
+    
+    # Pre-computed analytics (three-month trailing)
+    revenue_minor: int
+    cogs_minor: int
+    opex_minor: int
+    margin_pct: float
+    personal_mix_ratio: float
+    
+    # Seasonal factors (weekday multipliers)
+    weekday_factors: dict[int, float]      # 0=Mon, ..., 6=Sun
+    
+    # Known obligations (recurring bills, rent, loan payments)
+    obligations: list[Obligation]          # label, amount_minor, cadence, next_due
+    
+    # Customer and supplier relationships (party party segment)
+    party_segments: dict[str, str]         # party_token -> segment (high_value, at_risk, ...)
+    
+    # Metadata
+    currency: str                          # 'KES'
+    timestamp: datetime                    # when context was built
+    cache_expires_at: datetime             # TTL, default 5 minutes
+    
+    def is_valid(self) -> bool:
+        return datetime.utcnow() < self.cache_expires_at
+\end{lstlisting}
+
+\subsubsection{Data preparation pipeline}
+
+When a UserContext is created (at login or cache refresh), the following pipeline runs:
+
+\begin{enumerate}
+  \item \textbf{Fetch user business config:} business ID, currency, user preferences (safety buffer, caps, sector).
+  \item \textbf{Load transaction ledger:} all transactions for this business from the past three months (or since the last full statement ingestion).
+  \item \textbf{Apply redaction:} counterparty names and descriptions are replaced with stable tokens using the local vault; no PII leaves the cache.
+  \item \textbf{Compute analytics:} revenue, COGS, operating expense, gross margin and personal-mix ratio from the redacted ledger (Section~6.4).
+  \item \textbf{Detect obligations:} identify recurring outflows (rent, loan repayments, utilities) by pattern matching the ledger (same amount, same counterparty, monthly cadence).
+  \item \textbf{Compute weekday factors:} ratio of each weekday's average to the overall average (Section~6.5, used in forecasting).
+  \item \textbf{Segment parties:} for each counterparty token, compute RFM score and segment (high-value, at-risk, dormant) based on transaction history and payment behavior (Section~12.2).
+  \item \textbf{Bundle and timestamp:} wrap all results in a UserContext, set expiry to now $+ 5$ minutes, and cache in Redis (or in-memory if Redis is unavailable).
+\end{enumerate}
+
+\begin{lstlisting}[language=Python,caption={UserContext factory}]
+class UserContextService:
+    def __init__(self, db, token_vault, redis_client=None):
+        self.db = db
+        self.vault = token_vault
+        self.redis = redis_client
+    
+    def build_context(self, user_id: str, business_id: str) -> UserContext:
+        """Build and cache a UserContext for a user and business."""
+        
+        # 1. Fetch config
+        business = self.db.get_business(business_id)
+        
+        # 2. Load ledger (past 3 months)
+        ledger = self.db.get_ledger(business_id, days_back=90)
+        
+        # 3. Redact
+        ledger_redacted = self.vault.redact_dataframe(ledger)
+        
+        # 4--7. Compute analytics, obligations, factors, segments
+        analytics = compute_analytics(ledger_redacted)
+        obligations = detect_obligations(ledger_redacted)
+        weekday_factors = compute_weekday_factors(ledger_redacted)
+        party_segments = segment_parties(ledger_redacted, self.db)
+        
+        # 8. Bundle
+        ctx = UserContext(
+            user_id=user_id,
+            business_id=business_id,
+            ledger_df=ledger_redacted,
+            **analytics,
+            obligations=obligations,
+            weekday_factors=weekday_factors,
+            party_segments=party_segments,
+            currency=business['currency'],
+            timestamp=datetime.utcnow(),
+            cache_expires_at=datetime.utcnow() + timedelta(minutes=5)
+        )
+        
+        # 9. Cache (Redis with TTL, or in-process if Redis unavailable)
+        cache_key = f"cache:user:{user_id}:business:{business_id}"
+        if self.redis:
+            self.redis.setex(cache_key, 300, pickle.dumps(ctx))
+        # In-process fallback: use Streamlit session state
+        
+        return ctx
+    
+    def get_or_refresh_context(self, user_id: str, business_id: str, 
+                                force_refresh=False) -> UserContext:
+        """Get cached context, or build a new one if expired or force_refresh."""
+        if not force_refresh:
+            ctx = self.get_cached_context(user_id, business_id)
+            if ctx and ctx.is_valid():
+                return ctx
+        return self.build_context(user_id, business_id)
+    
+    def invalidate_on_transaction(self, business_id: str):
+        """Expire cache for a business when a new transaction arrives."""
+        # In practice, this is called by a webhook or a database trigger
+        # All users of this business will rebuild context on next request
+        for user_id in self.db.get_users_for_business(business_id):
+            cache_key = f"cache:user:{user_id}:business:{business_id}"
+            if self.redis:
+                self.redis.delete(cache_key)
+\end{lstlisting}
+
+\subsubsection{Cache refresh triggers}
+
+The cache is refreshed in two scenarios:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}p{4.4cm}Y@{}}
+\toprule
+\textbf{Trigger} & \textbf{When} & \textbf{Action}\\
+\midrule
+Time-based & Cache reaches 5-minute TTL & Orchestrator detects expiry; rebuilds on next request\\
+Event-driven & New transaction ingested for the business & Invalidate immediately; all users rebuild on next tool call\\
+Manual & Owner approves and executes a Tier~2 action & Invalidate immediately; next forecast will reflect the change\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Tool refactoring to use the cache}
+
+Every deterministic tool is refactored to accept a UserContext instead of querying the database. Example:
+
+\begin{lstlisting}[language=Python,caption={Before and after: analytics tool refactoring}]
+# BEFORE: Tool queries database directly
+def compute_business_health(business_id: str, period_days: int) -> dict:
+    ledger = db.get_ledger(business_id, period_days)  # Query DB
+    revenue = sum(txn['amount'] for txn in ledger if txn['category'] == 'sales')
+    # ... more DB queries
+    return {"revenue": revenue, ...}
+
+# AFTER: Tool uses cached UserContext
+def compute_business_health(context: UserContext) -> dict:
+    # Ledger is already in context, already redacted, already scoped
+    revenue = context.revenue_minor
+    cogs = context.cogs_minor
+    opex = context.opex_minor
+    margin = context.margin_pct
+    return {
+        "revenue_minor": revenue,
+        "cogs_minor": cogs,
+        "opex_minor": opex,
+        "margin_pct": margin,
+        "personal_mix_ratio": context.personal_mix_ratio
+    }
+\end{lstlisting}
+
+Benefits of this pattern:
+
+\begin{itemize}
+  \item \textbf{No N$+1$ queries:} all data is pre-fetched and pre-computed once per cache period.
+  \item \textbf{User isolation:} tools cannot accidentally access another user's data because the context is scoped.
+  \item \textbf{Pre-redacted:} PII is removed before tools run, reducing redaction overhead and risk of leaks.
+  \item \textbf{Deterministic:} multiple calls to the same tool return the same results within a cache window, aiding reproducibility and testing.
+  \item \textbf{LLM-ready:} the context is structured data that tools can pass directly to the LLM as part of the prompt (if needed for multi-step reasoning).
+\end{itemize}
+
+\subsubsection{Integration with the orchestrator}
+
+The orchestrator loop is updated to load and manage the UserContext:
+
+\begin{lstlisting}[language=Python,caption={Orchestrator with UserContext}]
+def run_agent(user_id: str, business_id: str, user_msg: str, session) -> str:
+    # 1. Load or refresh the user's cached context
+    context = context_service.get_or_refresh_context(
+        user_id, business_id, 
+        force_refresh=session.get("force_context_refresh", False)
+    )
+    
+    # 2. Build the agent prompt (as before)
+    system_prompt = "You are a finance copilot..."
+    user_message = redact(user_msg)  # Redact user input
+    messages = [system_prompt, user_message]
+    
+    # 3. Agent loop
+    for step in range(MAX_STEPS):
+        # LLM gets tool specs (as before)
+        resp = llm.chat(messages, tools=TOOL_SPECS)
+        
+        if resp.is_text:
+            return verify_numbers(resp.text, session.tool_results)
+        
+        # 4. For each tool call: pass the context
+        for call in resp.tool_calls:
+            # Guard checks the call
+            decision = policy_guard.check(call, context, session)
+            
+            if not decision.allowed:
+                result = {"error": "blocked", "reason": decision.reason}
+            else:
+                # NEW: Pass context to tools
+                tool_func = TOOLS[call.name]
+                # Extract arguments from call, but bind to context
+                args = validate(call.arguments)
+                result = tool_func(context, **args)  # context is first parameter
+            
+            messages.append(tool_result(call.id, result))
+    
+    return "I could not finish..."
+\end{lstlisting}
+
+\subsubsection{Middleware integration}
+
+In a web session or Streamlit app, the context is managed by middleware:
+
+\begin{lstlisting}[language=Python,caption={Session middleware for UserContext}]
+class UserContextMiddleware:
+    def __init__(self, app, context_service):
+        self.app = app
+        self.context_service = context_service
+    
+    def __call__(self, environ, start_response):
+        # Before request: load UserContext
+        user_id = environ.get('user_id')
+        business_id = environ.get('business_id')
+        
+        if user_id and business_id:
+            context = self.context_service.get_or_refresh_context(
+                user_id, business_id
+            )
+            environ['user_context'] = context
+        
+        return self.app(environ, start_response)
+
+# For Streamlit:
+if "user_id" not in st.session_state:
+    st.switch_page("pages/Login.py")
+
+user_id = st.session_state.user_id
+business_id = st.session_state.business_id
+
+# Load context once per session
+if "user_context" not in st.session_state:
+    context_service = UserContextService(db, token_vault, redis)
+    st.session_state.user_context = context_service.get_or_refresh_context(
+        user_id, business_id
+    )
+
+context = st.session_state.user_context
+
+# Force refresh if cache is stale
+if not context.is_valid():
+    st.session_state.user_context = context_service.get_or_refresh_context(
+        user_id, business_id, force_refresh=True
+    )
+    context = st.session_state.user_context
+\end{lstlisting}
+
+\subsubsection{Cache invalidation on business events}
+
+When a user uploads a new statement or approves a Tier~2 action, the context must be invalidated:
+
+\begin{lstlisting}[language=Python,caption={Event-driven cache invalidation}]
+# In the statement upload handler
+def ingest_statement(user_id: str, business_id: str, file_bytes: bytes):
+    # 1. Parse and ingest the statement
+    ledger, report = statement_adapter.parse(file_bytes)
+    db.insert_transactions(business_id, ledger)
+    
+    # 2. Invalidate cache for all users of this business
+    context_service.invalidate_on_transaction(business_id)
+    
+    # 3. Force immediate rebuild for the uploader's session
+    if "user_context" in st.session_state:
+        st.session_state.user_context = context_service.build_context(
+            user_id, business_id
+        )
+    
+    return report
+
+# In the approval/execution handler
+def execute_approved_action(approval_id: str, user_id: str, business_id: str):
+    # 1. Execute the action in the sandbox
+    approval = db.get_approval(approval_id)
+    receipt = sandbox.execute(approval)
+    
+    # 2. Invalidate cache for all users of this business
+    context_service.invalidate_on_transaction(business_id)
+    
+    # 3. Return execution receipt
+    return receipt
+\end{lstlisting}
+
+\subsubsection{Performance characteristics}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}p{5.2cm}Y@{}}
+\toprule
+\textbf{Operation} & \textbf{Typical time} & \textbf{Notes}\\
+\midrule
+Build UserContext (first time) & 150--300 ms & Ledger query, analytics, factorisation, segmentation\\
+Get cached UserContext & $<$5 ms & Redis hit or in-process lookup\\
+Tool execution (with context) & $<$50 ms & No database queries; compute on cached data\\
+Cache miss + rebuild & 150--300 ms & Happens every 5 minutes or on transaction event\\
+Orchestrator loop (one step) & 1--2 sec & Dominated by LLM latency, not by context overhead\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Within a single orchestrator loop (one agent step), the context is read-only and consistent, so multiple tool calls receive the same snapshot. This is essential for reproducibility and for the policy guard to apply caps correctly (a tool cannot see the impact of a previous tool call within the same step).
+
+\subsubsection{Caching strategy decision matrix}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{2.6cm}p{4.2cm}p{5.2cm}@{}}
+\toprule
+\textbf{Storage} & \textbf{Pros} & \textbf{Cons}\\
+\midrule
+Redis (external) & Shared across processes; cluster-safe; high hit rates & Extra dependency; network latency; complexity\\
+In-memory (process) & Simple; no external dep; fast & Per-process; not shared; limited to Streamlit single-worker\\
+Disk (SQLite) & Persistent; survives restarts & Slower than memory; not recommended for 5-min TTL\\
+Database views & Single source of truth & Defeats the purpose (slower than pre-computed)\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Recommended for MVP:} In-process cache in Streamlit's \code{st.session\_state}. Upgrade to Redis if the system scales to multiple concurrent sessions or multiple servers.
 
 % =====================================================================
 \section{Technology Stack}

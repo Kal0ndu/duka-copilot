@@ -51,6 +51,15 @@ class ProposeLoanRequestArgs(BaseModel):
     offer_id: int = Field(ge=1)
 
 
+
+class GetCachedContextArgs(BaseModel):
+    pass  # no args needed — context is injected by the orchestrator
+
+class SearchTransactionsScopedArgs(BaseModel):
+    query: str = Field(min_length=1, max_length=200)
+    category: Optional[str] = Field(default=None, pattern=r"^(sales|expense|transfer|fee|other)?$")
+    limit: int = Field(default=10, ge=1, le=100)
+
 @dataclass
 class ToolSpec:
     name: str
@@ -150,6 +159,18 @@ TOOL_REGISTRY: Dict[str, ToolSpec] = {
         exposed_to_llm=False,
         returns="Sandbox receipt",
     ),
+    "get_cached_context": ToolSpec(
+        name="get_cached_context", tier="T0",
+        description="Load pre-computed business context (revenue, expenses, health, obligations, forecast). Use this first for any business overview query.",
+        schema=GetCachedContextArgs,
+        returns="Full business context dict with summary, health, obligations, forecast, risks, recent transactions",
+    ),
+    "search_transactions_scoped": ToolSpec(
+        name="search_transactions_scoped", tier="T0",
+        description="Search recent transactions by keyword in category or channel. Scoped to current user/business only.",
+        schema=SearchTransactionsScopedArgs,
+        returns="Filtered list of transaction summaries (date, type, amount, category, direction)",
+    ),
 }
 
 
@@ -179,7 +200,20 @@ def get_tool_schemas_for_llm() -> List[dict]:
             "name": name,
             "description": spec.description,
             "parameters": spec.schema.model_json_schema(),
-        })
+        
+    "get_cached_context": ToolSpec(
+        name="get_cached_context", tier="T0",
+        description="Load pre-computed business context (revenue, expenses, health, obligations, forecast). Use this first for any business overview query.",
+        schema=GetCachedContextArgs,
+        returns="Full business context dict with summary, health, obligations, forecast, risks, recent transactions",
+    ),
+    "search_transactions_scoped": ToolSpec(
+        name="search_transactions_scoped", tier="T0",
+        description="Search recent transactions by keyword in category or channel. Scoped to current user/business only.",
+        schema=SearchTransactionsScopedArgs,
+        returns="Filtered list of transaction summaries (date, type, amount, category, direction)",
+    ),
+})
     return tools
 
 

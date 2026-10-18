@@ -7,27 +7,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from core.relationship_analyzer import RelationshipAnalyzer
 from core.charts import chart_customer_concentration
 from app.sample_loader import load_sample_business, MOCK_PROFILES
+from app.session_helpers import SessionManager, render_data_info_banner
 
 st.set_page_config(page_title="Party Intelligence — Duka", page_icon="🤝", layout="wide")
 
-transactions = st.session_state.get("parsed_transactions")
-profile = st.session_state.get("business_profile")
+# Initialize session and check for data
+SessionManager.init_session()
+transactions = SessionManager.get_transactions()
+profile = SessionManager.get_profile()
 
 if not transactions:
     st.warning("⚠️ No statement currently loaded.")
     st.info("Load a sample business profile to inspect customer relationships and supplier dependencies:")
     col1, col2, col3 = st.columns(3)
     if col1.button("🏪 Load Amina's Grocery", use_container_width=True):
-        st.session_state["parsed_transactions"] = load_sample_business("amina_grocery")
-        st.session_state["business_profile"] = MOCK_PROFILES["amina_grocery"]
+        SessionManager.set_transactions(load_sample_business("amina_grocery"), MOCK_PROFILES["amina_grocery"])
         st.rerun()
     if col2.button("🚐 Load Otieno Transport", use_container_width=True):
-        st.session_state["parsed_transactions"] = load_sample_business("otieno_transport")
-        st.session_state["business_profile"] = MOCK_PROFILES["otieno_transport"]
+        SessionManager.set_transactions(load_sample_business("otieno_transport"), MOCK_PROFILES["otieno_transport"])
         st.rerun()
     if col3.button("💇 Load Grace Salon", use_container_width=True):
-        st.session_state["parsed_transactions"] = load_sample_business("grace_salon")
-        st.session_state["business_profile"] = MOCK_PROFILES["grace_salon"]
+        SessionManager.set_transactions(load_sample_business("grace_salon"), MOCK_PROFILES["grace_salon"])
         st.rerun()
     st.stop()
 

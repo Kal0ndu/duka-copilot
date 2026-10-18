@@ -7,28 +7,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from core.analytics import BusinessAnalytics
 from core.charts import chart_cashflow_trend, chart_category_breakdown, chart_weekday_seasonality
 from app.sample_loader import load_sample_business, MOCK_PROFILES
+from app.session_helpers import SessionManager, render_data_info_banner
 
 st.set_page_config(page_title="Analytics — Duka", page_icon="📊", layout="wide")
 
-# Check session state
-transactions = st.session_state.get("parsed_transactions")
-profile = st.session_state.get("business_profile")
+# Initialize session and check for data
+SessionManager.init_session()
+transactions = SessionManager.get_transactions()
+profile = SessionManager.get_profile()
 
 if not transactions:
     st.warning("⚠️ No statement currently loaded.")
     st.info("You can upload a CSV on the **Upload Statement** page or load a pre-built demo business below:")
     col1, col2, col3 = st.columns(3)
     if col1.button("🏪 Load Amina's Grocery", use_container_width=True):
-        st.session_state["parsed_transactions"] = load_sample_business("amina_grocery")
-        st.session_state["business_profile"] = MOCK_PROFILES["amina_grocery"]
+        SessionManager.set_transactions(load_sample_business("amina_grocery"), MOCK_PROFILES["amina_grocery"])
         st.rerun()
     if col2.button("🚐 Load Otieno Transport", use_container_width=True):
-        st.session_state["parsed_transactions"] = load_sample_business("otieno_transport")
-        st.session_state["business_profile"] = MOCK_PROFILES["otieno_transport"]
+        SessionManager.set_transactions(load_sample_business("otieno_transport"), MOCK_PROFILES["otieno_transport"])
         st.rerun()
     if col3.button("💇 Load Grace Salon", use_container_width=True):
-        st.session_state["parsed_transactions"] = load_sample_business("grace_salon")
-        st.session_state["business_profile"] = MOCK_PROFILES["grace_salon"]
+        SessionManager.set_transactions(load_sample_business("grace_salon"), MOCK_PROFILES["grace_salon"])
         st.rerun()
     st.stop()
 
@@ -40,6 +39,9 @@ biz_icon = profile.get("icon", "🏪") if profile else "🏪"
 
 st.title(f"{biz_icon} Business Health Cockpit: {biz_name}")
 st.caption("Comprehensive revenue, margins, expense patterns, and liquidity health.")
+
+# Show what data is currently loaded
+render_data_info_banner()
 
 # ---- ROW 1: PRIMARY FINANCIAL KPIS ----
 row1_1, row1_2, row1_3, row1_4 = st.columns(4)

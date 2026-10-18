@@ -9,6 +9,12 @@ from core.config import Config
 from agent.orchestrator import Orchestrator
 
 from app.sample_loader import load_sample_business, MOCK_PROFILES
+from app.auth_ui import require_auth, render_logout_button, check_auth
+from auth.middleware import (
+    load_user_context, get_user_context,
+    invalidate_user_context_on_page,
+    get_user_id, get_business_id,
+)
 
 st.set_page_config(
     page_title="Duka — Micro-Business CFO",
@@ -16,6 +22,15 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# ---- auth gate ----
+
+require_auth()
+
+# ---- user context ----
+
+load_user_context()  # preload business context into st.session_state
+
 
 # ---- session init ----
 
@@ -70,6 +85,8 @@ with st.sidebar:
         st.rerun()
 
     st.divider()
+    st.divider()
+    render_logout_button()
     st.caption("v0.3.0 — Nairobi 🇰🇪")
 
 # ---- main chat & dashboard hub ----
@@ -114,7 +131,13 @@ if prompt := st.chat_input("e.g. How's my business doing this month?"):
 
     with st.chat_message("assistant"):
         with st.spinner("Analysing..."):
-            result = st.session_state.orch.process(prompt)
+            user_id = get_user_id()
+            business_id = get_business_id()
+            result = st.session_state.orch.process(
+                prompt,
+                user_id=user_id,
+                business_id=business_id,
+            )
 
         response = result.get("response", "Sorry, I couldn't process that.")
         st.markdown(response)

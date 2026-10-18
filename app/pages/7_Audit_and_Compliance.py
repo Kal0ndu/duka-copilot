@@ -8,8 +8,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from core.redaction import Redactor
 from core.config import Config
+from app.session_helpers import SessionManager
 
 st.set_page_config(page_title="Audit & Security — Duka", page_icon="🛡️", layout="wide")
+
+# Initialize session
+SessionManager.init_session()
 
 st.title("🛡️ Audit Trail, Security & Regulatory Compliance")
 st.caption("Verify data privacy, tamper-evident cryptographic logs, and Central Bank of Kenya financial limits.")

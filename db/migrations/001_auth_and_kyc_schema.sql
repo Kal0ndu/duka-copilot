@@ -241,9 +241,9 @@ CREATE TABLE IF NOT EXISTS business_invite (
   expires_at TEXT NOT NULL,
   accepted_at TEXT,
   
-  INDEX (invite_code),
-  INDEX (business_id, status)
 );
+CREATE INDEX IF NOT EXISTS ix_invite_code ON business_invite(invite_code);
+CREATE INDEX IF NOT EXISTS ix_invite_business_status ON business_invite(business_id, status);
 
 -- =====================================================================
 -- MODIFY: business table (Add ownership & KYC fields)

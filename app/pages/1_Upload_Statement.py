@@ -8,11 +8,15 @@ from core.adapters.mobile_money_ke import MobileMoneyKeAdapter
 from core.redaction import Redactor
 from core.categoriser import Categoriser
 from app.sample_loader import MOCK_PROFILES, load_sample_business
+from app.session_helpers import SessionManager
 
 st.set_page_config(page_title="Upload Statement — Duka", page_icon="📄", layout="wide")
 
 st.title("📄 Statement Upload & SME Profiles")
 st.caption("Upload your M-Pesa / mobile money statement CSV or choose a pre-loaded Kenyan small business profile.")
+
+# Initialize session
+SessionManager.init_session()
 
 # ---- Option A: Pre-loaded Demo Profiles ----
 st.subheader("⚡ Quick-Load Demo Business Profiles")
@@ -28,8 +32,7 @@ for idx, (p_id, p_info) in enumerate(MOCK_PROFILES.items()):
         if st.button(f"Load {p_info['name'].split()[0]}'s Data", key=f"btn_{p_id}", use_container_width=True):
             with st.spinner(f"Loading {p_info['name']} statement..."):
                 txns = load_sample_business(p_id)
-                st.session_state["parsed_transactions"] = txns
-                st.session_state["business_profile"] = p_info
+                SessionManager.set_transactions(txns, p_info)
                 st.success(f"✅ Loaded {len(txns)} transactions for {p_info['name']}!")
                 st.rerun()
 
@@ -73,14 +76,22 @@ if uploaded:
                     "sector": "Retail / Service SME",
                     "icon": "🏪",
                 }
+                SessionManager.set_transactions(
+                    redacted,
+                    {
+                        "name": "Custom Uploaded Business",
+                        "sector": "Retail / Service SME",
+                        "icon": "🏪",
+                    }
+                )
                 st.success(f"Successfully processed {len(redacted)} transactions!")
                 st.rerun()
         except Exception as e:
             st.error(f"Error parsing statement: {e}")
 
 # ---- Display Current Loaded Data Summary ----
-txns = st.session_state.get("parsed_transactions")
-profile = st.session_state.get("business_profile")
+txns = SessionManager.get_transactions()
+profile = SessionManager.get_profile()
 
 if txns:
     st.divider()
