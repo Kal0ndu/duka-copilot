@@ -28,6 +28,7 @@ from math import ceil, sqrt
 
 from analytics import (DATA, OVERDRAFT_ACCESS_FEE, OVERDRAFT_DAILY_FEE, PERSONAL,
                        load_ledger, summarise, true_positions)
+from settings import load_settings, safety_buffer
 from forecast import (HORIZON, RANGE_Z, SAFETY_BUFFER, build_model, forecast,
                       predict_day, shortfall_alert)
 
@@ -155,16 +156,16 @@ def lowest_low(model, option, last_date, position, amount):
     return lowest
 
 
-def fits(model, option, last_date, position, amount):
-    return lowest_low(model, option, last_date, position, amount) >= SAFETY_BUFFER
+def fits(model, option, last_date, position, amount, buffer=SAFETY_BUFFER):
+    return lowest_low(model, option, last_date, position, amount) >= buffer
 
 
-def personal_cap(model, option, last_date, position, amount):
+def personal_cap(model, option, last_date, position, amount, buffer=SAFETY_BUFFER):
     """Highest weekly personal money that still lets this option fit
     (None if it can't fit even with no personal money at all)."""
     current = weekly_personal(model)
     def ok(cap):
-        return fits(with_personal_cap(model, cap), option, last_date, position, amount)
+        return fits(with_personal_cap(model, cap), option, last_date, position, amount, buffer)
     if ok(current):
         return current
     if not ok(0):
@@ -184,35 +185,116 @@ def kes(x):
     return f"KES {x:,.0f}"
 
 
-def headline(business=BUSINESS, amount=None, days=DEFAULT_TERM):
-    """All the numbers behind the comparison and the headline saving."""
+def price(model, last_date, position, amount, days, buffer):
+    """compare_options() plus, for each option: does it fit the forecast now,
+    and the weekly personal-money cap that would make it fit."""
+    options = compare_options(amount, days)
+    for o in options:
+        o["fits_now"] = fits(model, o, last_date, position, amount, buffer)
+        o["cap"] = personal_cap(model, o, last_date, position, amount, buffer)
+    return options
+
+
+def recommend(model, last_date, position, needed, loan_cap, days, buffer):
+    """The loan to recommend. It covers the need (rounded up to KES 5,000) but is
+    NEVER above the owner's loan cap: we don't suggest raising caps to borrow more.
+    If the need is bigger than the cap, it is the largest amount within the cap
+    that can still be repaid (with a weekly personal-money cap).
+    Returns (amount, options, cheapest option that can fit or None)."""
+    target = max(5000, ceil(needed / 5000) * 5000)
+    top = min(target, loan_cap)
+    amounts = [top] + [a for a in range(int(top // 5000) * 5000, 0, -5000) if a < top]
+    for amount in amounts:
+        options = price(model, last_date, position, amount, days, buffer)
+        fitting = [o for o in options if o["cap"] is not None]
+        if fitting:
+            return amount, options, min(fitting, key=lambda o: o["cost"])
+    return top, price(model, last_date, position, top, days, buffer), None
+
+
+def headline(business=BUSINESS, amount=None, days=DEFAULT_TERM, cfg=None):
+    """All the numbers behind the comparison and the headline saving.
+    cfg: the business's settings (default: its saved settings file)."""
+    cfg = cfg or load_settings(business)
     rows = load_ledger(DATA / f"{business}_ledger.csv")
     summary = summarise(rows)
     last_date = rows[-1]["date"]
     position = true_positions(rows, [last_date])[last_date]
     model = build_model(rows)
+    buffer = safety_buffer(cfg)
+    loan_cap = cfg["loan_cap"]
 
-    # Amount: what the forecast says she needs to stay safe, rounded up to 5,000
-    alert = shortfall_alert(forecast(model, last_date, position))
+    # Need: what the forecast says it takes to stay above the safety buffer
+    alert = shortfall_alert(forecast(model, last_date, position), buffer)
     needed = alert["amount_needed"] if alert else 0
-    amount = amount or max(5000, ceil(needed / 5000) * 5000)
-
-    options = compare_options(amount, days)
-    for o in options:
-        o["fits_now"] = fits(model, o, last_date, position, amount)
-        o["cap"] = personal_cap(model, o, last_date, position, amount)
+    if amount:                                   # a chosen amount, still within the cap
+        amount = min(amount, loan_cap)
+        options = price(model, last_date, position, amount, days, buffer)
+        fitting = [o for o in options if o["cap"] is not None]
+        best = min(fitting, key=lambda o: o["cost"]) if fitting else None
+    else:
+        amount, options, best = recommend(model, last_date, position, needed, loan_cap,
+                                          days, buffer)
     h = {"position": position, "needed": needed, "amount": amount, "days": days,
-         "options": options, "current": weekly_personal(model), "best": None,
+         "buffer": buffer, "loan_cap": loan_cap,
+         "over_cap": max(5000, ceil(needed / 5000) * 5000) > loan_cap,
+         "options": options, "current": weekly_personal(model), "best": best,
          "fees": summary["credit"]["overdraft_fees"], "period_days": summary["period"]["days"]}
 
     # Headline: the overdraft habit vs the cheapest option that can fit
-    fitting = [o for o in options if o["cap"] is not None]
-    if fitting:
-        h["best"] = min(fitting, key=lambda o: o["cost"])
+    if best:
         h["habit_per_year"] = h["fees"] * 365 / h["period_days"]
-        h["best_per_year"] = h["best"]["cost"] * 365 / days
+        h["best_per_year"] = best["cost"] * 365 / days
         h["saving_per_year"] = h["habit_per_year"] - h["best_per_year"]
     return h
+
+
+def plain_advice(h, lang="en"):
+    """The recommendation in plain words (never 'raise your cap')."""
+    best = h["best"]
+    if lang == "sw":
+        return plain_advice_sw(h)
+    if best is None:
+        return (f"No loan within your KES {h['loan_cap']:,.0f} loan cap can be repaid safely, "
+                f"even with no personal money taken out. Borrowing more would not help.")
+    lines = []
+    if h["over_cap"]:
+        lines.append(f"You need about {kes(h['needed'])}, which is more than your loan cap of "
+                     f"{kes(h['loan_cap'])}. The largest affordable loan within your cap is "
+                     f"{kes(h['amount'])}.")
+    if best["fits_now"]:
+        lines.append(f"Recommended: {best['name']} of {kes(h['amount'])} over {h['days']} days. "
+                     f"It fits without changing your personal spending.")
+    else:
+        cut = h["current"] - best["cap"]
+        lines.append(f"Recommended: {best['name']} of {kes(h['amount'])} over {h['days']} days, "
+                     f"if you keep personal money to {kes(best['cap'])} a week "
+                     f"(now {kes(h['current'])}: down {kes(cut)}, {cut / h['current']:.0%}).")
+    if h["over_cap"]:
+        lines.append("This won't cover the whole need, so the weekly cap matters even more.")
+    return " ".join(lines)
+
+
+def plain_advice_sw(h):
+    best = h["best"]
+    if best is None:
+        return (f"Hakuna mkopo ndani ya kikomo chako cha {kes(h['loan_cap'])} unaoweza kulipwa "
+                f"kwa usalama, hata bila kutoa pesa za matumizi binafsi. Kukopa zaidi hakutasaidia.")
+    lines = []
+    if h["over_cap"]:
+        lines.append(f"Unahitaji takriban {kes(h['needed'])}, zaidi ya kikomo chako cha mkopo "
+                     f"cha {kes(h['loan_cap'])}. Mkopo mkubwa zaidi unaoweza kulipwa ndani ya "
+                     f"kikomo ni {kes(h['amount'])}.")
+    if best["fits_now"]:
+        lines.append(f"Pendekezo: {best['name']} ya {kes(h['amount'])} kwa siku {h['days']}. "
+                     f"Inafaa bila kubadilisha matumizi yako binafsi.")
+    else:
+        lines.append(f"Pendekezo: {best['name']} ya {kes(h['amount'])} kwa siku {h['days']}, "
+                     f"ukiweka pesa za matumizi binafsi kuwa {kes(best['cap'])} kwa wiki "
+                     f"(sasa {kes(h['current'])}).")
+    if h["over_cap"]:
+        lines.append("Hii haitatosheleza hitaji lote, kwa hivyo kikomo cha kila wiki ni muhimu zaidi.")
+    return " ".join(lines)
 
 
 def main():
@@ -220,10 +302,10 @@ def main():
                  days=int(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_TERM)
     amount, days, options, current = h["amount"], h["days"], h["options"], h["current"]
 
-    print(f"{BUSINESS}: true position {kes(h['position'])}; "
-          f"forecast says she needs {kes(h['needed'])} to stay safe")
-    print(f"Comparing a loan of {kes(amount)} over {days} days "
-          f"(the loan first clears the overdraft)\n")
+    print(f"{BUSINESS}: true position {kes(h['position'])}; forecast says she needs "
+          f"{kes(h['needed'])} to stay above her {kes(h['buffer'])} safety buffer")
+    print(f"Comparing a loan of {kes(amount)} over {days} days, within her "
+          f"{kes(h['loan_cap'])} loan cap (the loan first clears the overdraft)\n")
 
     print(f"  {'Option':<19}{'Total repaid':>14}{'Cost':>11}{'Annual cost':>13}"
           f"{'Fits now?':>11}   Fits if personal money is at most")
@@ -237,27 +319,13 @@ def main():
     print(f"  Personal money now: about {kes(current)} a week "
           f"(withdrawals, family transfers, school fees)")
 
-    best = h["best"]
-    if best is None:
-        print("\nNo option fits, even with no personal money at all.")
-        return
-    print(f"\nHEADLINE")
-    print(f"  Overdraft habit: {kes(h['fees'])} in fees in "
-          f"{h['period_days']} days = about {kes(h['habit_per_year'])} a year")
-    print(f"  Cheapest option that can fit: {best['name']} at {kes(best['cost'])} per "
-          f"{days} days = about {kes(h['best_per_year'])} a year")
-    print(f"  Saving: about {kes(h['saving_per_year'])} a year")
-
-    print(f"\nWEEKLY PERSONAL-MONEY CAP")
-    if best["fits_now"]:
-        print(f"  The {best['name']} fits without changing her personal spending.")
-    else:
-        cut = current - best["cap"]
-        print(f"  Cheaper credit alone is not enough: at {kes(current)} a week no option fits.")
-        print(f"  Cap personal money at {kes(best['cap'])} a week (down {kes(cut)}, "
-              f"{cut / current:.0%}) so the {best['name']} is repaid on time and the")
-        print(f"  low estimate stays above the {kes(SAFETY_BUFFER)} buffer: "
-              f"the business stops borrowing.")
+    print(f"\nADVICE\n  {plain_advice(h)}")
+    if h["best"]:
+        print(f"\nHEADLINE")
+        print(f"  Overdraft habit: {kes(h['fees'])} in fees in "
+              f"{h['period_days']} days = about {kes(h['habit_per_year'])} a year")
+        print(f"  {h['best']['name']} instead: about {kes(h['best_per_year'])} a year")
+        print(f"  Saving: about {kes(h['saving_per_year'])} a year")
 
 
 if __name__ == "__main__":

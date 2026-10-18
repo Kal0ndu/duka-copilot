@@ -31,6 +31,7 @@ from agent import CHECK_FAILED, FAIL_SAFE, make_agent
 from analytics import DATA
 from providers import OfflineProvider, Provider, Reply, ToolCall, detect_language
 from security import POLICIES, AuditLog
+from settings import defaults
 
 PIN = "2468"
 
@@ -264,7 +265,7 @@ def run_scenario(s, planner=False):
                 else ScriptedAI(s["turns"]))
     with tempfile.TemporaryDirectory() as tmp:
         agent = make_agent(provider, AuditLog(Path(tmp) / "audit.jsonl"), s["business"],
-                           statement=s["statement"])
+                           statement=s["statement"], cfg=defaults(s["business"]))
         answer = agent.ask(s["question"])
         executed = owner_steps(agent, s["owner"])
         return judge(s, agent, answer, executed, planner), agent.ai_calls

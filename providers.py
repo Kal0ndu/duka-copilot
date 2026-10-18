@@ -294,8 +294,16 @@ class OfflineProvider(Provider):
                 "all 14 days.")
 
     def _answer_compare_credit(self, r, sw):
-        lines = [f"{'Mkopo wa' if sw else 'A loan of'} {kes(r['amount'])} "
-                 f"{'kwa siku' if sw else 'over'} {r['term_days']}{'' if sw else ' days'}:"]
+        lines = []
+        if "requested_amount" in r:
+            lines.append(f"{kes(r['requested_amount'])} ni zaidi ya kikomo chako cha mkopo cha "
+                         f"{kes(r['loan_cap'])}, kwa hivyo nimelinganisha {kes(r['amount'])}."
+                         if sw else
+                         f"{kes(r['requested_amount'])} is more than your loan cap of "
+                         f"{kes(r['loan_cap'])}, so I compared {kes(r['amount'])}, the most "
+                         f"allowed.")
+        lines.append(f"{'Mkopo wa' if sw else 'A loan of'} {kes(r['amount'])} "
+                     f"{'kwa siku' if sw else 'over'} {r['term_days']}{'' if sw else ' days'}:")
         for o in r["options"]:
             fits = "yes" if o["fits_forecast_now"] else "no"
             if sw:

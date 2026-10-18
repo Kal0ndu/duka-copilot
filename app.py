@@ -17,7 +17,7 @@ Then open the link it prints (usually http://localhost:8501).
 import json
 import os
 import tempfile
-from collections import deque
+from collections import Counter, deque
 from datetime import timedelta
 from math import ceil
 
@@ -27,12 +27,15 @@ import streamlit as st
 
 from agent import BUSINESSES, has_api_key, looks_like_instructions, make_agent, make_provider, \
     rows_from_statement
-from analytics import DATA, date_range, load_ledger, summarise, true_positions
-from credit import compare_options, fits, personal_cap, weekly_personal
-from forecast import SAFETY_BUFFER, build_model, forecast, shortfall_alert
+from analytics import DATA, WEEKDAYS, date_range, summarise, true_positions
+from categoriser import CATEGORIES, payee_key
+from credit import plain_advice, price, recommend, weekly_personal
+from forecast import build_model, forecast, shortfall_alert
 from providers import OfflineProvider
 from sandbox import AUDIT_PATH
-from security import POLICIES, AuditLog, verify_log
+from security import ApprovalError, AuditLog, verify_log
+from settings import (changes, forget, learn, load_settings, needs_pin, safety_buffer,
+                      save_settings, validate)
 
 # Chart colours (validated reference palette from the dataviz guidance)
 BLUE, CRITICAL, MUTED = "#2a78d6", "#d03b3b", "#898781"
@@ -55,7 +58,25 @@ TEXT = {
         "ai_banner": "Connected to the AI service",
         "suspicious": "{n} transaction(s) in this statement contain text that looks like "
                       "instructions. It is hidden from the AI and treated as data only.",
-        "tabs": ["Overview", "Forecast", "Credit", "Chat", "Approvals", "Audit log"],
+        "tabs": ["Overview", "Forecast", "Credit", "Chat", "Approvals", "Audit log", "Settings"],
+        "buffer_caption": "Safety buffer: {x}",
+        "settings_note": "These settings belong to this business. Changing caps or verified "
+                         "payees needs the owner PIN, and every change is written to the audit "
+                         "log. The AI can never change them.",
+        "sector": "Sector", "payday": "Staff payday",
+        "buffer": "Safety buffer in KES (alerts fire below it; default KES 1,000)",
+        "locked": "🔒 Caps and verified payees (owner PIN needed to change)",
+        "per_cap": "Max per payment (KES)", "daily_cap": "Max per day (KES)",
+        "loan_cap": "Max loan (KES)", "pin_help": "Only needed when changing caps or payees",
+        "save": "Save settings", "saved": "Settings saved.", "no_changes": "Nothing changed.",
+        "pin_needed": "Enter the owner PIN to change caps or payees.",
+        "pin_wrong": "Not saved: wrong PIN, or approvals are locked.",
+        "teach_title": "Fix a category (teach it once)",
+        "teach_note": "Pick who was paid (or who paid you) and the right category. The app "
+                      "remembers it for this business from now on. Unsure items come first.",
+        "payee": "Payee", "category": "Correct category", "remember": "Remember this",
+        "rules": "Taught so far", "rule_cols": ["Payee", "Category"],
+        "forget_which": "Rule to forget", "forget": "Forget rule",
         "balance": "Mobile-money balance", "owed": "Overdraft owed",
         "position": "True position", "position_help": "Balance minus overdraft owed",
         "sales": "Sales", "per_day": "a day", "profit": "Cash profit",
@@ -67,7 +88,7 @@ TEXT = {
                       "Red dashed line: safety buffer. The forecast assumes no new borrowing.",
         "actual": "Actual", "expected": "Expected", "low": "Low", "high": "High",
         "date": "Date", "table_view": "Show as a table",
-        "amount": "Loan amount (KES)", "term": "Term (days)",
+        "amount": "Loan amount (KES, up to your loan cap of {cap})", "term": "Term (days)",
         "cols": ["Option", "Total repaid", "Cost", "Effective annual cost",
                  "Fits forecast now?", "Fits if personal money is at most (a week)"],
         "yes": "yes", "no": "no", "never": "never",
@@ -108,7 +129,27 @@ TEXT = {
         "suspicious": "Miamala {n} katika taarifa hii ina maandishi yanayofanana na maagizo. "
                       "Yamefichwa kwa AI na yanachukuliwa kama data tu.",
         "tabs": ["Muhtasari", "Utabiri", "Mikopo", "Mazungumzo", "Idhini",
-                 "Kumbukumbu za ukaguzi"],
+                 "Kumbukumbu za ukaguzi", "Mipangilio"],
+        "buffer_caption": "Akiba ya usalama: {x}",
+        "settings_note": "Mipangilio hii ni ya biashara hii. Kubadilisha vikomo au walipwa "
+                         "waliothibitishwa kunahitaji PIN ya mmiliki, na kila badiliko "
+                         "huandikwa kwenye kumbukumbu za ukaguzi. AI haiwezi kuyabadilisha kamwe.",
+        "sector": "Aina ya biashara", "payday": "Siku ya kulipa wafanyakazi",
+        "buffer": "Akiba ya usalama kwa KES (tahadhari hutolewa chini yake; kawaida KES 1,000)",
+        "locked": "🔒 Vikomo na walipwa waliothibitishwa (PIN ya mmiliki inahitajika)",
+        "per_cap": "Juu zaidi kwa malipo (KES)", "daily_cap": "Juu zaidi kwa siku (KES)",
+        "loan_cap": "Mkopo wa juu zaidi (KES)",
+        "pin_help": "Inahitajika tu kubadilisha vikomo au walipwa",
+        "save": "Hifadhi mipangilio", "saved": "Mipangilio imehifadhiwa.",
+        "no_changes": "Hakuna kilichobadilika.",
+        "pin_needed": "Weka PIN ya mmiliki ili kubadilisha vikomo au walipwa.",
+        "pin_wrong": "Haijahifadhiwa: PIN si sahihi, au idhini zimefungwa.",
+        "teach_title": "Rekebisha aina ya muamala (fundisha mara moja)",
+        "teach_note": "Chagua aliyelipwa (au aliyekulipa) na aina sahihi. Programu itakumbuka "
+                      "kwa biashara hii kuanzia sasa. Yasiyo na uhakika yanaonyeshwa kwanza.",
+        "payee": "Mlipwa", "category": "Aina sahihi", "remember": "Kumbuka hili",
+        "rules": "Yaliyofundishwa", "rule_cols": ["Mlipwa", "Aina"],
+        "forget_which": "Sheria ya kusahau", "forget": "Sahau sheria",
         "balance": "Salio la pesa za simu", "owed": "Deni la overdraft",
         "position": "Hali halisi", "position_help": "Salio ukiondoa deni la overdraft",
         "sales": "Mauzo", "per_day": "kwa siku", "profit": "Faida ya pesa taslimu",
@@ -121,7 +162,7 @@ TEXT = {
                       "hakuna mkopo mpya.",
         "actual": "Halisi", "expected": "Inatarajiwa", "low": "Chini", "high": "Juu",
         "date": "Tarehe", "table_view": "Onyesha kama jedwali",
-        "amount": "Kiasi cha mkopo (KES)", "term": "Muda (siku)",
+        "amount": "Kiasi cha mkopo (KES, hadi kikomo chako cha {cap})", "term": "Muda (siku)",
         "cols": ["Chaguo", "Jumla ya kulipa", "Gharama", "Gharama ya mwaka",
                  "Inafaa utabiri sasa?", "Inafaa ukitumia pesa binafsi zisizozidi (kwa wiki)"],
         "yes": "ndiyo", "no": "hapana", "never": "haiwezekani",
@@ -165,44 +206,50 @@ def get_audit():
 
 
 @st.cache_data(show_spinner=False)
-def load_rows(business, upload=None):
+def load_rows(business, upload, cfg_json):
+    """The business's statement (or an uploaded one), categorised with the owner's
+    settings: staff payday and taught categories."""
+    cfg = json.loads(cfg_json)
     if upload is None:
-        return load_ledger(DATA / f"{business}_ledger.csv")
+        return rows_from_statement(DATA / f"{business}_statement.csv", business, cfg)
     with tempfile.NamedTemporaryFile("wb", suffix=".csv", delete=False) as f:
         f.write(upload)
     try:
-        return rows_from_statement(f.name, business)
+        return rows_from_statement(f.name, business, cfg)
     finally:
         os.remove(f.name)
 
 
 @st.cache_data(show_spinner=False)
-def forecast_data(rows):
+def forecast_data(rows, buffer):
     last = rows[-1]["date"]
     position = true_positions(rows, [last])[last]
     days = forecast(build_model(rows), last, position)
     past_dates = date_range(max(rows[0]["date"], last - timedelta(days=27)), last)
     past = true_positions(rows, past_dates)
-    return position, days, shortfall_alert(days), past
+    return position, days, shortfall_alert(days, buffer), past
 
 
 @st.cache_data(show_spinner=False)
-def credit_data(rows, amount, term):
+def credit_data(rows, amount, term, buffer, loan_cap, needed):
+    """amount=None: the recommended loan (covers the need, never above the loan cap)."""
     last = rows[-1]["date"]
     position = true_positions(rows, [last])[last]
     model = build_model(rows)
-    options = compare_options(amount, term)
-    for o in options:
-        o["fits_now"] = fits(model, o, last, position, amount)
-        o["cap"] = personal_cap(model, o, last, position, amount)
-    return options, weekly_personal(model)
+    if amount is None:
+        amount, options, best = recommend(model, last, position, needed, loan_cap, term, buffer)
+    else:
+        options = price(model, last, position, amount, term, buffer)
+        fitting = [o for o in options if o["cap"] is not None]
+        best = min(fitting, key=lambda o: o["cost"]) if fitting else None
+    return amount, options, best, weekly_personal(model)
 
 
 # ---------------------------------------------------------------------------
 # Page sections
 # ---------------------------------------------------------------------------
 
-def overview(t, lang, health, alert, position):
+def overview(t, lang, health, alert, position, buffer):
     cash, credit, sales = health["cash"], health["credit"], health["sales"]
     c1, c2, c3 = st.columns(3)
     c1.metric(t["balance"], kes(cash["closing_balance"]))
@@ -219,6 +266,7 @@ def overview(t, lang, health, alert, position):
     st.caption(f"{health['period']['start']} - {health['period']['end']} · "
                f"{t['slow']}: {', '.join(sales['slow_weekdays']) or '-'}")
 
+    st.caption(t["buffer_caption"].format(x=kes(buffer)))
     st.subheader(t["sms_title"])
     sms = sms_text(lang, alert, position)
     st.markdown(
@@ -246,7 +294,7 @@ def sms_text(lang, alert, position):
     return f"{msg} Ref {head}"
 
 
-def forecast_chart(t, days, past):
+def forecast_chart(t, days, past, buffer):
     rows = [{"date": d, "value": v, "kind": t["actual"]} for d, v in past.items()]
     last_date, last_value = max(past.items())
     band = pd.DataFrame([{"date": last_date, "low": last_value, "high": last_value,
@@ -273,10 +321,10 @@ def forecast_chart(t, days, past):
         x=x, y="value:Q",
         tooltip=[alt.Tooltip("date:T", title=t["date"], format="%a %d %b"),
                  alt.Tooltip("value:Q", title=t["actual"], format=",.0f")])
-    buffer = alt.Chart(pd.DataFrame({"y": [SAFETY_BUFFER]})).mark_rule(
+    buffer_line = alt.Chart(pd.DataFrame({"y": [buffer]})).mark_rule(
         color=CRITICAL, strokeDash=[4, 4], strokeWidth=1.5).encode(y="y:Q")
     zero = alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color=MUTED, strokeWidth=1).encode(y="y:Q")
-    chart = (area + zero + buffer + past_line + expected + points).properties(
+    chart = (area + zero + buffer_line + past_line + expected + points).properties(
         height=340, width="container").configure_axis(labelColor=MUTED, titleColor=MUTED,
                                                       gridColor="#e1e0d9", gridOpacity=0.5)
     st.altair_chart(chart)
@@ -289,13 +337,21 @@ def forecast_chart(t, days, past):
             t["high"]: band["high"].map(kes)}), hide_index=True)
 
 
-def credit_section(t, rows, health, alert):
-    need = alert["amount_needed"] if alert else 20_000
+def credit_section(t, lang, rows, health, alert, buffer, cfg):
+    """Loans are always compared WITHIN the owner's loan cap; we never suggest raising it."""
+    needed = alert["amount_needed"] if alert else 0
+    loan_cap = int(cfg["loan_cap"])
     c1, c2 = st.columns(2)
-    amount = c1.number_input(t["amount"], min_value=1_000, max_value=1_000_000, step=5_000,
-                             value=int(min(1_000_000, max(5_000, ceil(need / 5_000) * 5_000))))
     term = c2.selectbox(t["term"], [30, 90, 180, 365], index=2)
-    options, weekly_now = credit_data(rows, float(amount), int(term))
+    recommended, *_ = credit_data(rows, None, int(term), buffer, loan_cap, needed)
+    amount = c1.number_input(t["amount"].format(cap=kes(loan_cap)), min_value=1_000,
+                             max_value=loan_cap, step=5_000, value=int(recommended))
+    amount, options, best, weekly_now = credit_data(rows, float(amount), int(term), buffer,
+                                                    loan_cap, needed)
+    advice = {"best": best, "loan_cap": loan_cap, "needed": needed, "amount": amount,
+              "days": term, "current": weekly_now,
+              "over_cap": max(5000, ceil(needed / 5000) * 5000) > loan_cap}
+    (st.warning if advice["over_cap"] or best is None else st.info)(plain_advice(advice, lang))
     table = pd.DataFrame([{
         t["cols"][0]: o["name"], t["cols"][1]: kes(o["total_repaid"]), t["cols"][2]: kes(o["cost"]),
         t["cols"][3]: f"{o['annual_cost']:.0%}", t["cols"][4]: t["yes"] if o["fits_now"] else t["no"],
@@ -303,10 +359,8 @@ def credit_section(t, rows, health, alert):
     st.dataframe(table, hide_index=True)
     st.caption(t["illustrative"] + " " + t["personal_now"].format(x=kes(weekly_now)))
 
-    fitting = [o for o in options if o["cap"] is not None]
     fees = health["credit"]["overdraft_fees"]
-    if fitting and fees > 0:
-        best = min(fitting, key=lambda o: o["cost"])
+    if best and fees > 0:
         habit = fees * 365 / health["period"]["days"]
         cost = best["cost"] * 365 / term
         st.success(t["headline"].format(habit=kes(habit), best=best["name"], cost=kes(cost),
@@ -409,6 +463,93 @@ def audit_section(t):
             for e in reversed(last)]), hide_index=True)
 
 
+def save_owner_settings(t, business, entry, old, new, pin=None):
+    """Save the owner's changes. Caps and payees need the PIN; all changes are audited."""
+    changed = changes(old, new)
+    if not changed:
+        st.info(t["no_changes"])
+        return
+    if needs_pin(old, new):
+        if not pin:
+            st.error(t["pin_needed"])
+            return
+        try:
+            entry["agent"].sandbox.approvals.check_pin(pin)
+        except ApprovalError as e:
+            get_audit().record("owner_app", "settings_refused", business=business, reason=str(e))
+            st.error(f"{t['pin_wrong']} ({e})")
+            return
+    problems = validate(new)
+    if problems:
+        st.error("; ".join(problems))
+        return
+    save_settings(business, new)
+    get_audit().record("owner_app", "settings_changed", business=business, changes=changed)
+    st.session_state["settings_flash"] = t["saved"]
+    st.rerun()
+
+
+def settings_section(t, business, entry, rows, cfg):
+    """The owner's settings for this business, and 'teach it once'."""
+    st.info(t["settings_note"])
+    flash = st.session_state.pop("settings_flash", None)
+    if flash:
+        st.success(flash)
+
+    with st.form(f"settings_{business}"):
+        sector = st.text_input(t["sector"], cfg["sector"])
+        days = ["-"] + WEEKDAYS
+        payday = st.selectbox(t["payday"], days, index=days.index(cfg["payday"] or "-"))
+        buffer = st.number_input(t["buffer"], min_value=0, step=500,
+                                 value=int(safety_buffer(cfg)))
+        st.markdown(f"**{t['locked']}**")
+        c1, c2, c3 = st.columns(3)
+        per = c1.number_input(t["per_cap"], min_value=1, step=1000,
+                              value=int(cfg["per_transaction_cap"]))
+        daily = c2.number_input(t["daily_cap"], min_value=1, step=1000, value=int(cfg["daily_cap"]))
+        loan = c3.number_input(t["loan_cap"], min_value=1, step=1000, value=int(cfg["loan_cap"]))
+        payees = st.data_editor(
+            pd.DataFrame([{"ID": k, "Name": v} for k, v in cfg["verified_payees"].items()],
+                         columns=["ID", "Name"]),
+            num_rows="dynamic", hide_index=True, key=f"payees_{business}")
+        pin = st.text_input(t["pin"], type="password", help=t["pin_help"])
+        save = st.form_submit_button(t["save"], type="primary")
+    if save:
+        rows_ = [(str(r["ID"] or "").strip().upper(),
+                  str(r["Name"]).strip() if pd.notna(r["Name"]) else "")
+                 for r in payees.to_dict("records") if pd.notna(r["ID"]) and str(r["ID"]).strip()]
+        new = dict(cfg, sector=sector.strip() or cfg["sector"],
+                   payday=None if payday == "-" else payday, safety_buffer=buffer,
+                   per_transaction_cap=per, daily_cap=daily, loan_cap=loan,
+                   verified_payees=dict(rows_))
+        save_owner_settings(t, business, entry, cfg, new, pin)
+
+    # --- teach it once ---
+    st.subheader(t["teach_title"])
+    st.caption(t["teach_note"])
+    seen, unsure = {}, set()
+    for r in rows:
+        key = payee_key(r["Description"])
+        if len(key) >= 3:
+            seen.setdefault(key, Counter())[r["Category"]] += 1
+            if r["Confidence"] in ("medium", "low"):
+                unsure.add(key)
+    order = sorted(seen, key=lambda k: (k not in unsure, -sum(seen[k].values()), k))
+    c1, c2 = st.columns([3, 2])
+    key = c1.selectbox(t["payee"], order, format_func=lambda k: (
+        f"{k} · {seen[k].most_common(1)[0][0]} · {sum(seen[k].values())}x"))
+    category = c2.selectbox(t["category"], CATEGORIES)
+    if st.button(t["remember"], type="primary"):
+        save_owner_settings(t, business, entry, cfg, learn(cfg, key, category))
+    if cfg["learned_rules"]:
+        st.markdown(f"**{t['rules']}**")
+        st.dataframe(pd.DataFrame([(r["match"], r["category"]) for r in cfg["learned_rules"]],
+                                  columns=t["rule_cols"]), hide_index=True)
+        gone = st.selectbox(t["forget_which"], [r["match"] for r in cfg["learned_rules"]])
+        if st.button(t["forget"]):
+            save_owner_settings(t, business, entry, cfg, forget(cfg, gone))
+
+
 # ---------------------------------------------------------------------------
 # Main page
 # ---------------------------------------------------------------------------
@@ -432,18 +573,22 @@ def main():
 
     upload_bytes = upload.getvalue() if upload else None
     try:
-        rows = load_rows(business, upload_bytes)
+        cfg = load_settings(business)
+        cfg_json = json.dumps(cfg, sort_keys=True)
+        rows = load_rows(business, upload_bytes, cfg_json)
     except Exception as e:
         st.error(f"Could not read this statement: {type(e).__name__}. "
                  f"Please upload a mobile-money statement CSV.")
         return
 
-    # One agent (with its own chat, sandbox and approvals) per business + statement
-    agent_key = (business, hash(upload_bytes), offline)
+    # One agent (with its own chat, sandbox and approvals) per business + statement +
+    # settings: after a settings change the agent starts again under the new rules
+    agent_key = (business, hash(upload_bytes), offline, cfg_json)
     agents = st.session_state.setdefault("agents", {})
     if agent_key not in agents:
         provider = make_provider(offline, business)
-        agents[agent_key] = {"agent": make_agent(provider, get_audit(), business, rows=rows),
+        agents[agent_key] = {"agent": make_agent(provider, get_audit(), business, rows=rows,
+                                                       cfg=cfg),
                              "messages": [], "results": []}
     entry = agents[agent_key]
 
@@ -458,24 +603,27 @@ def main():
             st.error(t["suspicious"].format(n=suspicious), icon="🛡️")
 
     health = summarise(rows)
-    position, days, alert, past = forecast_data(rows)
+    buffer = entry["agent"].buffer
+    position, days, alert, past = forecast_data(rows, buffer)
     waiting = len(entry["agent"].sandbox.approvals.waiting())
     if waiting:
         st.sidebar.warning(f"{t['tabs'][4]}: {waiting}", icon="🔔")
     tabs = st.tabs(t["tabs"])
     with tabs[0]:
-        overview(t, lang, health, alert, position)
+        overview(t, lang, health, alert, position, buffer)
     with tabs[1]:
         st.subheader(t["fc_title"])
-        forecast_chart(t, days, past)
+        forecast_chart(t, days, past, buffer)
     with tabs[2]:
-        credit_section(t, rows, health, alert)
+        credit_section(t, lang, rows, health, alert, buffer, cfg)
     with tabs[3]:
         chat_section(t, lang, entry)
     with tabs[4]:
         approvals_section(t, entry, health)
     with tabs[5]:
         audit_section(t)
+    with tabs[6]:
+        settings_section(t, business, entry, rows, cfg)
 
 
 main()

@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from analytics import DATA, load_ledger
-from forecast import HORIZON, backtest, build_model, forecast, shortfall_alert
+from forecast import HORIZON, SAFETY_BUFFER, backtest, build_model, forecast, shortfall_alert
 
 
 @pytest.fixture(scope="module")
@@ -43,10 +43,18 @@ def test_negative_position_pays_daily_fee():
 
 
 def test_alert_only_when_low_estimate_below_buffer():
+    assert SAFETY_BUFFER == 1_000                                   # the default buffer
     assert shortfall_alert(forecast(flat_model(), date(2026, 10, 15), 50_000)) is None
-    alert = shortfall_alert(forecast(flat_model(), date(2026, 10, 15), 1_000))
+    alert = shortfall_alert(forecast(flat_model(), date(2026, 10, 15), 0))
     assert alert["risky_days"] == HORIZON
-    assert alert["amount_needed"] > 2_000
+    assert alert["amount_needed"] > 1_000
+
+
+def test_alert_uses_the_business_buffer():
+    days = forecast(flat_model(daily_error=0), date(2026, 10, 15), 5_000)
+    assert shortfall_alert(days, buffer=1_000) is None
+    assert shortfall_alert(days, buffer=6_000)["amount_needed"] == 1_000
+    assert shortfall_alert(days, buffer=0) is None
 
 
 @pytest.mark.parametrize("business", ["amina_grocery", "grace_salon", "otieno_transport"])

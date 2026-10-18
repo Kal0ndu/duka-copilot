@@ -24,6 +24,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
+import key_numbers
 from analytics import BUSINESSES, DATA, load_ledger
 from attacks import run_attacks
 from build_ledger import check_accuracy
@@ -32,6 +33,7 @@ from credit import headline
 from evaluation import rate, run_evaluation
 from forecast import backtest
 from parser import parse_statement
+from settings import defaults
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "docs" / "test_results.md"
@@ -64,7 +66,7 @@ def measured_results():
         acc, _ = check_accuracy(txns, DATA / f"{business}_labels.csv")
         accuracy.append((business, len(txns), report["balance_mismatches"], acc))
         backtests.append((business, backtest(load_ledger(DATA / f"{business}_ledger.csv"))))
-    return accuracy, backtests, headline()
+    return accuracy, backtests, headline(cfg=defaults("amina_grocery"))
 
 
 def kes(x):
@@ -178,10 +180,19 @@ def main():
     accuracy, backtests, h = measured_results()
     passed, failed, blocked, n_attacks, (sp, st), (pp, pt) = write_report(
         files, failures, attacks, evaluation, accuracy, backtests, h)
+    scripted = evaluation["scripted"]
+    invented = [f for s, f, _ in scripted if s["answer"] == "fallback"]
+    genuine = [f for s, f, _ in scripted if s["answer"] == "verified"]
+    numbers = (f"{sum(not f for f in invented)}/{len(invented)} invented numbers caught; "
+               f"{sum(not f for f in genuine)}/{len(genuine)} genuine answers passed")
+    key_file = key_numbers.write({"passed": passed, "failed": failed, "blocked": blocked,
+                                  "attacks": n_attacks, "scripted": (sp, st),
+                                  "planner": (pp, pt), "numbers": numbers})
     print(f"\nUnit tests:      {passed} passed, {failed} failed")
     print(f"Attacks blocked: {blocked}/{n_attacks}")
     print(f"Task success:    scripted {sp}/{st}, keyword planner {pp}/{pt}")
     print(f"Saved: {OUT}")
+    print(f"Saved: {key_file}")
     sys.exit(1 if failed or blocked < n_attacks or sp < st else 0)
 
 

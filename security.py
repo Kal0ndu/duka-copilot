@@ -254,6 +254,16 @@ class Approvals:
             raise ApprovalError("no such request is waiting for approval")
         req["status"] = "declined"
 
+    def check_pin(self, pin):
+        """OWNER'S APP ONLY: confirm the owner's PIN (for approvals, and before
+        changing caps or payees). Wrong PINs count towards the lockout."""
+        if self._wrong_pins >= self.MAX_WRONG_PINS:
+            raise ApprovalError("approvals are locked after too many wrong PINs")
+        if not hmac.compare_digest(self._hash_pin(pin), self._pin_hash):
+            self._wrong_pins += 1
+            raise ApprovalError(f"wrong PIN ({self._wrong_pins} of {self.MAX_WRONG_PINS})")
+        self._wrong_pins = 0
+
     def approve(self, request_id, pin, now=None):
         """OWNER'S APP ONLY. Returns an approval code, or raises ApprovalError."""
         now = now or datetime.now()
@@ -262,10 +272,7 @@ class Approvals:
         req = self._requests.get(request_id)
         if not req or req["status"] != "waiting":
             raise ApprovalError("no such request is waiting for approval")
-        if not hmac.compare_digest(self._hash_pin(pin), self._pin_hash):
-            self._wrong_pins += 1
-            raise ApprovalError(f"wrong PIN ({self._wrong_pins} of {self.MAX_WRONG_PINS})")
-        self._wrong_pins = 0
+        self.check_pin(pin)
         req["status"], req["expires"] = "approved", now + self.VALID_FOR
         return self._sign(request_id, req)
 

@@ -19,6 +19,7 @@ from agent import ScriptedProvider, make_agent
 from analytics import DATA
 from providers import ToolCall
 from sandbox import MockLender, Sandbox, SandboxAccount
+from settings import defaults
 from security import (PHONE, POLICIES, Approvals, AuditLog, PolicyGuard, verify_log)
 
 PIN = "2468"
@@ -40,7 +41,7 @@ def sandbox_for(tmp, balance=100_000, business="amina_grocery"):
 def agent_for(tmp, calls, statement=None):
     """An agent driven by a scripted AI that does exactly what the attacker wants."""
     return make_agent(ScriptedProvider(calls), AuditLog(Path(tmp) / "audit.jsonl"),
-                      statement=statement)
+                      statement=statement, cfg=defaults("amina_grocery"))
 
 
 def pay(payee, amount, **extra):

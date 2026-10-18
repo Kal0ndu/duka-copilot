@@ -4,6 +4,7 @@ from agent import (FAIL_SAFE, TEST_QUESTIONS, make_agent, numbers_in_text,
                    unverified_numbers, validate_call)
 from providers import OfflineProvider, detect_language
 from security import POLICIES, AuditLog
+from settings import defaults
 
 
 # --- tool-call schema check ---
@@ -51,11 +52,12 @@ def test_unverified_numbers(answer, bad):
 def offline_answers(tmp_path_factory):
     audit = AuditLog(tmp_path_factory.mktemp("audit") / "audit.jsonl")
     provider = OfflineProvider(POLICIES["amina_grocery"].verified_payees)
-    agent = make_agent(provider, audit)
+    cfg = defaults("amina_grocery")          # built-in settings, not the saved files
+    agent = make_agent(provider, audit, cfg=cfg)
     results = []
     for statement, question in TEST_QUESTIONS:
         if statement:
-            agent = make_agent(provider, audit, statement=statement)
+            agent = make_agent(provider, audit, statement=statement, cfg=cfg)
         results.append((question, agent.ask(question), agent))
     return results
 
@@ -68,6 +70,15 @@ def test_offline_answers_pass_number_check(offline_answers):
 def test_offline_swahili_reply(offline_answers):
     question, answer, _ = offline_answers[3]
     assert detect_language(question) == detect_language(answer) == "sw"
+
+
+def test_compare_credit_tool_stays_within_loan_cap(offline_answers):
+    agent = offline_answers[0][2]                       # Amina, loan cap KES 60,000
+    result = agent.tool_compare_credit(100_000, 180)
+    assert result["amount"] == 60_000 and result["requested_amount"] == 100_000
+    assert "Do not suggest raising the cap" in result["cap_note"]
+    answer = OfflineProvider({}).describe_result("compare_credit", result)
+    assert "more than your loan cap" in answer and "raise" not in answer.lower()
 
 
 def test_malicious_statement_proposes_nothing(offline_answers):

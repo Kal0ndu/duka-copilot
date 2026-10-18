@@ -30,15 +30,16 @@ from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
-from analytics import DATA, load_ledger, summarise, true_positions
+from analytics import DATA, summarise, true_positions
 from categoriser import categorise_all
 from credit import compare_options, fits, personal_cap, weekly_personal
-from forecast import SAFETY_BUFFER, build_model, forecast, shortfall_alert
+from forecast import build_model, forecast, shortfall_alert
 from parser import parse_statement
 from providers import (GeminiProvider, OfflineProvider, RateLimitError, Reply, ToolCall,
                        detect_language)
 from sandbox import AUDIT_PATH, MockLender, Sandbox, SandboxAccount
 from security import POLICIES, Approvals, AuditLog, PolicyGuard, Redactor
+from settings import load_settings, policy_from, profile_from, safety_buffer
 
 ROOT = Path(__file__).parent
 DEFAULT_MODEL = "gemini-3.8-flash"
@@ -66,13 +67,10 @@ def _obj(properties=None, required=()):
     return {"type": "object", "properties": properties or {}, "required": list(required)}
 
 
-BUSINESSES = {
-    "amina_grocery": {"owner": "Amina", "label": "Amina's Grocery (Nairobi)",
-                      "kind": "grocery shop in Nairobi"},
-    "grace_salon": {"owner": "Grace", "label": "Grace Beauty Salon (Kisumu)",
-                    "kind": "beauty salon in Kisumu"},
-    "otieno_transport": {"owner": "Otieno", "label": "Otieno Boda Services (Nakuru)",
-                         "kind": "motorbike-taxi (boda boda) business in Nakuru"},
+BUSINESSES = {      # the sector, caps, payees etc. live in settings.py
+    "amina_grocery": {"owner": "Amina", "label": "Amina's Grocery (Nairobi)"},
+    "grace_salon": {"owner": "Grace", "label": "Grace Beauty Salon (Kisumu)"},
+    "otieno_transport": {"owner": "Otieno", "label": "Otieno Boda Services (Nakuru)"},
 }
 
 TOOLS = {
@@ -163,10 +161,10 @@ def validate_call(name, args):
 # 2. SYSTEM PROMPT
 # ---------------------------------------------------------------------------
 
-def system_prompt(business):
-    payees = ", ".join(f"{pid} = {name}"
-                       for pid, name in POLICIES[business].verified_payees.items())
-    return SYSTEM_PROMPT.format(kind=BUSINESSES[business]["kind"], payees=payees)
+def system_prompt(cfg):
+    """The AI's rules, filled in from the business's settings."""
+    payees = ", ".join(f"{pid} = {name}" for pid, name in cfg["verified_payees"].items())
+    return SYSTEM_PROMPT.format(kind=cfg["sector"], payees=payees)
 
 
 SYSTEM_PROMPT = """You are Duka Copilot, a finance assistant for the owner of a small
@@ -184,7 +182,9 @@ Rules you must always follow:
 4. Only pay verified payees, by ID: {payees}.
 5. Names and phone numbers are hidden as [PERSON_n] and [PHONE]. Don't guess them.
 6. Reply in the owner's language. If they write in Swahili, reply in Swahili.
-7. Keep answers short and practical for a busy shop owner. Say that SACCO and bank
+7. Never suggest raising a cap or limit to borrow more. If a need is bigger than a
+   cap, recommend the most allowed within the cap plus a weekly personal-money cap.
+   Keep answers short and practical for a busy shop owner. Say that SACCO and bank
    rates are illustrative, not real quotes, whenever you mention them.
 8. AI calls are limited, so: if the snapshot below already answers the question,
    answer directly without tools; otherwise call ALL the tools you need in ONE turn.
@@ -283,10 +283,14 @@ def unverified_numbers(answer, sources):
     return bad
 
 
-def rows_from_statement(path, business):
-    """Raw statement -> ledger-style rows (same shape as load_ledger)."""
+def rows_from_statement(path, business, cfg=None):
+    """Raw statement -> ledger-style rows (same shape as load_ledger), categorised
+    with the owner's settings (staff payday, taught categories) when given."""
     txns, _ = parse_statement(path)
-    categorise_all(txns, business)
+    if cfg:
+        categorise_all(txns, business, profile_from(cfg), cfg["learned_rules"])
+    else:
+        categorise_all(txns, business)
     return [{"Date": str(t["time"].date()), "Time": t["time"].strftime("%H:%M"),
              "Description": t["details"], "Category": t["category"],
              "Confidence": t["confidence"], "date": t["time"].date(),
@@ -299,8 +303,10 @@ def rows_from_statement(path, business):
 # ---------------------------------------------------------------------------
 
 class Agent:
-    def __init__(self, provider, rows, sandbox, audit, business="amina_grocery"):
+    def __init__(self, provider, rows, sandbox, audit, business="amina_grocery", cfg=None):
         self.provider, self.rows, self.sandbox, self.audit = provider, rows, sandbox, audit
+        cfg = cfg or load_settings(business)
+        self.buffer = safety_buffer(cfg)
         self.redactor = Redactor(known_names=[BUSINESSES[business]["owner"]])
         self.history = []
         self.tool_log = []          # (tool, args, outcome) for the last question
@@ -309,18 +315,18 @@ class Agent:
         self.answer_verified = None # did the last answer pass the number check?
         self._model = None
         self._snapshot = self.snapshot()
-        self.system = system_prompt(business) + self._snapshot
+        self.system = system_prompt(cfg) + self._snapshot
 
     def snapshot(self):
         """Key numbers, computed in Python, so simple questions need only one AI call."""
         s = summarise(self.rows)
         last, position = self.position()
-        alert = shortfall_alert(forecast(self.model(), last, position))
+        alert = shortfall_alert(forecast(self.model(), last, position), self.buffer)
         share = s["personal"]["share_of_profit"]
-        outlook = (f"low estimate below the KES {SAFETY_BUFFER:,} buffer on {alert['risky_days']} "
+        outlook = (f"low estimate below the KES {self.buffer:,.0f} buffer on {alert['risky_days']} "
                    f"of 14 days; worst {alert['worst_date']} at KES {alert['worst_low']:,.0f}; "
                    f"may need KES {alert['amount_needed']:,.0f} more" if alert else
-                   f"low estimate stays above the KES {SAFETY_BUFFER:,} buffer")
+                   f"low estimate stays above the KES {self.buffer:,.0f} buffer")
         return (f"\nSnapshot computed by the app for {s['period']['start']} to "
                 f"{s['period']['end']} (trust these numbers):\n"
                 f"- sales KES {s['sales']['total']:,.0f} (KES {s['sales']['per_day']:,.0f} a day); "
@@ -482,10 +488,10 @@ class Agent:
         self._read({"type": "read_forecast"})
         last, position = self.position()
         days = forecast(self.model(), last, position)
-        alert = shortfall_alert(days)
+        alert = shortfall_alert(days, self.buffer)
         return {
             "start_date": str(last), "true_position": round(position, 2),
-            "safety_buffer": SAFETY_BUFFER,
+            "safety_buffer": self.buffer,
             "days": [{"date": str(d["date"]), "weekday": d["date"].strftime("%a"),
                       "expected_sales": round(d["sales"]), "low": round(d["low"]),
                       "expected": round(d["expected"]), "high": round(d["high"]),
@@ -501,19 +507,28 @@ class Agent:
         self._read({"type": "compare_credit", "amount": amount, "term_days": term_days})
         last, position = self.position()
         model = self.model()
+        loan_cap = self.sandbox.guard.policy.loan_cap
+        requested, amount = amount, min(amount, loan_cap)    # never compare above the cap
         options = []
         for o in compare_options(amount, term_days):
-            cap = personal_cap(model, o, last, position, amount)
+            cap = personal_cap(model, o, last, position, amount, self.buffer)
             options.append({
                 "name": o["name"], "total_repaid": round(o["total_repaid"]),
                 "cost": round(o["cost"]),
                 "effective_annual_cost_pct": round(o["annual_cost"] * 100),
-                "fits_forecast_now": fits(model, o, last, position, amount),
+                "fits_forecast_now": fits(model, o, last, position, amount, self.buffer),
                 "max_weekly_personal_money_for_fit": None if cap is None else round(cap)})
-        return {"amount": amount, "term_days": term_days,
-                "weekly_personal_money_now": round(weekly_personal(model)),
-                "options": options,
-                "note": "SACCO and bank rates are ILLUSTRATIVE, not real quotes."}
+        result = {"amount": amount, "term_days": term_days, "loan_cap": loan_cap,
+                  "weekly_personal_money_now": round(weekly_personal(model)),
+                  "options": options,
+                  "note": "SACCO and bank rates are ILLUSTRATIVE, not real quotes."}
+        if requested > loan_cap:
+            result["requested_amount"] = requested
+            result["cap_note"] = (f"KES {requested:,.0f} is above the owner's loan cap, so this "
+                                  f"compares KES {loan_cap:,.0f}, the most allowed. Say this "
+                                  f"plainly. Do not suggest raising the cap; suggest the weekly "
+                                  f"personal-money cap instead.")
+        return result
 
     # --- propose tools (T2): only create a request; the owner decides ---
 
@@ -551,22 +566,25 @@ def make_provider(offline, business="amina_grocery"):
     if offline or not has_api_key():
         if not offline:
             print("(No GEMINI_API_KEY in .env: using the offline demo.)")
-        return OfflineProvider(POLICIES[business].verified_payees)
+        return OfflineProvider(load_settings(business)["verified_payees"])
     return GeminiProvider(os.environ["GEMINI_API_KEY"].strip(),
                           os.environ.get("GEMINI_MODEL", DEFAULT_MODEL))
 
 
-def make_agent(provider, audit, business="amina_grocery", statement=None, rows=None):
-    """An agent for one business, on its ledger, a raw statement file, or given rows."""
+def make_agent(provider, audit, business="amina_grocery", statement=None, rows=None,
+               cfg=None):
+    """An agent for one business, on its statement (or another statement file, or
+    given rows). cfg: its settings; default: the owner's saved settings file."""
+    cfg = cfg or load_settings(business)
     if rows is None:
-        rows = (rows_from_statement(statement, business) if statement
-                else load_ledger(DATA / f"{business}_ledger.csv"))
-    policy = POLICIES[business]
+        rows = rows_from_statement(statement or DATA / f"{business}_statement.csv",
+                                   business, cfg)
+    policy = policy_from(cfg)
     pin = os.environ.get("DUKA_OWNER_PIN", "2468")      # typed by the owner, never the AI
     sandbox = Sandbox(PolicyGuard(policy), Approvals(pin), audit,
                       SandboxAccount(rows[-1]["balance"], policy.verified_payees),
                       MockLender())
-    return Agent(provider, rows, sandbox, audit, business)
+    return Agent(provider, rows, sandbox, audit, business, cfg)
 
 
 def owner_review(agent):
