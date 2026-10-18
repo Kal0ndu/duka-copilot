@@ -1,0 +1,4 @@
+# One accent colour (the same blue as the forecast chart); greys come from the
+# light or dark theme the viewer chooses. See dukacopilot/skills/crisp-ui/SKILL.md.
+[theme]
+primaryColor = "#2a78d6"

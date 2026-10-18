@@ -1,6 +1,6 @@
 # Duka Copilot - key numbers
 
-Generated from the code on 2026-10-18 15:59 with the **default settings**. Quote only these figures in the deck, docs and demo. Regenerate with `py run_tests.py`.
+Generated from the code on 2026-10-18 16:18 with the **default settings**. Quote only these figures in the deck, docs and demo. Regenerate with `py run_tests.py`.
 
 All data is synthetic (fixed seed). SACCO and bank rates are illustrative, not real quotes. Categorisation rules were written knowing the data generator, so real-world accuracy would be lower.
 
