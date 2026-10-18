@@ -8,7 +8,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from core.redaction import Redactor
 from core.config import Config
-from db.audit import AuditLog
 
 st.set_page_config(page_title="Audit & Security — Duka", page_icon="🛡️", layout="wide")
 

@@ -91,9 +91,11 @@ class MobileMoneyKeAdapter(StatementAdapter):
 
                 channel = self._infer_channel(details)
                 date_str = ts.split()[0] if " " in ts else ts
+                # Normalize date to ISO format (YYYY-MM-DD)
+                normalized_date = self._normalize_date(date_str)
 
                 records.append({
-                    "date": date_str,
+                    "date": normalized_date,
                     "time": time_str,
                     "ts": ts,
                     "receipt": receipt,
@@ -128,6 +130,36 @@ class MobileMoneyKeAdapter(StatementAdapter):
             "debits": debits,
             "net": credits - debits,
         }
+
+    @staticmethod
+    def _normalize_date(date_str: str) -> str:
+        """Normalize date string to ISO format (YYYY-MM-DD).
+        
+        Handles formats like:
+        - 2026-10-15 (ISO)
+        - 15/10/2026 (DD/MM/YYYY)
+        - 15-10-2026 (DD-MM-YYYY)
+        """
+        import re
+        date_str = str(date_str).strip()
+        
+        # Already ISO format?
+        if re.match(r'^\d{4}-\d{2}-\d{2}', date_str):
+            return date_str[:10]
+        
+        # DD/MM/YYYY or DD-MM-YYYY format?
+        if re.match(r'^\d{2}[/-]\d{2}[/-]\d{4}', date_str):
+            parts = re.split(r'[/-]', date_str)
+            if len(parts) >= 3:
+                dd, mm, yyyy = parts[0], parts[1], parts[2]
+                return f"{yyyy}-{mm}-{dd}"
+        
+        # Fallback: try pandas inference
+        try:
+            parsed = pd.to_datetime(date_str, format='mixed', dayfirst=True)
+            return parsed.strftime('%Y-%m-%d')
+        except Exception:
+            return date_str
 
     @staticmethod
     def _parse_kes(val) -> int:

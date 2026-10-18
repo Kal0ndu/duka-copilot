@@ -87,7 +87,7 @@ with st.expander("⚙️ Forecast Settings & Stress-Test Simulation", expanded=T
 
 # Prepare daily flows DataFrame for forecaster
 daily_grouped = df_clean.copy()
-daily_grouped["weekday"] = pd.to_datetime(daily_grouped["local_date"]).dt.dayofweek
+daily_grouped["weekday"] = pd.to_datetime(daily_grouped["local_date"], format='mixed', dayfirst=True).dt.dayofweek
 
 daily_flows = daily_grouped.groupby(["local_date", "weekday"]).agg(
     inflow_minor=("amount_minor", lambda x: int(x[daily_grouped.loc[x.index, "direction"] == "in"].sum())),

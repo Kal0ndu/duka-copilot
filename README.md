@@ -62,7 +62,7 @@ notepad .env
 
 ```env
 LLM_API_KEY=your_gemini_api_key_here
-MODEL_NAME=gemini-2.0-flash  # or another available model
+MODEL_NAME=gemini-3.8-flash  # or another available model
 CAP_PER_TXN=25000            # KES, per-transaction limit
 CAP_DAILY=50000              # KES, daily limit
 ```
@@ -260,7 +260,7 @@ pytest -n 0  # disable xdist parallel execution
 LLM_API_KEY=your_gemini_api_key
 
 # Optional (defaults provided)
-MODEL_NAME=gemini-2.0-flash
+MODEL_NAME=gemini-3.8-flash
 CAP_PER_TXN=25000
 CAP_DAILY=50000
 DB_PATH=duka.db

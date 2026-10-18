@@ -142,7 +142,7 @@ def chart_weekday_seasonality(weekday_df: pd.DataFrame) -> alt.Chart:
     if weekday_df.empty:
         return alt.Chart(pd.DataFrame({"msg": ["No data"]})).mark_text().encode(text="msg")
 
-    chart = alt.Chart(weekday_df).mark_bar(cornerRadiusTop=4, color=PRIMARY_GREEN).encode(
+    chart = alt.Chart(weekday_df).mark_bar(cornerRadius=4, color=PRIMARY_GREEN).encode(
         x=alt.X("day_name:N", sort=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], title="Day of Week"),
         y=alt.Y("avg_inflow:Q", title="Average Daily Sales (KES)"),
         tooltip=[
@@ -160,7 +160,7 @@ def chart_aging_buckets(buckets: Dict[str, float], title: str = "Aging Buckets")
     """Bar chart for receivables or payables aging buckets."""
     df = pd.DataFrame([{"Bucket": k, "Amount (KES)": v} for k, v in buckets.items()])
 
-    chart = alt.Chart(df).mark_bar(cornerRadiusTop=4).encode(
+    chart = alt.Chart(df).mark_bar(cornerRadius=4).encode(
         x=alt.X("Bucket:N", sort=None, title=""),
         y=alt.Y("Amount (KES):Q", title="Outstanding (KES)"),
         color=alt.Color(
@@ -234,7 +234,7 @@ def chart_loan_comparison(offers: List) -> alt.Chart:
 
     df = pd.DataFrame(rows)
 
-    chart = alt.Chart(df).mark_bar(cornerRadiusTop=3).encode(
+    chart = alt.Chart(df).mark_bar(cornerRadius=3).encode(
         x=alt.X("Type:N", title="", axis=alt.Axis(labels=False)),
         y=alt.Y("KES:Q", title="KES"),
         color=alt.Color(

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import sqlite3
 import uuid
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from core.config import config
 
@@ -28,9 +29,17 @@ class BusinessSetup:
         self.db_path = db_path or config.DB_PATH
 
     def ensure_schema(self) -> None:
-        """Create new platform tables if they don't exist (idempotent)."""
+        """Initialize the base schema, then create application extensions."""
+        db_path = Path(self.db_path)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(self.db_path)
         conn.execute("PRAGMA foreign_keys = ON")
+        base_schema = Path(__file__).resolve().parents[1] / "db" / "schema.sql"
+        has_base_schema = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'business'"
+        ).fetchone()
+        if not has_base_schema:
+            conn.executescript(base_schema.read_text(encoding="utf-8"))
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS business_category_config (
               config_id INTEGER PRIMARY KEY,

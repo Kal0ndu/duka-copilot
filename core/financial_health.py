@@ -131,7 +131,7 @@ class FinancialHealthAnalyzer:
 
         total_revenue = inflows["amount_kes"].sum()
         total_outflow = outflows["amount_kes"].sum()
-        dates = pd.to_datetime(self.df["local_date"])
+        dates = pd.to_datetime(self.df["local_date"], format='mixed', dayfirst=True)
         unique_days = self.df["local_date"].nunique()
 
         period_start = str(self.df["local_date"].min())
@@ -168,11 +168,13 @@ class FinancialHealthAnalyzer:
 
         # --- LEVERAGE ---
         # Estimate debt obligations from financing-related outflows
-        financing_out = outflows[
-            outflows.get("category", pd.Series(["unknown"] * len(outflows))).apply(
+        if "category" in outflows.columns:
+            financing_mask = outflows["category"].apply(
                 lambda c: str(c).lower() in ("financing", "loan", "fuliza", "overdraft", "interest", "debt")
             )
-        ]["amount_kes"].sum() if "category" in outflows.columns else 0.0
+            financing_out = outflows.loc[financing_mask, "amount_kes"].sum()
+        else:
+            financing_out = 0.0
 
         debt_to_revenue = financing_out / max(1.0, total_revenue)
         operating_cf = total_revenue - total_outflow + financing_out  # add back financing as it's not operating
@@ -453,7 +455,7 @@ class FinancialHealthAnalyzer:
             return pd.DataFrame()
 
         df = self.df.copy()
-        df["date_dt"] = pd.to_datetime(df["local_date"])
+        df["date_dt"] = pd.to_datetime(df["local_date"], format='mixed', dayfirst=True)
         df["week"] = df["date_dt"].dt.to_period("W").astype(str)
 
         weekly = df.groupby("week").agg(

@@ -169,7 +169,7 @@ def validate_args(tool_name: str, args: dict) -> tuple[bool, Optional[dict], Opt
         return False, None, str(e)
 
 
-def get_llm_tools() -> List[dict]:
+def get_tool_schemas_for_llm() -> List[dict]:
     """Return the tool list for the LLM provider (Gemini format)."""
     tools = []
     for name, spec in TOOL_REGISTRY.items():
@@ -181,3 +181,7 @@ def get_llm_tools() -> List[dict]:
             "parameters": spec.schema.model_json_schema(),
         })
     return tools
+
+
+# Alias for backward compatibility
+get_llm_tools = get_tool_schemas_for_llm

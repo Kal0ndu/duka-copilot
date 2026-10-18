@@ -88,7 +88,7 @@ class RelationshipAnalyzer:
 
         # Reference date is maximum transaction date in dataset
         try:
-            max_date = pd.to_datetime(self.df["local_date"]).max()
+            max_date = pd.to_datetime(self.df["local_date"], format='mixed', dayfirst=True).max()
             if pd.isna(max_date):
                 max_date = datetime.now()
         except Exception:

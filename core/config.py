@@ -10,7 +10,7 @@ class Config:
 
     LLM_API_KEY: str = os.getenv("LLM_API_KEY", "")
     LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "google")
-    MODEL_NAME: str = os.getenv("MODEL_NAME", "gemini-2.5-flash")
+    MODEL_NAME: str = os.getenv("MODEL_NAME", "gemini-3.8-flash")
 
     CAP_PER_TXN: int = int(os.getenv("CAP_PER_TXN", "2500000"))
     CAP_DAILY: int = int(os.getenv("CAP_DAILY", "5000000"))
