@@ -135,6 +135,7 @@ configs = setup.get_category_configs(business_id)
 budget_configs = [c for c in configs if c.get("monthly_budget_minor")]
 
 if budget_configs:
+    STATUS_LABEL = {"ok": "OK", "near": "Near limit", "over": "Over budget"}
     budget_data = []
     for cfg_item in budget_configs:
         cat_name = cfg_item.get("display_name") or cfg_item["name"]
@@ -145,34 +146,46 @@ if budget_configs:
         actual = actual_row["total_minor"] if actual_row else 0
 
         pct_used = (actual / budget * 100) if budget > 0 else 0
-        status = ":material/error: Over" if pct_used > 100 else (":material/warning: Near" if pct_used >= threshold else ":material/check_circle: OK")
+        state = "over" if pct_used > 100 else ("near" if pct_used >= threshold else "ok")
 
         budget_data.append({
             "Category": cat_name,
             "Budget (KES)": budget / 100,
             "Actual (KES)": actual / 100,
             "% Used": round(pct_used, 1),
-            "Status": status,
+            "Status": [STATUS_LABEL[state]],
+            "_state": state,
         })
 
-    budget_df = pd.DataFrame(budget_data)
+    budget_df = pd.DataFrame(budget_data).drop(columns="_state")
+    # Dataframe cells can't render :material/...: icons, so show status as colored pills
     st.dataframe(
-        budget_df.style.format({
-            "Budget (KES)": "KES {:,.0f}",
-            "Actual (KES)": "KES {:,.0f}",
-            "% Used": "{:.1f}%",
-        }),
+        budget_df,
         width="stretch",
+        hide_index=True,
+        column_config={
+            "Budget (KES)": st.column_config.NumberColumn(format="localized"),
+            "Actual (KES)": st.column_config.NumberColumn(format="localized"),
+            "% Used": st.column_config.NumberColumn(format="%.1f%%"),
+            "Status": st.column_config.MultiselectColumn(
+                options=list(STATUS_LABEL.values()),
+                color=["green", "orange", "red"],
+            ),
+        },
     )
 
-    over_budget = [b for b in budget_data if b["% Used"] > 100]
-    near_budget = [b for b in budget_data if 80 <= b["% Used"] <= 100]
+    over_budget = [b for b in budget_data if b["_state"] == "over"]
+    near_budget = [b for b in budget_data if b["_state"] == "near"]
 
     if over_budget:
-        st.error(f"**{len(over_budget)} categories over budget!**")
+        n = len(over_budget)
+        st.error(f"**{n} {'category' if n == 1 else 'categories'} over budget!**", icon=":material/error:")
         for b in over_budget:
             st.write(f"• {b['Category']}: KES {b['Actual (KES)']:,.0f} / KES {b['Budget (KES)']:,.0f}")
     elif near_budget:
-        st.warning(f"**{len(near_budget)} categories near budget limit**")
+        n = len(near_budget)
+        st.warning(f"**{n} {'category' if n == 1 else 'categories'} near budget limit**", icon=":material/warning:")
+        for b in near_budget:
+            st.write(f"• {b['Category']}: KES {b['Actual (KES)']:,.0f} / KES {b['Budget (KES)']:,.0f} ({b['% Used']:.1f}%)")
 else:
     st.info("No budgets configured. Set monthly budgets in **Business Setup → Categories**.")

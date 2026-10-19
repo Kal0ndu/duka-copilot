@@ -13,6 +13,7 @@ from app.auth_ui import require_auth
 from auth.middleware import get_business_id, get_user_id, invalidate_user_context_on_page
 
 from core.standing_orders import CADENCES, KINDS, PaymentNotAllowed, StandingOrderService
+from core.owner_settings import load_settings
 from integrations.mpesa_daraja import DarajaError
 
 st.set_page_config(page_title="Standing Orders — Duka", page_icon=":material/event_repeat:", layout="wide")
@@ -155,7 +156,10 @@ with tab_orders:
             dest_number = c4.text_input("Paybill / till / phone number")
             account_ref = c5.text_input("Account number (paybill only)")
             c6, c7, c8 = st.columns(3)
-            amount = c6.number_input("Amount (KES)", min_value=1, step=100, value=1000)
+            per_txn_cap_kes = load_settings(service.db_path, business_id).per_txn_cap_minor // 100
+            amount = c6.number_input("Amount (KES)", min_value=1, max_value=max(per_txn_cap_kes, 1), step=100,
+                                     value=min(1000, max(per_txn_cap_kes, 1)),
+                                     help=f"Your per-payment cap is KES {per_txn_cap_kes:,}. Change it in Business Setup.")
             cadence = c7.selectbox("How often", CADENCES, index=CADENCES.index("monthly"),
                                    format_func=lambda c: c.replace("_", "-").title())
             start = c8.date_input("First payment date", value=date.today() + timedelta(days=3))

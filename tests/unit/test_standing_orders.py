@@ -105,6 +105,19 @@ class TestValidation:
         with pytest.raises(ValueError):
             env["svc"].create_order(1, env["owner"], "x", "rent", "till", "123456", 10**7, "monthly", TODAY)
 
+    def test_cap_follows_owner_settings(self, env):
+        from dataclasses import replace
+        from core.owner_settings import OwnerPin, load_settings, save_settings
+        OwnerPin(env["db"]).set_pin(1, "4826")
+        # Raise the cap above the KES 25,000 default: a KES 40,000 order is now allowed.
+        save_settings(env["db"], replace(load_settings(env["db"], 1), per_txn_cap_minor=5_000_000,
+                                         daily_cap_minor=10_000_000), pin="4826")
+        env["svc"].create_order(1, env["owner"], "Rent", "rent", "till", "123456", 40_000, "monthly", TODAY)
+        # Lower it: KES 5,000 is now over the limit.
+        save_settings(env["db"], replace(load_settings(env["db"], 1), per_txn_cap_minor=400_000), pin="4826")
+        with pytest.raises(ValueError, match="4,000"):
+            env["svc"].create_order(1, env["owner"], "x", "rent", "till", "123456", 5_000, "monthly", TODAY)
+
     def test_contact_must_be_login_phone(self, env):
         with pytest.raises(PaymentNotAllowed):
             env["svc"].set_contact(1, env["owner"], "0711111111")

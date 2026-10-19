@@ -148,8 +148,12 @@ class StandingOrderService:
         amount_minor = int(amount_kes) * 100
         if amount_minor <= 0:
             raise ValueError("Amount must be at least KES 1.")
-        if amount_minor > Config.CAP_PER_TXN:
-            raise ValueError(f"Amount exceeds the per-payment limit of KES {Config.CAP_PER_TXN / 100:,.0f}.")
+        # The owner's own per-payment cap from Business Setup, not the global default.
+        from core.owner_settings import load_settings
+        cap_minor = load_settings(self.db_path, business_id).per_txn_cap_minor
+        if amount_minor > cap_minor:
+            raise ValueError(f"Amount exceeds your per-payment limit of KES {cap_minor / 100:,.0f}. "
+                             "You can change it in Business Setup.")
         if end_date and end_date < start_date:
             raise ValueError("End date is before the start date.")
         number = self._validate_destination(destination_type, destination_number, account_reference)
@@ -334,8 +338,9 @@ class StandingOrderService:
                                  r["late_penalty_minor"])
                 for r in rows
             ]
+            from core.owner_settings import load_settings
             ranked = rank_payments(candidates, self.today_fn(), self._balance_minor(conn, business_id),
-                                   Config.SAFETY_BUFFER_MINOR)
+                                   load_settings(self.db_path, business_id).safety_buffer_minor)
             for p in ranked:
                 conn.execute(
                     """UPDATE scheduled_payment SET priority_score = ?, priority_band = ?,
