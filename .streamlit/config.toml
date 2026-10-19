@@ -36,30 +36,32 @@ blueColor = "#60A5FA"   # Informational
 violetColor = "#A78BFA" # Accent
 grayColor = "#94A3B8"   # Neutral/secondary text
 
-# Chart colors — distinguishable palette
+# Chart colors — the categorical palette validated (dataviz checker) on the
+# dark surface #0F172A: lightness band, chroma, colour-blind and normal-vision
+# separation, 3:1 contrast. Order matters: money in, money out, net, ...
 chartCategoricalColors = [
-    "#F59E0B",
-    "#60A5FA",
-    "#34D399",
-    "#A78BFA",
-    "#F87171",
-    "#38BDF8",
-    "#94A3B8",
-    "#FB923C",
+    "#3987e5",
+    "#d95926",
+    "#199e70",
+    "#c98500",
+    "#d55181",
+    "#008300",
+    "#9085e9",
+    "#e66767",
 ]
 
-# Sequential colors — warm amber gradient
+# Sequential colors — one hue (blue), dark to light on the dark surface
 chartSequentialColors = [
-    "#78350F",
-    "#92400E",
-    "#B45309",
-    "#D97706",
-    "#F59E0B",
-    "#FBBF24",
-    "#FCD34D",
-    "#FDE68A",
-    "#FEF3C7",
-    "#FFFBEB",
+    "#0d366b",
+    "#104281",
+    "#184f95",
+    "#1c5cab",
+    "#256abf",
+    "#2a78d6",
+    "#3987e5",
+    "#5598e7",
+    "#6da7ec",
+    "#86b6ef",
 ]
 
 # Dataframe styling

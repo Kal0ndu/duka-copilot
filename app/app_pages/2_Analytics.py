@@ -6,7 +6,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
 
 from core.analytics import BusinessAnalytics
-from core.charts import chart_cashflow_trend, chart_category_breakdown, chart_weekday_seasonality
+from core.charts import (
+    MONEY_IN, chart_cashflow_trend, chart_category_breakdown, chart_monthly_pnl, chart_weekday_seasonality,
+)
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
@@ -88,17 +90,24 @@ else:
     )
 
 # ---- ROW 3: CASHFLOW TREND CHART ----
-st.subheader("Daily cash inflow vs outflow trend", icon=":material/trending_up:")
-st.caption("Compare daily sales velocity against business expenses and net margin line.")
+st.subheader("Money in and out over time", icon=":material/trending_up:")
+st.caption("Blue bars: money received. Orange bars (below zero): money paid out. Green line: what was left "
+           "(in minus out). Long periods are grouped by week. Hover for exact amounts.")
 daily_df = analytics.daily_in_out_df()
 st.altair_chart(chart_cashflow_trend(daily_df), width="stretch")
 
-# ---- ROW 4: EXPENSE BREAKDOWN & WEEKDAY SEASONALITY ----
+st.subheader("Profit and loss by month", icon=":material/stacked_bar_chart:")
+st.caption("Sales income against the cost of what you sell, running costs (rent, wages, power, fees, tax) and "
+           "money taken out for personal use. When the orange, green and gold bars together pass the blue one, "
+           "the month lost money.")
+st.altair_chart(chart_monthly_pnl(transactions), width="stretch")
+
+# ---- ROW 4: WHERE MONEY COMES FROM AND GOES ----
 col_chart_left, col_chart_right = st.columns(2)
 
 with col_chart_left:
     st.subheader("Spending by category", icon=":material/shopping_cart:")
-    st.caption("Distribution of business outflows across operational accounts.")
+    st.caption("Where your money goes. Labels show each category's share of all spending.")
     cat_breakdown = analytics.category_breakdown()
     if cat_breakdown:
         st.altair_chart(chart_category_breakdown(cat_breakdown), width="stretch")
@@ -106,15 +115,24 @@ with col_chart_left:
         st.info("No expense categories found.", icon=":material/info:")
 
 with col_chart_right:
-    st.subheader("Day-of-week seasonality", icon=":material/calendar_month:")
-    st.caption("Identify peak sales days to schedule inventory orders and staffing.")
+    st.subheader("Income by source", icon=":material/payments:")
+    st.caption("Where your money comes from. Loans and transfers from your own accounts show here too.")
+    income_breakdown = analytics.revenue_by_category()
+    if income_breakdown:
+        st.altair_chart(chart_category_breakdown(income_breakdown, color=MONEY_IN), width="stretch")
+    else:
+        st.info("No income recorded.", icon=":material/info:")
+
+with st.container():
+    st.subheader("Busy days of the week", icon=":material/calendar_month:")
+    st.caption("Average money in and out on each weekday: plan stock and staff for your busiest days.")
     weekday_df = analytics.weekday_distribution()
     if not weekday_df.empty:
         st.altair_chart(chart_weekday_seasonality(weekday_df), width="stretch")
         best_day_idx = weekday_df["avg_inflow"].idxmax()
         best_day_name = weekday_df.loc[best_day_idx, "day_name"]
         best_day_val = weekday_df.loc[best_day_idx, "avg_inflow"]
-        st.caption(f"Peak revenue day: **{best_day_name}** (avg KES {best_day_val:,.0f}/day)")
+        st.caption(f"Busiest day for sales: **{best_day_name}** (average KES {best_day_val:,.0f} received)")
     else:
         st.info("Insufficient daily history for weekday seasonality.", icon=":material/info:")
 

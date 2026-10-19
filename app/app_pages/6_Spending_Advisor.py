@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
 
 from core.spending_advisor import SpendingAdvisor
+from core.charts import chart_allocation, chart_forecast_confidence
 from core.config import config as cfg
 
 st.set_page_config(page_title="Spending Advisor — Duka", page_icon=":material/lightbulb:")
@@ -16,7 +17,7 @@ st.set_page_config(page_title="Spending Advisor — Duka", page_icon=":material/
 require_auth()
 
 
-st.title("Spending Advisor")
+st.title("Spending advisor", icon=":material/lightbulb:")
 st.caption("Make smarter spending decisions with data-backed advice.")
 
 business_id = st.session_state.get("business_id")
@@ -34,7 +35,7 @@ tab_purchase, tab_allocate, tab_forecast = st.tabs(
 # Tab 1: Purchase Advice
 # =========================================================================
 with tab_purchase:
-    st.subheader("Should I Make This Purchase?")
+    st.subheader("Should I make this purchase?")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -139,7 +140,7 @@ with tab_purchase:
 # Tab 2: Cash Allocation
 # =========================================================================
 with tab_allocate:
-    st.subheader("How Should I Allocate My Cash?")
+    st.subheader("How should I allocate my cash?")
 
     use_custom = st.checkbox("Use custom available cash amount", key="use_custom_cash")
     custom_cash = None
@@ -199,17 +200,13 @@ with tab_allocate:
                 hide_index=True,
             )
 
-            # Bar chart
-            st.bar_chart(
-                alloc_df.set_index("Category")["Amount (KES)"],
-                width="stretch",
-            )
+            st.altair_chart(chart_allocation(result.allocations), width="stretch")
 
 # =========================================================================
 # Tab 3: Forecast
 # =========================================================================
 with tab_forecast:
-    st.subheader("14-Day Cashflow Forecast")
+    st.subheader("14-day cashflow forecast")
 
     horizon = st.slider(
         "Forecast horizon (days)",
@@ -258,21 +255,10 @@ with tab_forecast:
 
         # Forecast chart
         if summary["points"]:
-            chart_data = pd.DataFrame([
-                {
-                    "Day": p["day_offset"],
-                    "Date": p["date"],
-                    "P10 (Worst)": p["p10"] / 100,
-                    "P50 (Median)": p["p50"] / 100,
-                    "P90 (Best)": p["p90"] / 100,
-                }
-                for p in summary["points"]
-            ])
-
-            st.line_chart(
-                chart_data.set_index("Day")[["P10 (Worst)", "P50 (Median)", "P90 (Best)"]],
-                width="stretch",
-            )
+            st.caption("Shaded band: 8 in 10 simulated futures land inside it. Blue line: expected balance. "
+                       "Yellow line: a bad week. Red dashed line: your safety buffer; red diamonds mark risky days.")
+            st.altair_chart(chart_forecast_confidence(summary["points"], buffer_kes=summary["buffer_minor"] / 100),
+                            width="stretch")
 
         # Shortfall alerts
         if summary["shortfalls"]:

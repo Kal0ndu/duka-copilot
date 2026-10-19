@@ -118,7 +118,7 @@ def require_auth(page_func: Callable = None, *, redirect: bool = True):
                     return fn(*args, **kwargs)
                 elif redirect:
                     _st().warning("🔐 Please log in to access this page.")
-                    _st().switch_page("pages/Login.py")
+                    _st().switch_page("app_pages/Login.py")
                 else:
                     _st().stop()
             return wrapper
@@ -131,7 +131,7 @@ def require_auth(page_func: Callable = None, *, redirect: bool = True):
             return page_func(*args, **kwargs)
         else:
             _st().warning("🔐 Please log in to access this page.")
-            _st().switch_page("pages/Login.py")
+            _st().switch_page("app_pages/Login.py")
     return wrapper
 
 
@@ -150,7 +150,7 @@ def require_role(*allowed_roles: str):
         def wrapper(*args, **kwargs):
             if not validate_and_refresh_session():
                 _st().warning("🔐 Please log in to access this page.")
-                _st().switch_page("pages/Login.py")
+                _st().switch_page("app_pages/Login.py")
                 return
 
             session = _st().session_state.get("auth_session")

@@ -20,7 +20,7 @@ st.set_page_config(page_title="Standing Orders — Duka", page_icon=":material/e
 # ---- Authentication Gate ----
 require_auth()
 
-st.title("Standing Orders")
+st.title("Standing orders", icon=":material/schedule_send:")
 st.caption(
     "Set up regular payments like M-Pesa Ratiba. Duka reminds you and ranks what to pay first. "
     "Nothing is paid until you tap **Authorize** and enter your M-Pesa PIN on your phone."

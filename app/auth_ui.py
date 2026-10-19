@@ -177,6 +177,11 @@ def _signup_form(db_path: str):
             st.session_state.signup_otp_code = otp
             st.rerun()
 
+    st.divider()
+    st.caption("Already have an account?")
+    if st.button(":material/login: Log in", width="stretch", key="signup_to_login"):
+        st.switch_page("app_pages/Login.py")
+
 
 def _signup_otp(db_path: str):
     """Step 2: OTP verification."""
@@ -197,9 +202,9 @@ def _signup_otp(db_path: str):
 
         col1, col2 = st.columns(2)
         with col1:
-            resend = st.form_submit_button(":material/refresh: Resend code", use_container_width=True)
+            resend = st.form_submit_button(":material/refresh: Resend code", width="stretch")
         with col2:
-            back = st.form_submit_button(":material/arrow_back: Back", use_container_width=True)
+            back = st.form_submit_button(":material/arrow_back: Back", width="stretch")
 
     if back:
         st.session_state.signup_step = "form"
@@ -279,8 +284,8 @@ def _signup_complete():
     # Reset step to prevent KeyError on re-render after state cleanup
     st.session_state.signup_step = "form"
 
-    if st.button(":material/login: Go to login", use_container_width=True):
-        st.switch_page("pages/Login.py")
+    if st.button(":material/login: Go to login", width="stretch"):
+        st.switch_page("app_pages/Login.py")
 
 
 # ──────────────────────────────────────────────────
@@ -377,7 +382,7 @@ def _login_form(db_path: str):
     </div>
     """, unsafe_allow_html=True)
     if st.button(":material/person_add: Create account", width="stretch"):
-        st.switch_page("pages/Sign_Up.py")
+        st.switch_page("app_pages/Sign_Up.py")
 
 
 def _login_otp(db_path: str):
@@ -401,11 +406,11 @@ def _login_otp(db_path: str):
 
         col1, col2, col3 = st.columns(3)
         with col1:
-            resend = st.form_submit_button(":material/refresh: Resend", use_container_width=True)
+            resend = st.form_submit_button(":material/refresh: Resend", width="stretch")
         with col2:
-            password_opt = st.form_submit_button(":material/key: Use password", use_container_width=True)
+            password_opt = st.form_submit_button(":material/key: Use password", width="stretch")
         with col3:
-            back = st.form_submit_button(":material/arrow_back: Back", use_container_width=True)
+            back = st.form_submit_button(":material/arrow_back: Back", width="stretch")
 
     if back:
         st.session_state.login_step = "form"
@@ -458,9 +463,9 @@ def _login_password(db_path: str):
 
         col1, col2 = st.columns(2)
         with col1:
-            otp_switch = st.form_submit_button(":material/smartphone: Use OTP instead", use_container_width=True)
+            otp_switch = st.form_submit_button(":material/smartphone: Use OTP instead", width="stretch")
         with col2:
-            back = st.form_submit_button(":material/arrow_back: Back", use_container_width=True)
+            back = st.form_submit_button(":material/arrow_back: Back", width="stretch")
 
     if back:
         st.session_state.login_step = "form"
@@ -566,7 +571,7 @@ def _complete_login(db_path: str, user):
 
     st.success(f"Logged in as **{user.display_name}**!")
 
-    st.switch_page("main.py" if business_id else "pages/0_Business_Setup.py")
+    st.switch_page("app_pages/home.py" if business_id else "app_pages/0_Business_Setup.py")
 
 
 # ──────────────────────────────────────────────────
@@ -634,7 +639,7 @@ def render_logout_button():
             st.caption(f":material/person: {user.get("display_name", "User")}")
             if st.button(":material/logout: Log out", width="stretch"):
                 logout()
-                st.switch_page("pages/Login.py")
+                st.switch_page("app_pages/Login.py")
 
 
 def logout() -> None:
@@ -683,4 +688,4 @@ def require_admin(resource: str):
 def require_auth_with_redirect():
     """Gate: redirect to Login page instead of showing inline prompt."""
     if not validate_and_refresh_session():
-        st.switch_page("pages/Login.py")
+        st.switch_page("app_pages/Login.py")

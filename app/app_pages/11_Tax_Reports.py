@@ -9,6 +9,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth, check_auth
 
+from core.charts import chart_vat_by_month
 from core.tax_manager import TaxManager, TaxSummary
 from core.pos_engine import POSEngine
 from core.invoice_manager import InvoiceManager
@@ -31,7 +32,7 @@ tax = TaxManager()
 pos = POSEngine()
 inv_mgr = InvoiceManager()
 
-st.title("Tax Reports & KRA Filing")
+st.title("Tax reports & KRA filing", icon=":material/account_balance:")
 st.caption("VAT summaries, tax liability calculations, and KRA iTax preparation.")
 
 # ---- Period Selector ----
@@ -144,7 +145,7 @@ if period:
             st.info("No purchase VAT data for this period. Add purchase records to track input VAT.")
 
     with tab_kra:
-        st.subheader("KRA iTax Filing Summary")
+        st.subheader("KRA iTax filing summary")
         kra_text = tax.format_kra_vat_return(biz_id, shown_year, shown_month)
         st.code(kra_text, language=None)
 
@@ -159,6 +160,23 @@ if period:
                 st.success(f"Tax summary saved for {report['period']} (ID: {summary.summary_id})")
             else:
                 st.warning("Could not save summary. It may already exist for this period.")
+
+# ---- VAT over the last 12 months ----
+st.divider()
+st.subheader("VAT over the last 12 months", icon=":material/bar_chart:", anchor=False)
+st.caption("Blue: VAT you collected on sales and invoices. Orange: VAT you paid on stock purchases (it reduces what "
+           "you owe). Green line: what's left to pay KRA each month.")
+_months = []
+_y, _m = now.year, now.month
+for _ in range(12):
+    _months.append((_y, _m))
+    _y, _m = (_y, _m - 1) if _m > 1 else (_y - 1, 12)
+_vat_rows = []
+for _y, _m in reversed(_months):
+    _r = tax.get_vat_report(biz_id, _y, _m)
+    _vat_rows.append({"month": f"{_y}-{_m:02d}", "output": _r["total_vat_collected_minor"] / 100,
+                      "input": _r["purchases_vat_paid_minor"] / 100})
+st.altair_chart(chart_vat_by_month(_vat_rows), width="stretch")
 
 # ---- Saved Tax Summaries ----
 st.divider()

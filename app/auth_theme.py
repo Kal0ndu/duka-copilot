@@ -725,11 +725,11 @@ def render_landing():
         st.markdown("<div style='text-align: center; display: flex; gap: 1rem; justify-content: center;'>", unsafe_allow_html=True)
         col_login, col_signup = st.columns(2)
         with col_login:
-            if st.button(":material/login: Log In", use_container_width=True, key="btn_login_cta"):
-                st.switch_page("pages/Login.py")
+            if st.button(":material/login: Log In", width="stretch", key="btn_login_cta"):
+                st.switch_page("app_pages/Login.py")
         with col_signup:
-            if st.button(":material/person_add: Sign Up", use_container_width=True, key="btn_signup_cta"):
-                st.switch_page("pages/Sign_Up.py")
+            if st.button(":material/person_add: Sign Up", width="stretch", key="btn_signup_cta"):
+                st.switch_page("app_pages/Sign_Up.py")
         st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("---")
@@ -866,11 +866,11 @@ def render_landing():
         st.markdown("<div style='display: flex; gap: 1rem; justify-content: center;'>", unsafe_allow_html=True)
         col_login2, col_signup2 = st.columns(2)
         with col_login2:
-            if st.button(":material/login: Log In Now", use_container_width=True, key="btn_login_cta_2"):
-                st.switch_page("pages/Login.py")
+            if st.button(":material/login: Log In Now", width="stretch", key="btn_login_cta_2"):
+                st.switch_page("app_pages/Login.py")
         with col_signup2:
-            if st.button(":material/person_add: Get Started", use_container_width=True, key="btn_signup_cta_2"):
-                st.switch_page("pages/Sign_Up.py")
+            if st.button(":material/person_add: Get Started", width="stretch", key="btn_signup_cta_2"):
+                st.switch_page("app_pages/Sign_Up.py")
         st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("---")

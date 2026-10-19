@@ -115,7 +115,7 @@ def _line_items_editor(state_key: str, products) -> list:
     return items
 
 
-st.title("Invoicing & Quotations")
+st.title("Invoicing & quotations", icon=":material/receipt_long:")
 st.caption(f"Manage invoices, quotations, and customer billing for **{biz_name}**")
 
 # ---- Navigation Tabs ----
@@ -133,7 +133,7 @@ customer_names = [c["name"] for c in list_customers(config.DB_PATH, biz_id)]
 # TAB 1: OVERVIEW — Dashboard
 # ============================================================================
 with tab_overview:
-    st.subheader("Invoicing Dashboard")
+    st.subheader("Invoicing dashboard")
 
     outstanding_invoices = inv_mgr.get_outstanding_invoices(biz_id)
     all_invoices = inv_mgr.list_invoices(biz_id, limit=100)
@@ -172,7 +172,7 @@ with tab_overview:
     )
 
     st.divider()
-    st.subheader("Outstanding Invoices (overdue first, then by due date)")
+    st.subheader("Outstanding invoices (overdue first, then by due date)")
 
     if not outstanding_invoices:
         st.success("All invoices paid! No outstanding balance.")
@@ -204,7 +204,7 @@ with tab_overview:
 # TAB 2: CREATE INVOICE
 # ============================================================================
 with tab_new_invoice:
-    st.subheader("Create New Invoice")
+    st.subheader("Create new invoice")
     products = inv_prod_mgr.list_products(biz_id, active_only=True)
     invoice_items = _line_items_editor("invoice_items", products)
 
@@ -248,7 +248,7 @@ with tab_new_invoice:
 # TAB 3: CREATE QUOTATION
 # ============================================================================
 with tab_new_quotation:
-    st.subheader("Create New Quotation")
+    st.subheader("Create new quotation")
     st.caption("Create an estimate/quotation for a customer. Convert to invoice when accepted.")
     products_q = inv_prod_mgr.list_products(biz_id, active_only=True)
     quotation_items = _line_items_editor("quotation_items", products_q)
@@ -292,7 +292,7 @@ with tab_new_quotation:
 # TAB 4: MANAGE INVOICES & QUOTATIONS
 # ============================================================================
 with tab_manage:
-    st.subheader("Manage Invoices & Quotations")
+    st.subheader("Manage invoices & quotations")
 
     manage_tab1, manage_tab2 = st.tabs(["Invoices", "Quotations"])
 
@@ -449,7 +449,7 @@ with tab_manage:
 # TAB 5: PAYMENTS & FOLLOW-UPS
 # ============================================================================
 with tab_payments:
-    st.subheader("Payments & AI Follow-Ups")
+    st.subheader("Payments & AI follow-ups")
     
     payments_tab1, payments_tab2 = st.tabs(["Recent Payments", "AI Follow-up Tasks"])
     

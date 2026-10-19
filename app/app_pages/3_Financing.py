@@ -18,7 +18,7 @@ st.set_page_config(page_title="Financing — Duka", page_icon=":material/payment
 require_auth()
 
 
-st.title("Digital Financing & Loan Cost Advisor")
+st.title("Digital financing & loan cost advisor", icon=":material/savings:")
 st.caption("Compare digital micro-credit products in Kenya with transparent Effective Annual Rate (EAR) and cashflow affordability.")
 
 # Initialize session and check for data
@@ -79,12 +79,12 @@ m4.metric("Highest EAR (Most Expensive)", f"{highest_ear:.1f}%", delta="High Cos
 st.divider()
 
 # ---- PRODUCT COMPARISON CHART ----
-st.subheader("Disbursed Amount vs. Total Repayable")
+st.subheader("Disbursed amount vs. total repayable")
 st.caption("Inspect the true cost gap between what you receive in your M-Pesa vs what you must repay.")
 st.altair_chart(chart_loan_comparison(offers), width="stretch")
 
 # ---- OFFERS TABLE ----
-st.subheader("Digital Loan Products Ranked by Effective Annual Rate (EAR)")
+st.subheader("Digital loan products ranked by effective annual rate (EAR)")
 table_rows = []
 for o in offers:
     daily_repay_kes = o.daily_repayment_minor / 100.0

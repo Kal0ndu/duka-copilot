@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
 
+from core.charts import chart_daily_sales, chart_top_products
 from core.pos_engine import POSEngine, POSSetting
 from core.inventory_manager import InventoryManager
 from core.invoice_manager import InvoiceManager
@@ -31,7 +32,7 @@ inv_mgr = InventoryManager()
 inv = InvoiceManager()
 ai = AISalesAssistant()
 
-st.title("POS Dashboard", anchor=False)
+st.title("POS dashboard", icon=":material/point_of_sale:", anchor=False)
 st.caption("Point of Sale: quick sales, daily summary, and recent transactions.")
 
 # ---- POS Settings Check ----
@@ -238,6 +239,23 @@ with col_right:
                     "Share": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1),
                 })
 
+# ---- Sales trend and best sellers (last 30 days) ----
+st.subheader("Sales over the last 30 days", icon=":material/insights:", anchor=False)
+trend_col, top_col = st.columns([3, 2], gap="large")
+with trend_col:
+    daily = pd.DataFrame(pos.get_daily_sales(biz_id, days=30))
+    daily["KES"] = daily["total_minor"] / 100
+    st.caption("Blue bars: sales each day. Green line: the 7-day average, which smooths out busy and quiet days.")
+    st.altair_chart(chart_daily_sales(daily[["date", "KES", "count"]]), width="stretch")
+with top_col:
+    top = pd.DataFrame(pos.get_top_products(biz_id, days=30))
+    st.caption("Best sellers by money taken (incl. VAT). Labels show units sold.")
+    if top.empty:
+        st.info("No sales in the last 30 days.", icon=":material/info:")
+    else:
+        st.altair_chart(chart_top_products(top.rename(columns={"product": "Product", "units": "Units"})
+                                              .assign(KES=top["total"] / 100)), width="stretch")
+
 # ---- Bottom Row: Reorder Alerts & AI Tasks ----
 st.divider()
 bot1, bot2 = st.columns(2)
@@ -260,7 +278,7 @@ with bot1:
         st.success("All products well-stocked!", icon=":material/check_circle:")
 
 with bot2:
-    st.subheader(":material/smart_toy: AI follow-ups", anchor=False)
+    st.subheader("AI follow-ups", icon=":material/smart_toy:", anchor=False)
     pending = ai.get_pending_tasks(biz_id, limit=10)
     if not pending:
         st.info("No pending follow-ups. Generate new tasks:")

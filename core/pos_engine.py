@@ -369,6 +369,40 @@ class POSEngine:
             ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_daily_sales(self, business_id: int, days: int = 30) -> List[Dict]:
+        """Completed sales per day for the last `days` days (days with no sales included as 0)."""
+        from datetime import date, timedelta
+        start = date.today() - timedelta(days=days - 1)
+        with self._get_conn() as conn:
+            rows = {r["day"]: r for r in conn.execute(
+                """SELECT substr(sale_date, 1, 10) AS day, COUNT(*) AS n, SUM(total_amount_minor) AS total
+                   FROM sale WHERE business_id = ? AND status = 'completed' AND substr(sale_date, 1, 10) >= ?
+                   GROUP BY day""",
+                (business_id, start.isoformat()),
+            )}
+        out = []
+        for i in range(days):
+            d = (start + timedelta(days=i)).isoformat()
+            r = rows.get(d)
+            out.append({"date": d, "count": r["n"] if r else 0, "total_minor": r["total"] if r else 0})
+        return out
+
+    def get_top_products(self, business_id: int, days: int = 30, limit: int = 10) -> List[Dict]:
+        """Products by revenue (line totals incl. VAT) over the last `days` days."""
+        from datetime import date, timedelta
+        start = (date.today() - timedelta(days=days - 1)).isoformat()
+        with self._get_conn() as conn:
+            rows = conn.execute(
+                """SELECT COALESCE(p.name, 'Product #' || li.product_id) AS product,
+                          SUM(li.quantity) AS units, SUM(li.line_total_minor) AS total
+                   FROM sale_line_item li JOIN sale s ON s.sale_id = li.sale_id
+                   LEFT JOIN product p ON p.product_id = li.product_id
+                   WHERE s.business_id = ? AND s.status = 'completed' AND substr(s.sale_date, 1, 10) >= ?
+                   GROUP BY li.product_id ORDER BY total DESC LIMIT ?""",
+                (business_id, start, limit),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
     def get_day_totals(self, business_id: int, day: str) -> Dict:
         """Count and total of completed sales on one local date (YYYY-MM-DD)."""
         with self._get_conn() as conn:

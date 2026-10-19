@@ -18,14 +18,14 @@ st.set_page_config(page_title="Upload Statement — Duka", page_icon=":material/
 require_auth()
 
 
-st.title("Statement Upload & SME Profiles")
+st.title("Statement upload & SME profiles", icon=":material/upload_file:")
 st.caption("Upload your M-Pesa statement (PDF or CSV) or choose a pre-loaded Kenyan small business profile.")
 
 # Initialize session
 SessionManager.init_session()
 
 # ---- Option A: Pre-loaded Demo Profiles ----
-st.subheader(" Quick-Load Demo Business Profiles")
+st.subheader("Try a demo business", icon=":material/science:")
 st.markdown("Instantly test Duka's analytics, charts, and forecasts with realistic Kenyan enterprise data:")
 
 demo_cols = st.columns(3)
@@ -45,7 +45,7 @@ for idx, (p_id, p_info) in enumerate(MOCK_PROFILES.items()):
 st.divider()
 
 # ---- Option B: File Upload ----
-st.subheader("Upload Your Statement (CSV or PDF)")
+st.subheader("Upload your statement (CSV or PDF)")
 st.caption(
     "Upload the M-Pesa statement Safaricom sends you (PDF) or a CSV export. "
     "It is saved to your business ledger so Duka's assistant can answer questions about it."

@@ -6,7 +6,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
 
 from core.relationship_analyzer import RelationshipAnalyzer
-from core.charts import chart_customer_concentration
+from core.charts import (
+    chart_customer_concentration, chart_recency, chart_revenue_pareto, chart_segments, chart_supplier_spend,
+)
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
@@ -45,7 +47,7 @@ supplier_dependencies = [p for p in all_concentration if p.party_type == "suppli
 churn_risks = analyzer.get_churn_risks()
 biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 
-st.title("Customer & Supplier Intelligence")
+st.title("Customer & supplier intelligence", icon=":material/groups:")
 st.caption(f"Identify VIP clients, customer concentration risks, and dormant accounts for **{biz_name}**.")
 
 # ---- ROW 1: RELATIONSHIP OVERVIEW KPIS ----
@@ -72,7 +74,7 @@ c4.metric(
 st.divider()
 
 # ---- SECTION 2: CONCENTRATION RISK RADAR ----
-st.subheader("Revenue Concentration Risk Monitor")
+st.subheader("Revenue concentration risk", icon=":material/warning:")
 st.caption("A healthy business should not rely on any single customer for more than 20% of its income.")
 
 if concentration_risks:
@@ -90,12 +92,30 @@ if concentration_risks:
 else:
     st.success("**Well-Diversified Revenue:** No single customer accounts for more than 20% of your sales.")
 
+st.caption("Your 10 biggest customers by share of revenue. Red bars are past the 20% risk line.")
 st.altair_chart(chart_customer_concentration(customers), width="stretch")
 
-st.divider()
+st.subheader("How spread out your revenue is", icon=":material/stacked_line_chart:")
+st.caption("Blue bars: each customer's share, largest first. Green line: the running total. The sooner the line "
+           "reaches 80%, the more you depend on a few customers.")
+st.altair_chart(chart_revenue_pareto(customers), width="stretch")
+
+# ---- CUSTOMER DISTRIBUTION ----
+st.subheader("Your customers at a glance", icon=":material/donut_small:")
+col_seg, col_rec = st.columns(2)
+with col_seg:
+    seg_measure = st.segmented_control("Show", ["Customers", "Revenue"], default="Customers", key="pi_seg_measure",
+                                       label_visibility="collapsed")
+    st.caption("**Segments.** High value: 15%+ of revenue, or 10%+ with 5+ orders. Growth: paid in the last "
+               "3 weeks. At risk: 22–45 days quiet. Dormant: over 45 days.")
+    st.altair_chart(chart_segments(customers, "revenue" if seg_measure == "Revenue" else "count"), width="stretch")
+with col_rec:
+    st.caption("**Time since last payment.** Darker bars are customers who have gone quiet the longest; "
+               "hover to see how much they have paid you so far.")
+    st.altair_chart(chart_recency(customers), width="stretch")
 
 # ---- SECTION 3: CUSTOMER RFM SEGMENTATION & CHURN WATCHLIST ----
-st.subheader("Customer Segments & Churn Early Warning")
+st.subheader("Customer segments & churn early warning")
 tab_all_cust, tab_churn, tab_high_val = st.tabs([
     "All Customers Ranking",
     "Churn watchlist (At-Risk / Dormant)",
@@ -164,8 +184,10 @@ with tab_high_val:
 st.divider()
 
 # ---- SECTION 4: SUPPLIER DEPENDENCY ----
-st.subheader(":material/local_shipping: Supplier spending & vendor reliance")
+st.subheader("Supplier spending & vendor reliance", icon=":material/local_shipping:")
 st.caption("Track who you spend the most money with and identify reliance on single vendors.")
+if suppliers:
+    st.altair_chart(chart_supplier_spend(suppliers), width="stretch")
 
 for dep in supplier_dependencies:
     st.warning(

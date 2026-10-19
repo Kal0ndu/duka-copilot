@@ -15,7 +15,7 @@ st.set_page_config(page_title="Business Setup — Duka", page_icon=":material/st
 require_auth()
 
 
-st.title("Business Setup")
+st.title("Business setup", icon=":material/storefront:")
 st.caption("Register your business and customize financial tracking.")
 
 setup = BusinessSetup()
@@ -31,7 +31,7 @@ business_id = get_business_id()
 if business_id:
     profile = setup.get_business_profile(business_id)
     if profile:
-        st.success(f"✓ Registered: **{profile.name_token}** ({profile.sector})")
+        st.success(f"Registered: **{profile.name_token}** ({profile.sector})")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Recurring Expenses",
@@ -43,7 +43,7 @@ if business_id:
 
     # Tab 1: Recurring Expenses
     with tab1:
-        st.subheader("Recurring Expenses")
+        st.subheader("Recurring expenses")
         st.caption("Add rent, salary, utilities and other regular payments. Enter when you last paid "
                    "and how often it repeats; Duka works out the next due date and counts down to it.")
 
@@ -53,7 +53,7 @@ if business_id:
 
     # Tab 2: Categories
     with tab2:
-        st.subheader("Category Configuration")
+        st.subheader("Category configuration")
         st.caption("Customize how expenses are tracked for your business.")
 
         import sqlite3
@@ -98,12 +98,12 @@ if business_id:
                         monthly_budget_minor=int(round(budget * 100)) if budget > 0 else None,
                         auto_categorize_keywords=keywords if keywords else None,
                     )
-                    st.success("✓ Saved")
+                    st.success("Saved")
                     st.rerun()
 
     # Tab 3: Financial Goals
     with tab3:
-        st.subheader("Financial Goals")
+        st.subheader("Financial goals")
         st.caption("Set targets for your business.")
 
         existing_goals = setup.get_financial_goals(business_id)
@@ -142,12 +142,12 @@ if business_id:
                     buffer_target=int(round(buffer_target * 100)),
                     personal_limit_pct=personal_limit,
                 )
-                st.success("✓ Goals saved")
+                st.success("Goals saved")
                 st.rerun()
 
     # Tab 4: Settings
     with tab4:
-        st.subheader("Business Settings")
+        st.subheader("Business settings")
         st.caption("Your setup is saved. Change any of these details whenever you need to.")
         if profile:
             with st.form("edit_business_profile"):
@@ -193,7 +193,7 @@ if business_id:
                             registration_type=new_registration,
                         )
                         activate_business(business_id)  # refresh cached context with the new details
-                        st.success("✓ Business details updated")
+                        st.success("Business details updated")
                         st.rerun()
 
     # Tab 5: the owner's rules for the assistant (caps, payees, PIN, language)
@@ -224,7 +224,7 @@ if business_id:
                 else:
                     try:
                         pins.set_pin(business_id, new_pin, current_pin)
-                        st.success("✓ PIN saved")
+                        st.success("PIN saved")
                     except PinError as e:
                         st.error(str(e))
 
@@ -262,7 +262,7 @@ if business_id:
                 )
                 try:
                     changed = save_settings(pins.db_path, new_rules, user_id=_uid(), pin=rules_pin or None)
-                    st.success("✓ Rules saved" if changed else "Nothing changed.")
+                    st.success("Rules saved" if changed else "Nothing changed.")
                     if changed:
                         st.rerun()
                 except (ValueError, PinError) as e:
@@ -301,7 +301,7 @@ if business_id:
             if st.form_submit_button(":material/person_add: Add payee"):
                 try:
                     add_payee(pins.db_path, business_id, payee_name, payee_pin, kind=payee_kind, user_id=_uid())
-                    st.success(f"✓ Added {payee_name.upper()}")
+                    st.success(f"Added {payee_name.upper()}")
                     st.rerun()
                 except (ValueError, PinError) as e:
                     st.error(str(e))
@@ -346,5 +346,5 @@ else:
             # carries the business, so setup never has to be repeated.
             activate_business(biz_id)
             st.session_state.business_name = business_name
-            st.success(f"✓ Business created: **{business_name}**")
+            st.success(f"Business created: **{business_name}**")
             st.rerun()

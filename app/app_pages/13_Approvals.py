@@ -20,7 +20,7 @@ st.set_page_config(page_title="Approvals — Duka", page_icon=":material/verifie
 # ---- Authentication Gate ----
 require_auth()
 
-st.title("Approvals")
+st.title("Approvals", icon=":material/verified_user:")
 st.caption(
     "Your assistant can only **propose** payments and loans. Nothing happens until you approve it here "
     "with your Duka PIN. Approved requests run in the **sandbox** account; no real money moves."
@@ -111,7 +111,7 @@ if bills:
     for p in bills[:5]:
         st.markdown(f"- **{p['label']}** KES {p['amount_minor'] / 100:,.0f}, due {p['due_date']} "
                     f"({p['priority_band']} priority)")
-    st.page_link("pages/12_Standing_Orders.py", label="Open Standing Orders", icon=":material/event_repeat:")
+    st.page_link("app_pages/12_Standing_Orders.py", label="Open Standing Orders", icon=":material/event_repeat:")
 
 # ---- history ----
 st.subheader("History", anchor=False)

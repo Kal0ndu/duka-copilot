@@ -169,4 +169,4 @@ def render_data_info_banner():
             st.caption(f"Sector: {sector}")
         with col3:
             if st.button(":material/refresh: Upload different data", width="stretch"):
-                st.switch_page("pages/1_Upload_Statement.py")
+                st.switch_page("app_pages/1_Upload_Statement.py")

@@ -5,6 +5,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth, check_auth
 
+import pandas as pd
+
+from core.charts import chart_stock_value
 from core.inventory_manager import InventoryManager, Product, InventoryTransaction
 from core.pos_engine import POSEngine
 from app.session_helpers import SessionManager
@@ -25,7 +28,7 @@ if not biz_id:
 inv_mgr = InventoryManager()
 pos = POSEngine()
 
-st.title("Inventory Management")
+st.title("Inventory management", icon=":material/inventory_2:")
 st.caption("Products, stock levels, reorder alerts, and valuation.")
 
 # ---- Tabs ----
@@ -40,7 +43,7 @@ tab_products, tab_stock, tab_alerts, tab_valuation = st.tabs([
 # TAB 1: PRODUCTS
 # ============================================================================
 with tab_products:
-    st.subheader("Product Catalog")
+    st.subheader("Product catalog")
 
     products = inv_mgr.list_products(biz_id, active_only=False, limit=500)
 
@@ -91,7 +94,7 @@ with tab_products:
                         st.session_state[f"restocking_{p.product_id}"] = True
 
     with col_add:
-        st.subheader("Add / Edit Product")
+        st.subheader("Add / edit product")
         edit_id = None
         for p in products:
             if st.session_state.get(f"editing_product_{p.product_id}"):
@@ -166,7 +169,7 @@ with tab_products:
 # TAB 2: STOCK MOVEMENTS
 # ============================================================================
 with tab_stock:
-    st.subheader("Stock Movements")
+    st.subheader("Stock movements")
 
     movements = inv_mgr.get_stock_movement(biz_id, days=30)
 
@@ -207,7 +210,7 @@ with tab_stock:
 
     # Quick Restock Form
     st.divider()
-    st.subheader("Quick Restock")
+    st.subheader("Quick restock")
 
     products_active = inv_mgr.list_products(biz_id, active_only=True, limit=500)
 
@@ -252,7 +255,7 @@ with tab_stock:
 # TAB 3: REORDER ALERTS
 # ============================================================================
 with tab_alerts:
-    st.subheader("Reorder Alerts")
+    st.subheader("Reorder alerts")
 
     alerts = inv_mgr.get_reorder_alerts(biz_id)
 
@@ -275,7 +278,7 @@ with tab_alerts:
 # TAB 4: VALUATION
 # ============================================================================
 with tab_valuation:
-    st.subheader("Inventory Valuation")
+    st.subheader("Inventory valuation")
 
     valuation = inv_mgr.get_inventory_valuation(biz_id)
 
@@ -292,14 +295,14 @@ with tab_valuation:
     st.divider()
 
     if valuation["by_category"]:
-        st.subheader("By category")
-        for cat, data in valuation["by_category"].items():
-            cat_name = cat or "Uncategorized"
-            st.write(
-                f"**{cat_name}** — {data['count']} products, "
-                f"{data['units']} units, "
-                f"Cost: KES {data['cost_value_minor']/100:,.2f}"
-            )
+        st.subheader("Stock value by category")
+        st.caption("How much money is sitting on your shelves, at cost. Labels show each category's share.")
+        st.altair_chart(chart_stock_value(valuation["by_category"]), width="stretch")
+        st.dataframe(pd.DataFrame([{
+            "Category": cat or "Uncategorised", "Products": data["count"], "Units": data["units"],
+            "Stock value at cost (KES)": data["cost_value_minor"] / 100,
+        } for cat, data in valuation["by_category"].items()]), hide_index=True, width="stretch",
+            column_config={"Stock value at cost (KES)": st.column_config.NumberColumn(format="accounting")})
     else:
         st.info("No category data available. Add categories to your products.")
 

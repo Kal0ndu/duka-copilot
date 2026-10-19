@@ -16,7 +16,7 @@ st.set_page_config(page_title="Expense Setup — Duka", page_icon=":material/des
 require_auth()
 
 
-st.title("Expense Setup")
+st.title("Expense setup", icon=":material/event_repeat:")
 st.caption("Manage recurring expenses and auto-detect patterns.")
 
 business_id = st.session_state.get("business_id")
@@ -31,7 +31,7 @@ setup = BusinessSetup()
 tab1, tab2 = st.tabs([":material/search: Auto-detect patterns", "Manage expenses"])
 
 with tab1:
-    st.subheader("Auto-Detect Recurring Expenses")
+    st.subheader("Auto-detect recurring expenses")
     st.caption("Scan your saved statements for payments that repeat: same payee, a regular gap "
                "(daily, weekly, every 2 weeks, monthly, every 2–3 months, yearly). Amounts that change "
                "are shown as a monthly average, planned at ±10%.")
@@ -98,7 +98,7 @@ with tab1:
                             st.rerun()
 
 with tab2:
-    st.subheader("Your Recurring Expenses")
+    st.subheader("Your recurring expenses")
     render_add_form(setup, business_id, prefix="es_add")
     st.divider()
     render_expense_list(setup, business_id, prefix="es_list")

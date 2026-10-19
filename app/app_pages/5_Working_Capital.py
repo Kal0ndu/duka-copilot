@@ -29,7 +29,7 @@ def kes(minor: int) -> str:
     return f"KES {minor / 100:,.0f}"
 
 
-st.title("Working capital")
+st.title("Working capital", icon=":material/currency_exchange:")
 st.caption("What your business owns and owes right now, and whether cash covers the bills coming up. "
            "Figures come from your statements, invoices, stock and recurring expenses.")
 

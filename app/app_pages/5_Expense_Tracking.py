@@ -13,12 +13,14 @@ from core.business_setup import BusinessSetup
 from core.config import config as cfg
 import sqlite3
 
+from core.charts import chart_budget_vs_actual, chart_category_breakdown
+
 st.set_page_config(page_title="Expense Tracking — Duka", page_icon=":material/analytics:")
 # ---- Authentication Gate ----
 require_auth()
 
 
-st.title("Expense Tracking")
+st.title("Expense tracking", icon=":material/donut_large:")
 st.caption("Track expenses against budgets and upcoming obligations.")
 
 business_id = st.session_state.get("business_id")
@@ -30,7 +32,7 @@ manager = RecurringExpenseManager()
 setup = BusinessSetup()
 
 # ---- Current Month Summary ----
-st.subheader("This Month's Spending")
+st.subheader("This month's spending")
 
 conn = sqlite3.connect(cfg.DB_PATH)
 conn.row_factory = sqlite3.Row
@@ -87,7 +89,8 @@ if rows:
         width="stretch",
     )
 
-    st.bar_chart(df.set_index("Category")["Amount (KES)"])
+    st.caption("Where this month's money went. Labels show each category's share.")
+    st.altair_chart(chart_category_breakdown(dict(zip(df["Category"], df["Amount (KES)"]))), width="stretch")
 else:
     st.info("No expenses recorded this month yet.")
 
@@ -156,6 +159,12 @@ if budget_configs:
             "Status": [STATUS_LABEL[state]],
             "_state": state,
         })
+
+    st.caption("Bars show what you've spent this month; the white tick is the budget. Green is within budget, "
+               "amber is past your alert level, red is over budget. The label is the share of the budget used.")
+    st.altair_chart(chart_budget_vs_actual([
+        {"Category": b["Category"], "Budget": b["Budget (KES)"], "Actual": b["Actual (KES)"],
+         "Status": STATUS_LABEL[b["_state"]]} for b in budget_data]), width="stretch")
 
     budget_df = pd.DataFrame(budget_data).drop(columns="_state")
     # Dataframe cells can't render :material/...: icons, so show status as colored pills

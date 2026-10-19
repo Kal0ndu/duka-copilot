@@ -246,11 +246,13 @@ pytest --watch
 **Add a new page:**
 
 ```bash
-# Create a new file in app/pages/
-touch app/pages/N_Feature_Name.py
+touch app/app_pages/feature_name.py
 ```
 
-Streamlit auto-discovers files in `app/pages/` and shows them in the sidebar.
+Then register it in `app/main.py`, which builds the menu with `st.navigation`:
+add an `_page("feature_name.py", "Feature name", ":material/icon:", "Feature_Name")`
+entry to the right section. Pages start with `require_auth()`; the menu is
+hidden until the user logs in.
 
 **Run specific tests:**
 

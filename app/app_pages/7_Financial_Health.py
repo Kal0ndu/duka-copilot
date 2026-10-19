@@ -42,7 +42,7 @@ biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 analyzer = FinancialHealthAnalyzer(transactions)
 report = analyzer.assess()
 
-st.title("Financial Health Dashboard")
+st.title("Financial health dashboard", icon=":material/monitor_heart:")
 st.caption(f"Comprehensive financial health check for **{biz_name}** — {report.period_start} to {report.period_end}")
 
 # ---- HEALTH SCORE CARD ----
@@ -70,7 +70,7 @@ st.markdown(
 )
 
 # ---- ROW 1: LIQUIDITY & RUNWAY KPIs ----
-st.subheader("💧 Liquidity & Runway")
+st.subheader("Liquidity & runway", icon=":material/water_drop:")
 l1, l2, l3, l4 = st.columns(4)
 
 l1.metric(
@@ -99,7 +99,7 @@ l4.metric(
 st.divider()
 
 # ---- ROW 2: PROFITABILITY & LEVERAGE ----
-st.subheader("Profitability & Leverage")
+st.subheader("Profitability & leverage")
 p1, p2, p3, p4 = st.columns(4)
 
 p1.metric(
@@ -128,7 +128,7 @@ p4.metric(
 st.divider()
 
 # ---- ROW 3: GROWTH & STABILITY ----
-st.subheader("Growth & Stability")
+st.subheader("Growth & stability")
 g1, g2, g3, g4 = st.columns(4)
 
 rev_growth_str = f"{report.revenue_growth_pct:+.1f}%" if report.revenue_growth_pct is not None else "N/A"
@@ -161,7 +161,7 @@ st.divider()
 col_risks, col_recs = st.columns(2)
 
 with col_risks:
-    st.subheader("🚩 Risk Flags")
+    st.subheader("Risk flags", icon=":material/flag:")
     if report.risk_flags:
         for flag in report.risk_flags:
             st.warning(flag)

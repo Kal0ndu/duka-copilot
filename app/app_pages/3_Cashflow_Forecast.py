@@ -156,44 +156,96 @@ k3.metric("Worst-case floor (P10)", f"KES {min_p10:,.0f}", delta="Conservative" 
 k4.metric("Shortfall risk days", len(shortfalls), help="Days where conservative forecast dips below safety buffer.")
 
 # ---- ALTAIR FAN CHART ----
-st.subheader("1,000-path Monte Carlo simulation", icon=":material/analytics:")
+st.subheader("Where your balance could go", icon=":material/analytics:")
 st.caption(
-    "Blue shaded band represents 80% confidence interval (P10 to P90). "
-    "Solid line is median expected cash. Red dashed line is your required safety buffer."
+    "Duka replays your past days 1,000 times to see the range of balances you might have. "
+    "**Shaded band:** 8 in 10 of those futures land inside it. **Blue line:** the expected balance. "
+    "**Yellow line:** a bad week (only 1 in 10 futures end lower). **Red dashed line:** your safety buffer; "
+    "**red diamonds** mark days the bad-week balance falls under it. **White triangles** are bills due. "
+    "Hover anywhere for that day's numbers."
 )
 
-st.altair_chart(chart_forecast_confidence(forecast_res.points, buffer_kes=buffer_input), width="stretch")
+st.altair_chart(chart_forecast_confidence(forecast_res.points, buffer_kes=buffer_input, bills=obligations),
+                width="stretch")
 
 # ---- SHORTFALL ALERTS & ADVISORY ----
+# The forecaster suggests actions per risky day, each with that day's gap.
+# Show each kind of action once, sized for the worst day and due before the
+# first risky day, instead of one near-identical line per day.
+ACTION_KINDS = [
+    ("Delay non-essential spending", "Hold back spending", ":material/pause_circle:",
+     "Push purchases that can wait until after {worst:%d %b}. That keeps about KES {gap:,.0f} in the till.",
+     "app_pages/4_Expenses_Setup.py", "See upcoming bills"),
+    ("Reduce personal withdrawals", "Take less out for personal use", ":material/person_remove:",
+     "Draw about KES {gap:,.0f} less for personal and family needs before {first:%d %b}.",
+     "app_pages/6_Spending_Advisor.py", "Plan spending"),
+    ("Consider a short-term overdraft", "Line up short-term credit", ":material/account_balance:",
+     "Have about KES {gap:,.0f} of overdraft ready by {first:%d %b}, and compare the true cost first.",
+     "app_pages/3_Financing.py", "Compare options"),
+    ("Chase outstanding customer credit", "Collect what customers owe", ":material/request_quote:",
+     "Follow up overdue customer payments now, so the money is in before {first:%d %b}.",
+     "app_pages/5_Working_Capital.py", "See who owes you"),
+]
+
 if shortfalls:
+    first = min(shortfalls, key=lambda s: s.day_offset)
+    worst = max(shortfalls, key=lambda s: s.gap_minor)
+    first_day = datetime.strptime(first.date[:10], "%Y-%m-%d")
+    worst_day = datetime.strptime(worst.date[:10], "%Y-%m-%d")
+
+    when = ("today" if first.day_offset == 0 else
+            f"in {first.day_offset} day{'s' if first.day_offset != 1 else ''}")
+    # The forecast includes today (day 0), so a 30-day horizon has 31 days.
     st.error(
-        f"Liquidity warning: detected {len(shortfalls)} potential cash shortfall dates below your KES {buffer_input:,.0f} safety buffer.",
+        f"In a bad week your cash could drop below your KES {buffer_input:,.0f} safety buffer on "
+        f"**{len(shortfalls)} of {len(forecast_res.points)} days** (today to "
+        f"{datetime.strptime(forecast_res.points[-1]['date'][:10], '%Y-%m-%d'):%d %b}), starting "
+        f"**{first_day:%a %d %b}** ({when}). The worst day is "
+        f"**{worst_day:%a %d %b}**, about **KES {worst.gap_minor / 100:,.0f}** short.",
+        title="Cash may run short",
         icon=":material/error:",
     )
 
-    # Unique dates with breaches
-    alert_rows = []
-    for s in shortfalls:
-        alert_rows.append({
-            "Date": s.date,
-            "Timeline": f"In {s.day_offset} days",
-            "Cash gap below buffer": f"KES {s.gap_minor / 100:,.0f}",
-            "Breach probability": f"{s.probability_bp / 100:.0f}%",
-            "Recommended mitigations": "; ".join(s.suggested_actions[:2]),
-        })
-    st.dataframe(alert_rows, width="stretch")
+    st.subheader("What to do", icon=":material/lightbulb:", anchor=False)
+    plan = []
+    for prefix, title, icon, body, target, link_label in ACTION_KINDS:
+        days_with_it = [s for s in shortfalls if any(a.startswith(prefix) for a in s.suggested_actions)]
+        if days_with_it:
+            gap = max(s.gap_minor for s in days_with_it) / 100
+            plan.append((title, icon, body.format(gap=gap, first=first_day, worst=worst_day), target, link_label))
 
-    st.subheader("AI CFO actionable recommendations", icon=":material/lightbulb:")
-    unique_actions = set()
-    for s in shortfalls:
-        for a in s.suggested_actions:
-            unique_actions.add(a)
-    for act in sorted(unique_actions):
-        st.markdown(f"- :material/notifications: {act}")
+    for start_i in range(0, len(plan), 2):
+        cols = st.columns(2)
+        for col, (n, (title, icon, body, target, link_label)) in zip(cols, enumerate(plan[start_i:start_i + 2],
+                                                                                      start=start_i + 1)):
+            with col.container(border=True, height="stretch"):
+                st.markdown(f"**{n}. {title}**")
+                st.caption(body)
+                st.page_link(target, label=link_label, icon=icon)
+
+    with st.expander(f"Risky days ({len(shortfalls)})", icon=":material/event_busy:"):
+        st.dataframe(
+            pd.DataFrame([{
+                "Date": pd.Timestamp(s.date[:10]),
+                "In": s.day_offset,
+                "Short by (KES)": s.gap_minor / 100,
+                "Chance": "50% or more" if s.probability_bp >= 5000 else "10% or more",
+            } for s in sorted(shortfalls, key=lambda s: s.day_offset)]),
+            hide_index=True, width="stretch",
+            column_config={
+                "Date": st.column_config.DateColumn(format="ddd D MMM"),
+                "In": st.column_config.NumberColumn(format="%d days", help="Days from today"),
+                "Short by (KES)": st.column_config.NumberColumn(
+                    format="accounting", help="How far the conservative (P10) balance falls below your buffer"),
+                "Chance": st.column_config.TextColumn(
+                    help="10% or more: only the bad-week (P10) path dips. 50% or more: even the expected path dips."),
+            },
+        )
 else:
     st.success(
-        f"Safe runway confirmed: your projected cash balance stays safely above your "
-        f"KES {buffer_input:,.0f} buffer for the entire {horizon_days}-day horizon.",
+        f"Your cash stays above your KES {buffer_input:,.0f} safety buffer for all {horizon_days} days, "
+        "even in a bad week.",
+        title="Safe runway",
         icon=":material/check_circle:",
     )
 
