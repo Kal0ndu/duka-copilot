@@ -44,8 +44,9 @@ class CustomerInsight:
 class AISalesAssistant:
     """Generate follow-up tasks, payment reminders, and customer insights."""
 
-    def __init__(self, db_path: str = "data/duka.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        from core.config import config
+        self.db_path = db_path or config.DB_PATH
 
     def _get_conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
@@ -68,7 +69,7 @@ class AISalesAssistant:
             overdue = conn.execute(
                 """SELECT * FROM invoice
                 WHERE business_id = ?
-                  AND status = 'active'
+                  AND status IN ('active','sent','overdue')
                   AND payment_status IN ('unpaid','partial','overdue')
                   AND due_date < ?
                   AND (last_follow_up_date IS NULL OR last_follow_up_date < date('now', '-3 days'))
@@ -336,7 +337,7 @@ class AISalesAssistant:
                         AND i.due_date < ? THEN i.balance_due_minor ELSE 0 END), 0) AS overdue_amount,
                     MAX(i.invoice_date) AS last_purchase_date
                 FROM invoice i
-                WHERE i.business_id = ? AND i.status = 'active'
+                WHERE i.business_id = ? AND i.status IN ('active','sent','overdue')
                 GROUP BY i.customer_id, i.customer_name_token""",
                 (today, today, business_id),
             ).fetchall()
@@ -410,7 +411,7 @@ class AISalesAssistant:
 
             overdue_invoices = conn.execute(
                 """SELECT COUNT(*) FROM invoice
-                WHERE business_id = ? AND status = 'active'
+                WHERE business_id = ? AND status IN ('active','sent','overdue')
                   AND payment_status IN ('unpaid','partial','overdue')
                   AND due_date < date('now')""",
                 (business_id,),
@@ -418,7 +419,7 @@ class AISalesAssistant:
 
             total_outstanding = conn.execute(
                 """SELECT COALESCE(SUM(balance_due_minor), 0) FROM invoice
-                WHERE business_id = ? AND status = 'active'
+                WHERE business_id = ? AND status IN ('active','sent','overdue')
                   AND payment_status IN ('unpaid','partial','overdue')""",
                 (business_id,),
             ).fetchone()[0]

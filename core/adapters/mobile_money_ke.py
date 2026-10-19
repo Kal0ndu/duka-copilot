@@ -195,8 +195,16 @@ class MobileMoneyKeAdapter(StatementAdapter):
 
     @staticmethod
     def _infer_channel(details: str) -> str:
-        """Infer the channel from transaction details text."""
+        """Infer the channel from transaction details text.
+
+        Only the transaction-type part is read ("Payment from 07.. - NAME"
+        -> "payment from 07.."): a payer called SENDI or TILLY must not turn
+        a receipt into a send or a till payment."""
         d = details.lower()
+        if " - " in d:
+            d = d.split(" - ", 1)[0]
+        if "withdrawal at agent" in d or "agent withdrawal" in d:
+            return "withdraw"  # "Withdrawal at Agent Till 123" is a cash-out, not a till sale
         if "till" in d or "buy goods" in d or "lipa na" in d or "merchant payment" in d:
             return "till"
         if "customer payment to" in d:  # Pochi la Biashara

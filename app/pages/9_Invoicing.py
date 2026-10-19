@@ -3,370 +3,246 @@ import streamlit as st
 import sys
 import pandas as pd
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
-from core.invoice_manager import InvoiceManager, Invoice, Quotation, InvoiceLineItem, QuotationLineItem
+from core import csv_import
+from core.config import config
+from core.invoice_manager import (
+    ISSUED_STATUSES, OPEN_PAYMENT_STATUSES, InvoiceManager, InvoiceLineItem, QuotationLineItem, list_customers,
+)
 from core.inventory_manager import InventoryManager
 from core.pos_engine import POSEngine
 from core.ai_sales_assistant import AISalesAssistant
 from app.session_helpers import SessionManager
+from auth.middleware import get_business_id
 
 st.set_page_config(page_title="Invoicing — Duka", page_icon=":material/description:", layout="wide")
 
 # ---- Session & Auth ----
+require_auth()
 SessionManager.init_session()
 profile = SessionManager.get_profile()
-biz_id = profile.get("business_id", 1) if profile else 1
+biz_id = get_business_id()
+if not biz_id:
+    st.warning("Please register your business first in **Business Setup**.")
+    st.stop()
 biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 
 # ---- Initialize Managers ----
-inv_mgr = InvoiceManager()  # Uses default db_path="data/duka.db"
+inv_mgr = InvoiceManager()
 inv_prod_mgr = InventoryManager()
 pos = POSEngine()
 ai_asst = AISalesAssistant()
+
+VAT_RATE = 16.0  # Kenya standard rate
+CUSTOM_ITEM = "— Custom item / service —"
+NEW_CUSTOMER = "— New customer (type the name) —"
+
+
+def _display_status(inv) -> str:
+    """What the owner sees: draft/cancelled first, then overdue by due date, else payment status."""
+    if inv.status in ("draft", "cancelled"):
+        return inv.status
+    if inv.is_overdue:
+        return "overdue"
+    return inv.payment_status
+
+
+def _line_items_editor(state_key: str, products) -> list:
+    """Line items kept in session state: list with remove buttons, then an
+    add-item form. Buttons live outside forms (Streamlit forbids st.button
+    inside st.form). Returns the current items."""
+    items = st.session_state.setdefault(state_key, [])
+    if items:
+        st.write("Current items:")
+        for idx, item in enumerate(items):
+            col1, col2, col3, col4, col5 = st.columns([3, 1, 1, 1, 0.5], vertical_alignment="center")
+            col1.caption(item["description"] + ("" if item["vat_applicable"] else " (no VAT)"))
+            col2.caption(f"Qty: {item['quantity']}")
+            col3.caption(f"KES {item['unit_price_minor']/100:,.2f}")
+            col4.caption(f"KES {item['line_total_minor']/100:,.2f}")
+            if col5.button(":material/close:", key=f"{state_key}_remove_{idx}"):
+                items.pop(idx)
+                st.rerun()
+
+    product_map = {f"{p.name} (SKU: {p.sku})": p for p in products}
+    with st.form(f"{state_key}_add", clear_on_submit=True):
+        st.write("**Add item:**")
+        c1, c2 = st.columns([2, 2])
+        choice = c1.selectbox("Item", [CUSTOM_ITEM] + list(product_map), key=f"{state_key}_choice")
+        desc = c2.text_input("Description", key=f"{state_key}_desc",
+                             placeholder="Required for a custom item; blank uses the product name")
+        c3, c4, c5 = st.columns([1, 1, 2], vertical_alignment="bottom")
+        qty = c3.number_input("Qty", min_value=1, value=1, step=1, key=f"{state_key}_qty")
+        price = c4.number_input("Unit price (KES)", min_value=0.0, value=0.0, step=0.01, format="%.2f",
+                                key=f"{state_key}_price", help="0 uses the product's selling price")
+        apply_vat = c5.checkbox(f"Apply VAT ({VAT_RATE:g}%)", value=True, key=f"{state_key}_vat")
+        if st.form_submit_button(":material/add: Add item", width="stretch"):
+            product = product_map.get(choice)
+            description = desc.strip() or (product.name if product else "")
+            # round, not int(): 0.29 * 100 is 28.999... and would lose a cent
+            unit_price_minor = int(round(price * 100)) or (product.selling_price_minor if product else 0)
+            if not description:
+                st.error("Please enter an item description.")
+            elif unit_price_minor <= 0:
+                st.error("The unit price must be greater than 0.")
+            else:
+                subtotal = unit_price_minor * int(qty)
+                vat = int(subtotal * VAT_RATE / 100) if apply_vat else 0
+                items.append({
+                    "product_id": product.product_id if product else None,
+                    "description": description,
+                    "quantity": int(qty),
+                    "unit_price_minor": unit_price_minor,
+                    "line_subtotal_minor": subtotal,
+                    "vat_applicable": apply_vat,
+                    "vat_rate_pct": VAT_RATE if apply_vat else 0.0,
+                    "vat_amount_minor": vat,
+                    "line_total_minor": subtotal + vat,
+                })
+                st.rerun()
+
+    if items:
+        subtotal = sum(i["line_subtotal_minor"] for i in items)
+        vat_total = sum(i["vat_amount_minor"] for i in items)
+        t1, t2, t3 = st.columns(3)
+        t1.metric("Subtotal", f"KES {subtotal/100:,.2f}")
+        t2.metric(f"VAT ({VAT_RATE:g}%)", f"KES {vat_total/100:,.2f}")
+        t3.metric("Total", f"KES {(subtotal + vat_total)/100:,.2f}")
+    return items
+
 
 st.title("Invoicing & Quotations")
 st.caption(f"Manage invoices, quotations, and customer billing for **{biz_name}**")
 
 # ---- Navigation Tabs ----
-tab_overview, tab_new_invoice, tab_new_quotation, tab_manage, tab_payments = st.tabs([
+tab_overview, tab_new_invoice, tab_new_quotation, tab_manage, tab_payments, tab_import = st.tabs([
     "Overview",
     "Create Invoice",
     ":material/edit_note: Create quotation",
     ":material/search: Manage",
-    "Payments & Follow-Ups"
+    "Payments & Follow-Ups",
+    ":material/upload_file: Import CSV",
 ])
+customer_names = [c["name"] for c in list_customers(config.DB_PATH, biz_id)]
 
 # ============================================================================
 # TAB 1: OVERVIEW — Dashboard
 # ============================================================================
 with tab_overview:
     st.subheader("Invoicing Dashboard")
-    
-    # Fetch summary data
+
     outstanding_invoices = inv_mgr.get_outstanding_invoices(biz_id)
     all_invoices = inv_mgr.list_invoices(biz_id, limit=100)
     pending_quotations = inv_mgr.list_quotations(biz_id, status="sent")
-    
-    # Calculations
+
     total_outstanding = sum(inv.balance_due_minor for inv in outstanding_invoices)
-    total_overdue = sum(
-        inv.balance_due_minor 
-        for inv in outstanding_invoices 
-        if inv.payment_status == "overdue"
-    )
-    
-    # KPIs
+    overdue_invoices = [inv for inv in outstanding_invoices if inv.is_overdue]
+    total_overdue = sum(inv.balance_due_minor for inv in overdue_invoices)
+
     kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
-    kpi1.metric(
-        "Total Invoices",
-        len(all_invoices),
-        help="Total invoices issued this period"
-    )
+    kpi1.metric("Total Invoices", len(all_invoices), help="Invoices of every status, drafts included")
     kpi2.metric(
         "Outstanding",
         f"KES {total_outstanding/100:,.0f}",
         f"{len(outstanding_invoices)} invoices",
-        help="Total amount still owed by customers"
+        help="Total amount still owed by customers on issued invoices"
     )
     kpi3.metric(
         "Overdue",
         f"KES {total_overdue/100:,.0f}",
+        f"{len(overdue_invoices)} invoices",
         delta_color="inverse",
-        help="Past due date"
+        help="Owed on invoices past their due date"
     )
-    kpi4.metric(
-        "Pending Quotations",
-        len(pending_quotations),
-        help="Quotations waiting for customer decision"
-    )
-    
-    # Get last 30 days data
-    thirty_days_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
-    recent_invoices = [inv for inv in all_invoices if inv.created_at >= thirty_days_ago]
-    total_30d_revenue = sum(inv.total_amount_minor for inv in recent_invoices)
+    kpi4.metric("Pending Quotations", len(pending_quotations),
+                help="Quotations sent and waiting for the customer's decision")
+
+    # Issued (not draft or cancelled) invoices dated in the last 30 days
+    thirty_days_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    recent_invoices = [inv for inv in all_invoices
+                       if inv.status in ISSUED_STATUSES and inv.invoice_date[:10] >= thirty_days_ago]
     kpi5.metric(
-        "Revenue (30d)",
-        f"KES {total_30d_revenue/100:,.0f}",
+        "Invoiced (30d)",
+        f"KES {sum(inv.total_amount_minor for inv in recent_invoices)/100:,.0f}",
         f"{len(recent_invoices)} invoices"
     )
-    
+
     st.divider()
-    
-    # ---- Outstanding Invoices List ----
-    st.subheader("Outstanding Invoices (Sorted by Due Date)")
-    
+    st.subheader("Outstanding Invoices (overdue first, then by due date)")
+
     if not outstanding_invoices:
         st.success("All invoices paid! No outstanding balance.")
     else:
-        # Sort by due date (overdue first)
-        sorted_invoices = sorted(
-            outstanding_invoices,
-            key=lambda x: (x.due_date if x.payment_status != "overdue" else "0000-00-00")
-        )
-        
+        today = date.today()
+        sorted_invoices = sorted(outstanding_invoices, key=lambda x: (not x.is_overdue, x.due_date))
         df_outstanding = pd.DataFrame([
             {
                 "Invoice #": inv.invoice_number,
                 "Customer": inv.customer_name_token or "Unknown",
                 "Amount Due (KES)": f"{inv.balance_due_minor/100:,.2f}",
-                "Due Date": inv.due_date,
-                "Status": inv.payment_status.upper(),
-                "Days Outstanding": (datetime.utcnow().date() - datetime.fromisoformat(inv.due_date).date()).days,
+                "Due Date": inv.due_date[:10],
+                "Status": _display_status(inv).upper(),
+                "Days Overdue": max(0, (today - date.fromisoformat(inv.due_date[:10])).days),
             }
             for inv in sorted_invoices
         ])
-        
-        # Color code by status
+
         def highlight_status(row):
             if row["Status"] == "OVERDUE":
                 return ["background-color: #FFE5E5"] * len(row)
             elif row["Status"] == "PARTIAL":
                 return ["background-color: #FFF8DC"] * len(row)
             return [""] * len(row)
-        
-        st.dataframe(
-            df_outstanding.style.apply(highlight_status, axis=1),
-            width="stretch"
-        )
+
+        st.dataframe(df_outstanding.style.apply(highlight_status, axis=1), width="stretch", hide_index=True)
 
 # ============================================================================
 # TAB 2: CREATE INVOICE
 # ============================================================================
 with tab_new_invoice:
     st.subheader("Create New Invoice")
-    
+    products = inv_prod_mgr.list_products(biz_id, active_only=True)
+    invoice_items = _line_items_editor("invoice_items", products)
+
     with st.form("create_invoice_form"):
         col_cust, col_date, col_due = st.columns(3)
-        
-        with col_cust:
-            customer_name = st.text_input(
-                "Customer Name / Business",
-                placeholder="John's Retail Store",
-                help="Name of the customer/business being invoiced"
-            )
-        
-        with col_date:
-            invoice_date = st.date_input(
-                "Invoice Date",
-                value=datetime.utcnow().date(),
-                help="Date invoice is issued"
-            )
-        
-        with col_due:
-            due_days = st.number_input(
-                "Payment Terms (days)",
-                value=30,
-                min_value=0,
-                max_value=365,
-                help="Days customer has to pay"
-            )
-            due_date = invoice_date + timedelta(days=due_days)
-        
-        st.divider()
-        
-        # ---- Line Items ----
-        st.write("**Line Items:**")
-        
-        if "invoice_items" not in st.session_state:
-            st.session_state.invoice_items = []
-        
-        # Display existing items
-        if st.session_state.invoice_items:
-            st.write("Current items:")
-            for idx, item in enumerate(st.session_state.invoice_items):
-                col1, col2, col3, col4, col5 = st.columns([2, 1, 1, 1, 0.3])
-                with col1:
-                    st.caption(item["description"])
-                with col2:
-                    st.caption(f"Qty: {item['quantity']}")
-                with col3:
-                    st.caption(f"KES {item['unit_price_minor']/100:,.0f}")
-                with col4:
-                    st.caption(f"KES {item['line_total_minor']/100:,.0f}")
-                with col5:
-                    if st.button(":material/close:", key=f"remove_{idx}", width="stretch"):
-                        st.session_state.invoice_items.pop(idx)
-                        st.rerun()
-        
-        st.divider()
-        
-        # ---- Add New Line Item ----
-        st.write("**Add New Item:**")
-        col_desc, col_qty, col_price = st.columns([2, 1, 1])
-        
-        with col_desc:
-            # Option 1: Select from inventory
-            products = inv_prod_mgr.list_products(biz_id, active_only=True)
-            product_map = {f"{p.name} (SKU: {p.sku})": p for p in products}
-            selected_product = st.selectbox(
-                "Select Product",
-                list(product_map.keys()),
-                key="product_select",
-                label_visibility="collapsed"
-            )
-            
-            # If product selected, pre-fill price
-            if selected_product:
-                prod = product_map[selected_product]
-                description = prod.name
-                default_price = prod.selling_price_minor
-                vat_applicable = prod.vat_applicable
-                vat_rate = 16.0  # Default Kenya VAT
-            else:
-                description = st.text_input(
-                    "Item Description",
-                    placeholder="e.g., Consulting Services",
-                    key="item_desc_freeform"
-                )
-                default_price = 0
-                vat_applicable = True
-                vat_rate = 16.0
-        
-        with col_qty:
-            item_qty = st.number_input(
-                "Qty",
-                value=1,
-                min_value=1,
-                key="item_qty"
-            )
-        
-        with col_price:
-            item_price = st.number_input(
-                "Unit Price (KES)",
-                value=default_price/100 if default_price else 0.0,
-                min_value=0.0,
-                step=0.01,
-                key="item_price"
-            )
-        
-        # VAT info
-        col_vat, col_add = st.columns([2, 1])
-        with col_vat:
-            apply_vat = st.checkbox("Apply VAT (16%)", value=True)
-        
-        # Add button
-        if col_add.form_submit_button(":material/add: Add Item", width="stretch"):
-            if not description:
-                st.error("Please enter item description")
-            elif item_qty <= 0 or item_price <= 0:
-                st.error("Quantity and price must be greater than 0")
-            else:
-                item_price_minor = int(item_price * 100)
-                line_subtotal = item_price_minor * item_qty
-                
-                # Calculate VAT
-                if apply_vat:
-                    vat_amount = int(line_subtotal * vat_rate / 100)
-                    line_total = line_subtotal + vat_amount
-                else:
-                    vat_amount = 0
-                    line_total = line_subtotal
-                
-                st.session_state.invoice_items.append({
-                    "description": description,
-                    "quantity": item_qty,
-                    "unit_price_minor": item_price_minor,
-                    "line_subtotal_minor": line_subtotal,
-                    "vat_applicable": apply_vat,
-                    "vat_rate_pct": vat_rate if apply_vat else 0,
-                    "vat_amount_minor": vat_amount,
-                    "line_total_minor": line_total,
-                })
-                st.rerun()
-        
-        st.divider()
-        
-        # ---- Invoice Totals ----
-        if st.session_state.invoice_items:
-            subtotal = sum(item["line_subtotal_minor"] for item in st.session_state.invoice_items)
-            vat_total = sum(item.get("vat_amount_minor", 0) for item in st.session_state.invoice_items)
-            total = subtotal + vat_total
-            
-            col_tot1, col_tot2, col_tot3 = st.columns(3)
-            col_tot1.metric("Subtotal", f"KES {subtotal/100:,.2f}")
-            col_tot2.metric("VAT (16%)", f"KES {vat_total/100:,.2f}")
-            col_tot3.metric("Total", f"KES {total/100:,.2f}")
-            
-            st.divider()
-            
-            # ---- Notes ----
-            notes = st.text_area(
-                "Invoice Notes (optional)",
-                placeholder="Payment terms, bank details, thank you note, etc.",
-                height=3
-            )
-            
-            # ---- Submit ----
-            col_action1, col_action2 = st.columns(2)
-            
-            with col_action1:
-                if st.form_submit_button(":material/save: Save as Draft", width="stretch"):
-                    # Convert session line items to InvoiceLineItem objects
-                    line_items = [
-                        InvoiceLineItem(
-                            description=item["description"],
-                            quantity=item["quantity"],
-                            unit_price_minor=item["unit_price_minor"],
-                            line_subtotal_minor=item["line_subtotal_minor"],
-                            vat_applicable=item.get("vat_applicable", True),
-                            vat_rate_pct=item.get("vat_rate_pct", 16.0),
-                            vat_amount_minor=item.get("vat_amount_minor", 0),
-                            line_total_minor=item.get("line_total_minor", item["line_subtotal_minor"]),
-                        )
-                        for item in st.session_state.invoice_items
-                    ]
-                    
-                    # Create invoice in draft status
-                    invoice = inv_mgr.create_invoice(
-                        business_id=biz_id,
-                        customer_id=0,  # Will use customer_name_token instead
-                        line_items=line_items,
-                        customer_name_token=customer_name,
-                        due_days=due_days,
-                        notes=notes,
-                        status="draft",
-                        created_by=profile.get("phone", "pos_user") if profile else "pos_user",
-                    )
-                    st.success(f"Invoice saved as draft: {invoice.invoice_number}")
-                    st.session_state.invoice_items = []
-                    st.rerun()
-            
-            with col_action2:
-                if st.form_submit_button(":material/send: Create & Send", width="stretch", type="primary"):
-                    # Convert session line items to InvoiceLineItem objects
-                    line_items = [
-                        InvoiceLineItem(
-                            description=item["description"],
-                            quantity=item["quantity"],
-                            unit_price_minor=item["unit_price_minor"],
-                            line_subtotal_minor=item["line_subtotal_minor"],
-                            vat_applicable=item.get("vat_applicable", True),
-                            vat_rate_pct=item.get("vat_rate_pct", 16.0),
-                            vat_amount_minor=item.get("vat_amount_minor", 0),
-                            line_total_minor=item.get("line_total_minor", item["line_subtotal_minor"]),
-                        )
-                        for item in st.session_state.invoice_items
-                    ]
-                    
-                    # Create invoice and mark as sent
-                    invoice = inv_mgr.create_invoice(
-                        business_id=biz_id,
-                        customer_id=0,  # Will use customer_name_token instead
-                        line_items=line_items,
-                        customer_name_token=customer_name,
-                        due_days=due_days,
-                        notes=notes,
-                        status="sent",
-                        created_by=profile.get("phone", "pos_user") if profile else "pos_user",
-                    )
-                    st.success(f"Invoice created and marked as sent: {invoice.invoice_number}")
-                    st.session_state.invoice_items = []
-                    st.rerun()
+        existing_customer = col_cust.selectbox("Customer", [NEW_CUSTOMER] + customer_names, key="inv_customer_pick")
+        typed_customer = col_cust.text_input("Customer Name / Business", placeholder="John's Retail Store",
+                                             help="Name of the customer/business being invoiced")
+        invoice_date = col_date.date_input("Invoice Date", value=date.today(), help="Date invoice is issued")
+        due_days = col_due.number_input("Payment Terms (days)", value=30, min_value=0, max_value=365,
+                                        help="Days customer has to pay; due date = invoice date + terms")
+        notes = st.text_area("Invoice Notes (optional)",
+                             placeholder="Payment terms, bank details, thank you note, etc.")
+        col_action1, col_action2 = st.columns(2)
+        save_draft = col_action1.form_submit_button(":material/save: Save as Draft", width="stretch")
+        send = col_action2.form_submit_button(":material/send: Create & Send", width="stretch", type="primary")
+
+    if save_draft or send:
+        customer_name = typed_customer.strip() or (existing_customer if existing_customer != NEW_CUSTOMER else "")
+        if not customer_name:
+            st.error("Please enter the customer's name.")
+        elif not invoice_items:
+            st.error("Add at least one line item first.")
         else:
-            st.info("Add line items to create invoice")
+            invoice = inv_mgr.create_invoice(
+                business_id=biz_id,
+                customer_id=0,  # customers are identified by name token
+                line_items=[InvoiceLineItem(**item) for item in invoice_items],
+                customer_name_token=customer_name.strip(),
+                due_days=int(due_days),
+                notes=notes or None,
+                status="draft" if save_draft else "sent",
+                created_by=profile.get("phone", "pos_user") if profile else "pos_user",
+                invoice_date=invoice_date,
+            )
+            st.session_state.invoice_items = []
+            st.success(f"Invoice {invoice.invoice_number} {'saved as draft' if save_draft else 'created and sent'}"
+                       f" — KES {invoice.total_amount_minor/100:,.2f}, due {invoice.due_date[:10]}")
 
 # ============================================================================
 # TAB 3: CREATE QUOTATION
@@ -374,306 +250,171 @@ with tab_new_invoice:
 with tab_new_quotation:
     st.subheader("Create New Quotation")
     st.caption("Create an estimate/quotation for a customer. Convert to invoice when accepted.")
-    
+    products_q = inv_prod_mgr.list_products(biz_id, active_only=True)
+    quotation_items = _line_items_editor("quotation_items", products_q)
+
     with st.form("create_quotation_form"):
         col_cust, col_date, col_valid = st.columns(3)
-        
-        with col_cust:
-            quote_customer = st.text_input(
-                "Customer Name",
-                placeholder="ABC Trading Ltd",
-                help="Customer requesting the quotation"
-            )
-        
-        with col_date:
-            quote_date = st.date_input(
-                "Quotation Date",
-                value=datetime.utcnow().date()
-            )
-        
-        with col_valid:
-            valid_days = st.number_input(
-                "Valid for (days)",
-                value=30,
-                min_value=1,
-                max_value=365,
-                help="How long the quotation is valid"
-            )
-            valid_until = quote_date + timedelta(days=valid_days)
-        
-        st.divider()
-        
-        # ---- Quotation Line Items ----
-        st.write("**Quotation Items:**")
-        
-        if "quotation_items" not in st.session_state:
-            st.session_state.quotation_items = []
-        
-        # Display existing items
-        if st.session_state.quotation_items:
-            st.write("Current items:")
-            for idx, item in enumerate(st.session_state.quotation_items):
-                col1, col2, col3, col4, col5 = st.columns([2, 1, 1, 1, 0.3])
-                with col1:
-                    st.caption(item["description"])
-                with col2:
-                    st.caption(f"Qty: {item['quantity']}")
-                with col3:
-                    st.caption(f"KES {item['unit_price_minor']/100:,.0f}")
-                with col4:
-                    st.caption(f"KES {item['line_total_minor']/100:,.0f}")
-                with col5:
-                    if st.button(":material/close:", key=f"remove_quote_{idx}", width="stretch"):
-                        st.session_state.quotation_items.pop(idx)
-                        st.rerun()
-        
-        st.divider()
-        
-        # ---- Add Item ----
-        st.write("**Add Item:**")
-        col_desc_q, col_qty_q, col_price_q = st.columns([2, 1, 1])
-        
-        with col_desc_q:
-            item_desc_q = st.text_input(
-                "Item Description",
-                placeholder="e.g., Supply of goods, Services, etc.",
-                key="quote_item_desc"
-            )
-        
-        with col_qty_q:
-            item_qty_q = st.number_input(
-                "Qty",
-                value=1,
-                min_value=1,
-                key="quote_item_qty"
-            )
-        
-        with col_price_q:
-            item_price_q = st.number_input(
-                "Unit Price (KES)",
-                value=0.0,
-                min_value=0.0,
-                step=0.01,
-                key="quote_item_price"
-            )
-        
-        col_vat_q, col_add_q = st.columns([2, 1])
-        with col_vat_q:
-            apply_vat_q = st.checkbox("Apply VAT", value=True, key="quote_vat")
-        
-        if col_add_q.form_submit_button(":material/add: Add Item", width="stretch"):
-            if not item_desc_q:
-                st.error("Please enter item description")
-            else:
-                item_price_minor_q = int(item_price_q * 100)
-                line_subtotal_q = item_price_minor_q * item_qty_q
-                
-                if apply_vat_q:
-                    vat_amount_q = int(line_subtotal_q * 16 / 100)
-                    line_total_q = line_subtotal_q + vat_amount_q
-                else:
-                    vat_amount_q = 0
-                    line_total_q = line_subtotal_q
-                
-                st.session_state.quotation_items.append({
-                    "description": item_desc_q,
-                    "quantity": item_qty_q,
-                    "unit_price_minor": item_price_minor_q,
-                    "line_subtotal_minor": line_subtotal_q,
-                    "vat_applicable": apply_vat_q,
-                    "vat_rate_pct": 16.0 if apply_vat_q else 0,
-                    "vat_amount_minor": vat_amount_q,
-                    "line_total_minor": line_total_q,
-                })
-                st.rerun()
-        
-        st.divider()
-        
-        # ---- Quotation Totals ----
-        if st.session_state.quotation_items:
-            subtotal_q = sum(item["line_subtotal_minor"] for item in st.session_state.quotation_items)
-            vat_total_q = sum(item.get("vat_amount_minor", 0) for item in st.session_state.quotation_items)
-            total_q = subtotal_q + vat_total_q
-            
-            col_tot1_q, col_tot2_q, col_tot3_q = st.columns(3)
-            col_tot1_q.metric("Subtotal", f"KES {subtotal_q/100:,.2f}")
-            col_tot2_q.metric("VAT (16%)", f"KES {vat_total_q/100:,.2f}")
-            col_tot3_q.metric("Total", f"KES {total_q/100:,.2f}")
-            
-            st.divider()
-            
-            # ---- Quotation Terms ----
-            terms = st.text_area(
-                "Payment Terms & Conditions (optional)",
-                placeholder="50% upfront, balance on delivery. Valid for 30 days.",
-                height=3
-            )
-            
-            # ---- Submit ----
-            if st.form_submit_button(":material/upload: Create Quotation", type="primary", width="stretch"):
-                # Convert session line items to QuotationLineItem objects
-                line_items_q = [
-                    QuotationLineItem(
-                        description=item["description"],
-                        quantity=item["quantity"],
-                        unit_price_minor=item["unit_price_minor"],
-                        line_subtotal_minor=item["line_subtotal_minor"],
-                        vat_applicable=item.get("vat_applicable", True),
-                        vat_rate_pct=item.get("vat_rate_pct", 16.0),
-                        vat_amount_minor=item.get("vat_amount_minor", 0),
-                        line_total_minor=item.get("line_total_minor", item["line_subtotal_minor"]),
-                    )
-                    for item in st.session_state.quotation_items
-                ]
-                
-                quotation = inv_mgr.create_quotation(
-                    business_id=biz_id,
-                    customer_id=0,  # Will use customer_name_token instead
-                    line_items=line_items_q,
-                    customer_name_token=quote_customer,
-                    valid_days=valid_days,
-                    terms=terms,
-                    created_by=profile.get("phone", "pos_user") if profile else "pos_user",
-                )
-                st.success(f"Quotation created: {quotation.quotation_number}")
-                st.session_state.quotation_items = []
-                st.rerun()
+        existing_quote_customer = col_cust.selectbox("Customer", [NEW_CUSTOMER] + customer_names,
+                                                     key="quote_customer_pick")
+        typed_quote_customer = col_cust.text_input("Customer Name", placeholder="ABC Trading Ltd",
+                                                   help="Customer requesting the quotation")
+        quote_date = col_date.date_input("Quotation Date", value=date.today())
+        valid_days = col_valid.number_input("Valid for (days)", value=30, min_value=1, max_value=365,
+                                            help="How long the quotation is valid")
+        terms = st.text_area("Payment Terms & Conditions (optional)",
+                             placeholder="50% upfront, balance on delivery. Valid for 30 days.")
+        create_quote = st.form_submit_button(":material/upload: Create Quotation", type="primary", width="stretch")
+
+    if create_quote:
+        quote_customer = typed_quote_customer.strip() or (
+            existing_quote_customer if existing_quote_customer != NEW_CUSTOMER else "")
+        if not quote_customer:
+            st.error("Please enter the customer's name.")
+        elif not quotation_items:
+            st.error("Add at least one line item first.")
         else:
-            st.info("Add line items to create quotation")
+            quotation = inv_mgr.create_quotation(
+                business_id=biz_id,
+                customer_id=0,
+                line_items=[QuotationLineItem(**item) for item in quotation_items],
+                customer_name_token=quote_customer.strip(),
+                valid_days=int(valid_days),
+                terms=terms or None,
+                created_by=profile.get("phone", "pos_user") if profile else "pos_user",
+                quotation_date=quote_date,
+            )
+            st.session_state.quotation_items = []
+            st.success(f"Quotation {quotation.quotation_number} created — KES {quotation.total_minor/100:,.2f}, "
+                       f"valid until {quotation.valid_until_date[:10]}")
 
 # ============================================================================
 # TAB 4: MANAGE INVOICES & QUOTATIONS
 # ============================================================================
 with tab_manage:
     st.subheader("Manage Invoices & Quotations")
-    
+
     manage_tab1, manage_tab2 = st.tabs(["Invoices", "Quotations"])
-    
+
     # ---- INVOICES ----
     with manage_tab1:
         st.write("**All Invoices:**")
-        
-        # Filters
+
         col_filter1, col_filter2 = st.columns(2)
-        with col_filter1:
-            status_filter = st.multiselect(
-                "Filter by Status",
-                ["draft", "sent", "partial", "paid", "overdue", "cancelled"],
-                default=["sent", "partial", "overdue"]
-            )
-        with col_filter2:
-            search_invoice = st.text_input("Search by Invoice # or Customer")
-        
-        # Get invoices
+        status_filter = col_filter1.multiselect(
+            "Filter by Status",
+            ["draft", "unpaid", "partial", "overdue", "paid", "cancelled"],
+            default=["unpaid", "partial", "overdue"],
+        )
+        search_invoice = col_filter2.text_input("Search by Invoice # or Customer")
+
         all_invs = inv_mgr.list_invoices(biz_id, limit=500)
         filtered_invs = [
             inv for inv in all_invs
-            if (not status_filter or inv.payment_status in status_filter)
+            if (not status_filter or _display_status(inv) in status_filter)
             and (not search_invoice or search_invoice.lower() in inv.invoice_number.lower() or
                  (inv.customer_name_token and search_invoice.lower() in inv.customer_name_token.lower()))
         ]
-        
+
         if not filtered_invs:
             st.info("No invoices matching filters")
         else:
-            # Display table
-            df_invs = pd.DataFrame([
+            st.dataframe(pd.DataFrame([
                 {
                     "Invoice #": inv.invoice_number,
                     "Customer": inv.customer_name_token or "Unknown",
                     "Amount": f"KES {inv.total_amount_minor/100:,.2f}",
                     "Paid": f"KES {inv.amount_paid_minor/100:,.2f}",
                     "Due": f"KES {inv.balance_due_minor/100:,.2f}",
-                    "Status": inv.payment_status.upper(),
-                    "Due Date": inv.due_date,
-                    "ID": inv.invoice_id,
+                    "Status": _display_status(inv).upper(),
+                    "Due Date": inv.due_date[:10],
                 }
                 for inv in filtered_invs
-            ])
-            
-            st.dataframe(df_invs, width="stretch", hide_index=True)
-            
-            # ---- Actions on Selected Invoice ----
+            ]), width="stretch", hide_index=True)
+
             st.divider()
             selected_inv_id = st.selectbox(
                 "Select invoice to manage",
                 [(inv.invoice_id, inv.invoice_number) for inv in filtered_invs],
                 format_func=lambda x: x[1]
             )
-            
+
             if selected_inv_id:
                 inv_to_manage = next(inv for inv in filtered_invs if inv.invoice_id == selected_inv_id[0])
-                
-                col_act1, col_act2, col_act3 = st.columns(3)
-                
-                # View details
-                if col_act1.button(":material/visibility: View Details", width="stretch"):
-                    st.info(f"""
-                    **Invoice:** {inv_to_manage.invoice_number}
-                    **Customer:** {inv_to_manage.customer_name_token}
-                    **Amount:** KES {inv_to_manage.total_amount_minor/100:,.2f}
-                    **Due Date:** {inv_to_manage.due_date}
-                    **Status:** {inv_to_manage.payment_status}
-                    **Balance Due:** KES {inv_to_manage.balance_due_minor/100:,.2f}
-                    """)
-                
-                # Record payment
-                if col_act2.button(":material/credit_card: Record Payment", width="stretch"):
-                    with st.form(f"payment_form_{inv_to_manage.invoice_id}"):
-                        payment_amt = st.number_input(
-                            "Payment Amount (KES)",
-                            min_value=0.0,
-                            max_value=float(inv_to_manage.balance_due_minor / 100),
-                            value=float(inv_to_manage.balance_due_minor / 100),
-                            step=0.01
-                        )
-                        payment_method_sel = st.selectbox(
-                            "Payment Method",
-                            ["cash", "m_pesa", "bank_transfer", "cheque", "other"]
-                        )
-                        if st.form_submit_button(":material/check_circle: Record", width="stretch"):
-                            inv_mgr.record_payment(
-                                inv_to_manage.invoice_id,
-                                int(payment_amt * 100),
-                                payment_method_sel
-                            )
-                            st.success("Payment recorded!")
-                            st.rerun()
-                
-                # Send reminder
-                if col_act3.button(":material/mail: Send Reminder", width="stretch"):
-                    # Generate reminder tasks for this specific invoice
-                    # by calling generate_payment_reminders
-                    tasks = ai_asst.generate_payment_reminders(biz_id)
-                    if tasks:
-                        st.success("Follow-up task created. Check AI Follow-Ups tab.")
+                col_act1, col_act2 = st.columns(2)
+
+                with col_act1:
+                    st.info(
+                        f"**Invoice:** {inv_to_manage.invoice_number}  \n"
+                        f"**Customer:** {inv_to_manage.customer_name_token}  \n"
+                        f"**Amount:** KES {inv_to_manage.total_amount_minor/100:,.2f}  \n"
+                        f"**Paid:** KES {inv_to_manage.amount_paid_minor/100:,.2f}  \n"
+                        f"**Balance Due:** KES {inv_to_manage.balance_due_minor/100:,.2f}  \n"
+                        f"**Due Date:** {inv_to_manage.due_date[:10]}  \n"
+                        f"**Status:** {_display_status(inv_to_manage)}"
+                    )
+                    if st.button(":material/mail: Send Reminder", width="stretch"):
+                        tasks = ai_asst.generate_payment_reminders(biz_id)
+                        if tasks:
+                            st.success("Follow-up task created. Check AI Follow-Ups tab.")
+                        else:
+                            st.info("Follow-up task already pending or invoice already paid.")
+
+                with col_act2:
+                    can_pay = (inv_to_manage.status in ISSUED_STATUSES
+                               and inv_to_manage.payment_status in OPEN_PAYMENT_STATUSES
+                               and inv_to_manage.balance_due_minor > 0)
+                    if not can_pay:
+                        st.caption("Payments can be recorded only on issued invoices with a balance due "
+                                   "(not drafts, paid or cancelled invoices).")
                     else:
-                        st.info("Follow-up task already pending or invoice already paid.")
-    
+                        with st.form(f"payment_form_{inv_to_manage.invoice_id}"):
+                            st.write("**Record payment**")
+                            payment_amt = st.number_input(
+                                "Payment Amount (KES)",
+                                min_value=0.01,
+                                max_value=inv_to_manage.balance_due_minor / 100,
+                                value=inv_to_manage.balance_due_minor / 100,
+                                step=0.01, format="%.2f",
+                            )
+                            payment_method_sel = st.selectbox(
+                                "Payment Method", ["cash", "m_pesa", "bank_transfer", "cheque", "card", "other"])
+                            mpesa_ref = st.text_input("M-Pesa / reference code (optional)")
+                            if st.form_submit_button(":material/check_circle: Record", width="stretch"):
+                                ok = inv_mgr.record_payment(
+                                    business_id=biz_id,
+                                    invoice_id=inv_to_manage.invoice_id,
+                                    amount_minor=int(round(payment_amt * 100)),
+                                    payment_method=payment_method_sel,
+                                    mpesa_reference=mpesa_ref.strip() or None,
+                                    recorded_by=profile.get("phone") if profile else None,
+                                )
+                                if ok:
+                                    st.success("Payment recorded!")
+                                    st.rerun()
+                                else:
+                                    st.error("Payment not recorded: the invoice can't take this payment.")
+
     # ---- QUOTATIONS ----
     with manage_tab2:
         st.write("**All Quotations:**")
-        
+
         all_quotes = inv_mgr.list_quotations(biz_id, limit=500)
-        
+
         if not all_quotes:
             st.info("No quotations yet")
         else:
-            df_quotes = pd.DataFrame([
+            st.dataframe(pd.DataFrame([
                 {
                     "Quotation #": q.quotation_number,
                     "Customer": q.customer_name_token or "Unknown",
                     "Amount": f"KES {q.total_minor/100:,.2f}",
-                    "Valid Until": q.valid_until_date,
+                    "Valid Until": q.valid_until_date[:10],
                     "Status": q.status.upper(),
-                    "ID": q.quotation_id,
                 }
                 for q in all_quotes
-            ])
-            
-            st.dataframe(df_quotes, width="stretch", hide_index=True)
-            
-            # ---- Quotation Actions ----
+            ]), width="stretch", hide_index=True)
+
             st.divider()
             selected_quote_id = st.selectbox(
                 "Select quotation to manage",
@@ -681,31 +422,28 @@ with tab_manage:
                 format_func=lambda x: x[1],
                 key="quote_select"
             )
-            
+
             if selected_quote_id:
                 quote_to_manage = next(q for q in all_quotes if q.quotation_id == selected_quote_id[0])
-                
-                col_q1, col_q2, col_q3 = st.columns(3)
-                
-                if col_q1.button(":material/visibility: View", key="view_quote", width="stretch"):
-                    st.info(f"""
-                    **Quotation:** {quote_to_manage.quotation_number}
-                    **Customer:** {quote_to_manage.customer_name_token}
-                    **Total:** KES {quote_to_manage.total_minor/100:,.2f}
-                    **Valid Until:** {quote_to_manage.valid_until_date}
-                    **Status:** {quote_to_manage.status}
-                    """)
-                
-                if col_q2.button(":material/mail: Send to Customer", key="send_quote", width="stretch"):
+                open_quote = quote_to_manage.status in ("draft", "sent", "accepted")
+
+                col_q1, col_q2 = st.columns(2)
+                if col_q1.button(":material/mail: Send to Customer", key="send_quote", width="stretch",
+                                 disabled=quote_to_manage.status != "draft"):
                     inv_mgr.update_quotation_status(quote_to_manage.quotation_id, "sent")
                     st.success("Quotation marked as sent")
                     st.rerun()
-                
-                if col_q3.button(":material/check: Mark Accepted → Convert to Invoice", key="convert_quote", width="stretch"):
-                    # Convert quotation to invoice
+
+                if col_q2.button(":material/check: Mark Accepted → Convert to Invoice", key="convert_quote",
+                                 width="stretch", disabled=not open_quote):
                     invoice = inv_mgr.convert_quotation_to_invoice(quote_to_manage.quotation_id)
-                    st.success(f"Quotation converted to Invoice: {invoice.invoice_number}")
-                    st.rerun()
+                    if invoice is None:
+                        st.error("This quotation can't be converted (it was rejected, expired or already converted).")
+                    else:
+                        st.success(f"Quotation converted to Invoice: {invoice.invoice_number}")
+                        st.rerun()
+                if not open_quote:
+                    st.caption(f"This quotation is {quote_to_manage.status.replace('_', ' ')}.")
 
 # ============================================================================
 # TAB 5: PAYMENTS & FOLLOW-UPS
@@ -727,10 +465,10 @@ with tab_payments:
             df_payments = pd.DataFrame([
                 {
                     "Date": p["payment_date"][:10],
-                    "Invoice #": p.get("invoice_number", "N/A"),
+                    "Invoice #": p["invoice_number"],
                     "Amount (KES)": f"{p['amount_minor']/100:,.2f}",
                     "Method": p["payment_method"].upper(),
-                    "Reference": p.get("reference_number", "—"),
+                    "Reference": p["reference_number"] or p["mpesa_reference"] or "—",
                 }
                 for p in recent_payments
             ])
@@ -780,3 +518,46 @@ with tab_payments:
 
 st.divider()
 st.caption("**Tip:** Use the POS Dashboard to quickly create sales, then convert them to invoices here for credit customers.")
+
+# ============================================================================
+# TAB 6: IMPORT CSV — products, customers, past sales
+# ============================================================================
+with tab_import:
+    st.subheader("Import from CSV")
+    st.caption("Load many products, customers or past sales at once. Every row is checked; rows with a "
+               "problem are listed and skipped, the rest are saved. Importing the same file again is safe: "
+               "products (by SKU) and customers (by name) are updated, and sales already imported are skipped.")
+
+    IMPORTS = [
+        ("products", "Products", csv_import.PRODUCT_TEMPLATE, csv_import.import_products,
+         "Required: sku, name, cost_price, selling_price. vat_applicable is yes/no (default yes); "
+         "stock_qty sets the stock level."),
+        ("customers", "Customers", csv_import.CUSTOMER_TEMPLATE, csv_import.import_customers,
+         "Required: name. Phone and email are checked and stored only as hashes."),
+        ("sales", "Past sales", csv_import.SALE_TEMPLATE, csv_import.import_sales,
+         "Required: sale_ref, sale_date, sku, quantity, payment_method (cash, m_pesa, card, cheque, credit). "
+         "Rows with the same sale_ref are one sale. Blank unit_price uses the product price. "
+         "Import products first: stock is reduced and a sale without enough stock is rejected."),
+    ]
+    for kind, label, template, importer, help_text in IMPORTS:
+        with st.container(border=True):
+            c1, c2 = st.columns([3, 1], vertical_alignment="center")
+            c1.markdown(f"**{label}**  \n{help_text}")
+            c2.download_button(":material/download: Template", template, file_name=f"duka_{kind}_template.csv",
+                               mime="text/csv", key=f"tpl_{kind}", width="stretch")
+            upload = st.file_uploader(f"{label} CSV", type=["csv"], key=f"import_{kind}")
+            if upload is not None and st.button(f":material/upload: Import {label.lower()}", key=f"do_import_{kind}",
+                                                type="primary"):
+                try:
+                    report = importer(upload.getvalue(), biz_id)
+                except csv_import.CSVImportError as e:
+                    st.error(str(e))
+                else:
+                    (st.success if report.ok else st.warning)(report.summary())
+                    if report.errors:
+                        st.dataframe(pd.DataFrame(report.errors, columns=["Line", "Problem"]),
+                                     hide_index=True, width="stretch")
+
+    if customer_names:
+        with st.expander(f"Your customers ({len(customer_names)})"):
+            st.dataframe(pd.DataFrame({"Customer": customer_names}), hide_index=True, width="stretch")

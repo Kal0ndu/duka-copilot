@@ -8,6 +8,7 @@ from app.auth_ui import require_auth, check_auth
 from core.inventory_manager import InventoryManager, Product, InventoryTransaction
 from core.pos_engine import POSEngine
 from app.session_helpers import SessionManager
+from auth.middleware import get_business_id
 
 st.set_page_config(page_title="Inventory — Duka", page_icon=":material/inventory:", layout="wide")
 # ---- Authentication Gate ----
@@ -16,7 +17,10 @@ require_auth()
 
 SessionManager.init_session()
 profile = SessionManager.get_profile()
-biz_id = profile.get("business_id", 1) if profile else 1
+biz_id = get_business_id()
+if not biz_id:
+    st.warning("Please register your business first in **Business Setup**.")
+    st.stop()
 
 inv_mgr = InventoryManager()
 pos = POSEngine()
@@ -137,8 +141,8 @@ with tab_products:
                         name=name.strip(),
                         description=description or None,
                         category=category.strip() or None,
-                        cost_price_minor=int(cost * 100),
-                        selling_price_minor=int(selling * 100),
+                        cost_price_minor=int(round(cost * 100)),
+                        selling_price_minor=int(round(selling * 100)),
                         vat_applicable=vat_applicable,
                         vat_rate_pct=vat_rate,
                         current_stock_qty=stock_qty,

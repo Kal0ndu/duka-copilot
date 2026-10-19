@@ -23,7 +23,7 @@ from typing import Dict, List, Optional
 from core.adapters.base import VALID_CHANNELS
 from core.adapters.mobile_money_ke import MobileMoneyKeAdapter
 from core.adapters.mpesa_pdf import MpesaPdfAdapter
-from core.categoriser import Categoriser, CategoryResult, load_owner_rules
+from core.categoriser import Categoriser, CategoryResult, load_owner_rules, owner_rule_for
 from core.config import Config
 from core.redaction import Redactor
 
@@ -306,9 +306,10 @@ class StatementIngestor:
                 # counterparty part for its token before redacting the rest.
                 if party_token:
                     redacted = redactor.redact(f"{details.rsplit(' - ', 1)[0]} - {party_token}")
-                    if party_token in owner_rules:
+                    learned = owner_rule_for(owner_rules, party_token, direction)
+                    if learned:
                         # The owner taught this payee's category once; it wins.
-                        cat = CategoryResult(owner_rules[party_token], 1.0, "owner")
+                        cat = CategoryResult(learned, 1.0, "owner")
                         category_id = cat_ids.get(cat.category_code, fallback_cat)
                         needs_review = False
                 description = redacted.redacted
@@ -431,9 +432,18 @@ class StatementIngestor:
                 continue
             kind = CATEGORY_TO_OBLIGATION_KIND.get(category_code, "other")
             name, step = cadence
-            next_due = parsed[-1] + timedelta(days=step)
-            while next_due < today:
-                next_due += timedelta(days=step)
+            from core import recurrence
+            if name == "monthly":
+                # Rent paid on the 7th is next due on the 7th, not 30 days later.
+                k = 1
+                next_due = recurrence._add_months(parsed[-1], 1, parsed[-1].day)
+                while next_due < today:
+                    k += 1
+                    next_due = recurrence._add_months(parsed[-1], k, parsed[-1].day)
+            else:
+                next_due = parsed[-1] + timedelta(days=step)
+                while next_due < today:
+                    next_due += timedelta(days=step)
             label = f"{category_code.replace('_', ' ').title() or 'Regular payment'} ({name})"
             conn.execute(
                 """INSERT INTO obligation (business_id, party_id, label, kind, amount_minor, cadence,

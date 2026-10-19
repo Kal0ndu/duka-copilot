@@ -3,6 +3,8 @@ import streamlit as st
 import sys
 from pathlib import Path
 import pandas as pd
+
+from core.dates import parse_local_dates
 from datetime import datetime, timedelta
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
@@ -96,7 +98,7 @@ with st.expander("Forecast settings & stress-test simulation", icon=":material/t
 
 # Prepare daily flows DataFrame for forecaster
 daily_grouped = df_clean.copy()
-daily_grouped["weekday"] = pd.to_datetime(daily_grouped["local_date"], format='mixed', dayfirst=True).dt.dayofweek
+daily_grouped["weekday"] = parse_local_dates(daily_grouped["local_date"]).dt.dayofweek
 
 daily_flows = daily_grouped.groupby(["local_date", "weekday"]).agg(
     inflow_minor=("amount_minor", lambda x: int(x[daily_grouped.loc[x.index, "direction"] == "in"].sum())),
@@ -115,7 +117,7 @@ if get_business_id():
 if obl_amount > 0:
     obligations.append({
         "due_date": due_date_str,
-        "amount_minor": int(obl_amount * 100),
+        "amount_minor": int(round(obl_amount * 100)),
         "label": obl_label,
     })
 
@@ -124,8 +126,8 @@ forecaster = BalanceForecaster(seed=42)
 forecast_res = forecaster.forecast(
     daily_flows=daily_flows,
     obligations=obligations,
-    opening_balance=int(current_bal_input * 100),
-    buffer_minor=int(buffer_input * 100),
+    opening_balance=int(round(current_bal_input * 100)),
+    buffer_minor=int(round(buffer_input * 100)),
     horizon_days=horizon_days,
     n_paths=1000,
 )

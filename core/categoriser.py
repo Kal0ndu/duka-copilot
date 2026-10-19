@@ -35,17 +35,19 @@ GLOBAL_RULES: List[CategorisationRule] = [
     CategorisationRule(7, 7, "description", r"(?i)\b(school|fees|tuition|uniform|academy|college)\b", "out", None, None, "SCHOOL_FEES", 0.90),
     CategorisationRule(8, 8, "description", r"(?i)\b(loan|mshwari|fuliza|overdraft|kcb.*mpesa)\b", "in", None, None, "LOAN_DISBURSEMENT", 0.85),
     CategorisationRule(9, 9, "channel", "overdraft", "in", None, None, "LOAN_DISBURSEMENT", 0.85),
-    CategorisationRule(10, 10, "description", r"(?i)\b(loan.*repay|repay.*loan|mshwari.*pay|(overdraft|fuliza)\s+repay\w*)\b", "out", None, None, "LOAN_REPAYMENT", 0.85),
+    CategorisationRule(10, 10, "description", r"(?i)\b(loan.*repay\w*|repay\w*.*loan|mshwari.*pay\w*|(overdraft|fuliza)\s+repay\w*)\b", "out", None, None, "LOAN_REPAYMENT", 0.85),
     CategorisationRule(11, 11, "channel", "overdraft", "out", None, None, "OVERDRAFT_FEE", 0.80),
     CategorisationRule(12, 12, "channel", "fee", "out", None, None, "TXN_CHARGES", 0.85),
     CategorisationRule(13, 13, "description", r"(?i)\b(stock|suppl(y|ies|iers?)|wholesal\w*|purchase|distribut\w*|buy)\b", "out", None, None, "STOCK_PURCHASES", 0.85),
     CategorisationRule(14, 14, "description", r"(?i)\b(family|personal|withdraw.*self|own\s*use)\b", "out", None, None, "PERSONAL_WITHDRAWAL", 0.80),
     CategorisationRule(15, 15, "description", r"(?i)\b(family|gift|relative|home|upcountry|school)\b", "out", None, None, "FAMILY_TRANSFER", 0.60),
     CategorisationRule(16, 16, "channel", "receive", "in", None, None, "SALES_TRANSFER", 0.70),
-    CategorisationRule(17, 17, "channel", "bill", "out", None, None, "UTILITIES", 0.75),
+    # Any other paybill is most likely a utility, but only after the keyword
+    # rules (repairs, licences/KRA) have had their turn.
+    CategorisationRule(17, 25, "channel", "bill", "out", None, None, "UTILITIES", 0.75),
     CategorisationRule(18, 18, "channel", "airtime", "out", None, None, "AIRTIME_DATA", 0.95),
-    CategorisationRule(19, 19, "description", r"(?i)\b(repair|fix|maintenance|plumber|electrician)\b", "out", None, None, "REPAIRS", 0.85),
-    CategorisationRule(20, 20, "description", r"(?i)\b(license|permit|council|tax|kra)\b", "out", None, None, "LICENSE_TAX", 0.85),
+    CategorisationRule(19, 19, "description", r"(?i)\b(repair\w*|fix|maintenance|plumber|electrician)\b", "out", None, None, "REPAIRS", 0.85),
+    CategorisationRule(20, 20, "description", r"(?i)\b(licen[cs]e|permit|council|tax|kra)\b", "out", None, None, "LICENSE_TAX", 0.85),
     # Ported from duka-copilot main: fee lines ("Pay Bill Charge") before the
     # bill->utilities rule, agent cash-outs, and person-to-person transfers.
     CategorisationRule(21, 0, "description", r"(?i)\bcharges?\b", "out", None, None, "TXN_CHARGES", 0.95),
@@ -53,6 +55,9 @@ GLOBAL_RULES: List[CategorisationRule] = [
     # Wages or family? Medium confidence, so it lands in the owner's review
     # queue; core.ingestion turns it into WAGES on the owner's staff payday.
     CategorisationRule(23, 22, "description", r"(?i)^customer transfer to", "out", None, None, "FAMILY_TRANSFER", 0.60),
+    # Moving the owner's own money: from the bank in, into M-Shwari / Lock Savings out.
+    CategorisationRule(24, 23, "description", r"(?i)^transfer from bank", "in", None, None, "OWN_TRANSFER", 0.80),
+    CategorisationRule(25, 24, "description", r"(?i)\b(m-?shwari|lock\s+savings)\b.*\bdeposit\b", "out", None, None, "SAVINGS_DEPOSIT", 0.85),
 ]
 
 PAYDAY_EVENING_HOUR = 18
@@ -139,25 +144,35 @@ class Categoriser:
 # ---- "Teach it once": the owner's own category rules ----
 #
 # Rules are keyed on the payee's party token (the redacted counterparty the
-# ingestor stores), so one correction covers every past and future payment
-# to that payee for this business only.
+# ingestor stores) and the direction of the money, so one correction covers
+# every past and future payment to that payee for this business only, and a
+# refund paid TO a customer never relabels the payments received FROM them.
+# Rules saved before direction was recorded (direction NULL) apply both ways.
 
 def load_owner_rules(conn, business_id: int) -> dict:
-    """{party_token: category_code} for the owner's taught rules."""
+    """{(party_token, direction or None): category_code} for the owner's taught rules."""
     rows = conn.execute(
-        """SELECT r.pattern, c.code FROM categorisation_rule r
+        """SELECT r.pattern, r.direction, c.code FROM categorisation_rule r
            JOIN category c ON c.category_id = r.category_id
            WHERE r.business_id = ? AND r.created_by = 'owner' AND r.active = 1
              AND r.match_field = 'counterparty'
            ORDER BY r.rule_id""",
         (business_id,),
     ).fetchall()
-    return {pattern: code for pattern, code in rows}
+    return {(pattern, direction): code for pattern, direction, code in rows}
+
+
+def owner_rule_for(rules: dict, party_token: Optional[str], direction: str) -> Optional[str]:
+    """The taught category for this payee and direction, if any."""
+    if not party_token:
+        return None
+    return rules.get((party_token, direction)) or rules.get((party_token, None))
 
 
 def teach_category(db_path: str, business_id: int, txn_id: int, category_code: str) -> dict:
     """Owner corrects one transaction's category. Saves a rule for its payee
-    and re-labels every transaction from that payee. Returns what changed."""
+    in that direction (money in or out) and re-labels every transaction with
+    that payee in the same direction. Returns what changed."""
     import sqlite3
 
     conn = sqlite3.connect(db_path)
@@ -167,12 +182,12 @@ def teach_category(db_path: str, business_id: int, txn_id: int, category_code: s
         if cat is None:
             raise ValueError(f"Unknown category {category_code!r}")
         txn = conn.execute(
-            "SELECT counterparty_token FROM transaction_ledger WHERE txn_id = ? AND business_id = ?",
+            "SELECT counterparty_token, direction FROM transaction_ledger WHERE txn_id = ? AND business_id = ?",
             (txn_id, business_id),
         ).fetchone()
         if txn is None:
             raise ValueError("Transaction not found for this business")
-        token = txn[0]
+        token, direction = txn
 
         if not token:
             # No identifiable payee (e.g. a fee line): fix just this row.
@@ -184,27 +199,27 @@ def teach_category(db_path: str, business_id: int, txn_id: int, category_code: s
             conn.commit()
             return {"rule_saved": False, "updated": 1}
 
-        # One active rule per payee: retire the old one, then save the new.
+        # One active rule per payee and direction: retire the old one, then save the new.
         conn.execute(
             """UPDATE categorisation_rule SET active = 0
                WHERE business_id = ? AND created_by = 'owner' AND match_field = 'counterparty'
-                 AND pattern = ?""",
-            (business_id, token),
+                 AND pattern = ? AND direction = ?""",
+            (business_id, token, direction),
         )
         conn.execute(
             """INSERT INTO categorisation_rule
-               (business_id, priority, match_field, pattern, category_id, confidence, created_by)
-               VALUES (?, 0, 'counterparty', ?, ?, 1.0, 'owner')""",
-            (business_id, token, cat[0]),
+               (business_id, priority, match_field, pattern, direction, category_id, confidence, created_by)
+               VALUES (?, 0, 'counterparty', ?, ?, ?, 1.0, 'owner')""",
+            (business_id, token, direction, cat[0]),
         )
         updated = conn.execute(
             """UPDATE transaction_ledger SET category_id = ?, category_source = 'owner',
                    confidence = 1.0, needs_review = 0
-               WHERE business_id = ? AND counterparty_token = ? AND voided = 0""",
-            (cat[0], business_id, token),
+               WHERE business_id = ? AND counterparty_token = ? AND direction = ? AND voided = 0""",
+            (cat[0], business_id, token, direction),
         ).rowcount
         conn.commit()
-        return {"rule_saved": True, "payee": token, "updated": updated}
+        return {"rule_saved": True, "payee": token, "direction": direction, "updated": updated}
     finally:
         conn.close()
 
@@ -278,7 +293,7 @@ def categorise_transactions(args, business_id: Optional[int] = None,
         review_queue = []
         
         for txn in txns:
-            learned = owner_rules.get(txn["counterparty_token"]) if txn["counterparty_token"] else None
+            learned = owner_rule_for(owner_rules, txn["counterparty_token"], txn["direction"])
             if learned:
                 result = CategoryResult(category_code=learned, confidence=1.0, source="owner")
             else:

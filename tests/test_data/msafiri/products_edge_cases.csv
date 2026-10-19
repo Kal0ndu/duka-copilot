@@ -1,0 +1,19 @@
+sku,name,category,description,cost_price,selling_price,vat_applicable,vat_rate_pct,stock_qty,reorder_level,reorder_qty,barcode
+EDG-OK-1,Edge valid item,Edge,,"KES 1,200.50",1500,yes,16,5,,,
+,No SKU,,,1,2,,,,,,
+EDG-OK-1,Repeat of line 2,,,1,2,,,,,,
+edg-ok-1,"Repeat, different case",,,1,2,,,,,,
+EDG-NEG,Negative cost,,,-5,10,,,,,,
+EDG-3DP,Three decimals,,,1.005,10,,,,,,
+EDG-ZERO,Free item,,,0,0,,,,,,
+EDG-VATX,Bad VAT flag,,,1,2,maybe,,,,,
+EDG-VAT150,VAT over 100,,,1,2,yes,150,,,,
+EDG-STK,Fractional stock,,,1,2,,,2.5,,,
+EDG-BC,Barcode clash,,,1,2,,,,,,6001234500011
+EDG SPACE,Space in SKU,,,1,2,,,,,,
+EDG-TXT,Text price,,,ten,2,,,,,,
+EDG-NAN,NaN price,,,NaN,2,,,,,,
+EDG-NOVAT,VAT no with rate given,,,1,2,no,16,3,,,
+EDG-LONG,XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,,,1,2,,,,,,
+EDG-EXTRA,Too many values,,,1,2,,,,,,,surplus
+RTR-DB,Dual-band Wi-Fi router,Hardware,,3200.00,4600.00,yes,16,60,10,30,6001234500011

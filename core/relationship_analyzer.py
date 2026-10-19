@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime, date
 import pandas as pd
 
+from core.dates import parse_local_dates
+
 
 @dataclass
 class PartyRelationshipMetrics:
@@ -52,6 +54,13 @@ class RelationshipAnalyzer:
 
         self.df["counterparty"] = self.df["counterparty"].fillna("Walk-in Customer").astype(str)
 
+        # Own-account transfers (bank top-ups, savings) and loans are not
+        # trading relationships: the owner's bank is not a customer.
+        if "category_kind" in self.df.columns:
+            self.df = self.df[~self.df["category_kind"].isin(["transfer", "financing"])].copy()
+            if self.df.empty:
+                return
+
         # Normalize date
         if "local_date" not in self.df.columns:
             if "date" in self.df.columns:
@@ -88,7 +97,7 @@ class RelationshipAnalyzer:
 
         # Reference date is maximum transaction date in dataset
         try:
-            max_date = pd.to_datetime(self.df["local_date"], format='mixed', dayfirst=True).max()
+            max_date = parse_local_dates(self.df["local_date"]).max()
             if pd.isna(max_date):
                 max_date = datetime.now()
         except Exception:

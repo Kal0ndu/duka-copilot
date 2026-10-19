@@ -1,0 +1,25 @@
+sku,name,category,description,cost_price,selling_price,vat_applicable,vat_rate_pct,stock_qty,reorder_level,reorder_qty,barcode
+PLN-HOME-10,Home 10Mbps monthly plan,Plans,Unlimited home fibre,1200.00,2500.00,yes,16,9999,0,0,
+PLN-HOME-20,Home 20Mbps monthly plan,Plans,Unlimited home fibre,1900.00,3500.00,yes,16,9999,0,0,
+PLN-HOME-40,Home 40Mbps monthly plan,Plans,Unlimited home fibre,3000.00,5500.00,yes,16,9999,0,0,
+PLN-BIZ-50,Business 50Mbps monthly plan,Plans,SLA 99.5%,6500.00,12000.00,yes,16,9999,0,0,
+PLN-BIZ-100,Business 100Mbps monthly plan,Plans,SLA 99.5%,11000.00,20000.00,yes,16,9999,0,0,
+PLN-DED-200,Dedicated 200Mbps monthly link,Plans,"Dedicated fibre, SLA 99.9%",38000.00,65000.00,yes,16,9999,0,0,
+VCH-1H,Hotspot voucher 1 hour,Vouchers,,4.50,10.00,yes,16,5000,200,2000,
+VCH-1D,Hotspot voucher 1 day,Vouchers,,19.99,50.00,yes,16,5000,200,2000,
+VCH-1W,Hotspot voucher 1 week,Vouchers,,120.00,250.00,yes,16,2000,100,1000,
+VCH-1M,Hotspot voucher 1 month,Vouchers,,450.75,1000.00,yes,16,1000,50,500,
+INS-STD,Standard installation,Services,"Wireless install, up to 20m cable",1500.00,3000.00,yes,16,9999,0,0,
+INS-FIB,Fibre drop installation,Services,Fibre drop and ONT setup,4200.50,7500.00,yes,16,9999,0,0,
+SUP-ONSITE,On-site support visit,Services,,800.00,1500.00,yes,16,9999,0,0,
+TRN-BASIC,Basic IT training session,Services,VAT-exempt training,0.00,2000.00,no,,9999,0,0,
+DEP-RTR,Router deposit (refundable),Deposits,Not a sale of goods,0.00,1000.00,no,,9999,0,0,
+RTR-DB,Dual-band Wi-Fi router,Hardware,,3200.00,4500.00,yes,16,60,10,30,6001234500011
+RTR-MESH,Mesh Wi-Fi kit (3 nodes),Hardware,,9800.00,14500.00,yes,16,12,3,10,6001234500028
+ONT-GPON,GPON ONT modem,Hardware,,2750.00,3999.99,yes,16,45,10,30,6001234500035
+CBL-CAT6-1M,CAT6 patch cable 1m,Cables,,19.99,35.50,yes,16,400,50,300,6001234500042
+CBL-CAT6-305,CAT6 cable box 305m,Cables,,8999.95,12500.00,yes,16,8,2,6,6001234500059
+CON-RJ45-100,RJ45 connectors (pack of 100),Cables,,349.00,650.00,yes,16,40,10,30,
+SW-8P,8-port gigabit switch,Hardware,,2100.00,3200.00,yes,16,25,5,15,6001234500066
+UPS-650,650VA UPS,Power,,5200.00,7800.00,yes,16,9,4,10,
+ANT-OUT,Outdoor sector antenna,Hardware,,6400.00,9500.00,yes,16,0,2,4,

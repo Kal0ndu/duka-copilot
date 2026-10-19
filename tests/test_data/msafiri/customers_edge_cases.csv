@@ -1,0 +1,8 @@
+name,phone,email,notes
+Edge Valid Customer,0712 345 678,Edge@Example.co.ke,
+,0712345678,,
+  edge   valid customer ,,,
+Edge Bad Phone,12345,,
+Edge Bad Email,,not-an-email,
+Edge Plus Phone,+254 712 345 678,,plus format
+Baraka Hotel,0700111222,,Already imported from customers.csv

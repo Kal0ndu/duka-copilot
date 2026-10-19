@@ -38,7 +38,10 @@ if not transactions:
 analyzer = RelationshipAnalyzer(transactions)
 customers = analyzer.get_customers()
 suppliers = analyzer.get_suppliers()
-concentration_risks = analyzer.get_concentration_risks()
+all_concentration = analyzer.get_concentration_risks()
+# Customers: share of revenue. Suppliers: share of spending (a different risk).
+concentration_risks = [p for p in all_concentration if p.party_type == "customer"]
+supplier_dependencies = [p for p in all_concentration if p.party_type == "supplier"]
 churn_risks = analyzer.get_churn_risks()
 biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 
@@ -163,6 +166,13 @@ st.divider()
 # ---- SECTION 4: SUPPLIER DEPENDENCY ----
 st.subheader(":material/local_shipping: Supplier spending & vendor reliance")
 st.caption("Track who you spend the most money with and identify reliance on single vendors.")
+
+for dep in supplier_dependencies:
+    st.warning(
+        f"**Supplier dependency:** {dep.party_name} receives **{dep.concentration_pct:.1f}%** of everything you pay out "
+        f"(KES {dep.outflow_kes:,.0f} across {dep.transaction_count} payments). Line up a backup supplier in case "
+        "they raise prices or can't deliver."
+    )
 
 if suppliers:
     sup_table = []

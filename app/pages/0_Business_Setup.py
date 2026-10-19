@@ -95,7 +95,7 @@ if business_id:
                         business_id=business_id,
                         global_category_id=cat_id,
                         display_name=display if display != cat["name"] else None,
-                        monthly_budget_minor=int(budget * 100) if budget > 0 else None,
+                        monthly_budget_minor=int(round(budget * 100)) if budget > 0 else None,
                         auto_categorize_keywords=keywords if keywords else None,
                     )
                     st.success("✓ Saved")
@@ -137,9 +137,9 @@ if business_id:
             if st.form_submit_button(":material/save: Save Goals"):
                 setup.set_financial_goals(
                     business_id=business_id,
-                    revenue_target=int(revenue_target * 100),
+                    revenue_target=int(round(revenue_target * 100)),
                     margin_target=margin_target,
-                    buffer_target=int(buffer_target * 100),
+                    buffer_target=int(round(buffer_target * 100)),
                     personal_limit_pct=personal_limit,
                 )
                 st.success("✓ Goals saved")
@@ -337,7 +337,7 @@ else:
                 sector=sector,
                 sub_sector=sub_sector if sub_sector else None,
                 country_code=country,
-                revenue_estimate_minor=int(revenue_estimate * 100),
+                revenue_estimate_minor=int(round(revenue_estimate * 100)),
                 employee_count=employee_count,
                 owner_user_id=get_user_id(),
             )

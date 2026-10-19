@@ -1,0 +1,41 @@
+file,line,expected_outcome
+products_edge_cases.csv,2,created
+products_edge_cases.csv,3,sku is required
+products_edge_cases.csv,4,sku EDG-OK-1 is repeated
+products_edge_cases.csv,5,sku edg-ok-1 is repeated
+products_edge_cases.csv,6,cost_price can't be negative
+products_edge_cases.csv,7,more than 2 decimal places
+products_edge_cases.csv,8,selling_price must be more than 0
+products_edge_cases.csv,9,must be yes or no
+products_edge_cases.csv,10,between 0 and 100
+products_edge_cases.csv,11,must be a whole number
+products_edge_cases.csv,12,already belongs to another product
+products_edge_cases.csv,13,may only use letters
+products_edge_cases.csv,14,is not a number
+products_edge_cases.csv,15,is not a number
+products_edge_cases.csv,16,created
+products_edge_cases.csv,17,max 120 characters
+products_edge_cases.csv,18,values but the header has
+products_edge_cases.csv,19,updated
+customers_edge_cases.csv,2,created
+customers_edge_cases.csv,3,name is required
+customers_edge_cases.csv,4,is repeated
+customers_edge_cases.csv,5,Invalid Kenyan phone number
+customers_edge_cases.csv,6,is not a valid address
+customers_edge_cases.csv,7,created
+customers_edge_cases.csv,8,updated
+sales_edge_cases.csv,2,created
+sales_edge_cases.csv,3,unknown or inactive sku
+sales_edge_cases.csv,4,is in the future
+sales_edge_cases.csv,5,payment_method
+sales_edge_cases.csv,6,sale_date differs
+sales_edge_cases.csv,7,(same sale as above)
+sales_edge_cases.csv,8,not enough stock
+sales_edge_cases.csv,9,must be at least 1
+sales_edge_cases.csv,10,between 0 and 100
+sales_edge_cases.csv,11,more than 2 decimal places
+sales_edge_cases.csv,12,must look like
+sales_edge_cases.csv,13,created
+sales_edge_cases.csv,14,sale_ref is required
+sales_edge_cases.csv,15,created
+sales_edge_cases.csv,16,unit_price must be more than 0

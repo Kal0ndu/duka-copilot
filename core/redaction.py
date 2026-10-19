@@ -73,7 +73,9 @@ class Redactor:
 
             redacted = re.sub(pattern, _replace, redacted)
 
-        injection_flags = self._scan_injections(redacted)
+        # Scan both: PII tokens replace digits that some patterns rely on
+        # ("execute payment to 0700000000"), and the original is what was sent.
+        injection_flags = list(dict.fromkeys(self._scan_injections(str(text)) + self._scan_injections(redacted)))
         return RedactionResult(
             redacted=redacted,
             tokens=tokens,

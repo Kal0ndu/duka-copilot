@@ -26,7 +26,8 @@ def get_current_session() -> Optional[Session]:
         return None
 
     # Check revocation
-    db_path = _st().session_state.get("db_path", "data/duka.db")
+    from core.config import config
+    db_path = _st().session_state.get("db_path") or config.DB_PATH
     if is_session_revoked(db_path, token):
         _st().session_state.pop("auth_token", None)
         _st().session_state.pop("auth_session", None)

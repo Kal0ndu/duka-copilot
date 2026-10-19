@@ -3,6 +3,8 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from decimal import Decimal
 import pandas as pd
+
+from core.dates import parse_local_dates
 import numpy as np
 
 
@@ -128,7 +130,7 @@ def get_ledger_summary(df: pd.DataFrame, period: str = "month") -> List[Dict]:
 def compute_weekday_factors(df: pd.DataFrame, window_weeks: int = 12) -> pd.DataFrame:
     """Compute weekday seasonality factors for the forecaster."""
     df = df.copy()
-    df["weekday"] = pd.to_datetime(df["local_date"], format='mixed', dayfirst=True).dt.dayofweek  # 0=Mon
+    df["weekday"] = parse_local_dates(df["local_date"]).dt.dayofweek  # 0=Mon
 
     daily = (
         df.groupby(["local_date", "weekday"])
@@ -388,7 +390,7 @@ class BusinessAnalytics:
         if self.df.empty:
             return pd.DataFrame()
         temp = self.df.copy()
-        temp["weekday"] = pd.to_datetime(temp["local_date"], format='mixed', dayfirst=True).dt.dayofweek
+        temp["weekday"] = parse_local_dates(temp["local_date"]).dt.dayofweek
         day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
         daily = temp.groupby(["local_date", "weekday"]).agg(

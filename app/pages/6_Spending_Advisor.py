@@ -64,7 +64,7 @@ with tab_purchase:
 
     if st.button("Analyze Purchase", type="primary", width="stretch"):
         with st.spinner("Analyzing..."):
-            purchase_amount_minor = int(purchase_amount * 100)
+            purchase_amount_minor = int(round(purchase_amount * 100))
             advice = advisor.advise_on_purchase(
                 business_id=business_id,
                 purchase_amount_minor=purchase_amount_minor,
@@ -151,7 +151,7 @@ with tab_allocate:
             step=1000,
             key="custom_cash_kes",
         )
-        custom_cash = int(custom_cash_kes * 100)
+        custom_cash = int(round(custom_cash_kes * 100))
 
     if st.button("Get Allocation Advice", type="primary", width="stretch"):
         with st.spinner("Computing allocation..."):

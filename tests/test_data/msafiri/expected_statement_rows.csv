@@ -1,0 +1,696 @@
+file,receipt,completion_time,direction,amount_kes,intended_category,expected_app_category,expected_needs_review,party,scenario,expected_ingest
+statement_combined.csv,TG7L4JZCJR,2026-07-01 08:18:21,in,11.60,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,TGEBHJGAEH,2026-07-01 08:19:30,in,12383.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY KIPLAGAT,hardware,load
+statement_combined.csv,TG394TX22U,2026-07-01 09:22:38,in,58.00,SALES_TILL,SALES_TILL,0,FELIX ODHIAMBO,voucher_till,load
+statement_combined.csv,TG332ADBMB,2026-07-01 12:57:37,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGM6615BHB,2026-07-01 14:52:51,in,58.00,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TGYLU3NGBA,2026-07-01 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TGZ0WCFY6U,2026-07-01 18:30:00,out,30000.00,WAGES,FAMILY_TRANSFER,1,PETER OTIENO KIBET,salary_p2p_transfer,load
+statement_combined.csv,TG1TW6C09L,2026-07-02 08:04:15,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,JAMES KARANJA,subscription_loyal,load
+statement_combined.csv,TGDFZLU9NE,2026-07-02 10:38:00,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,KEVIN MUTUA,subscription_loyal,load
+statement_combined.csv,TGRGQD482R,2026-07-02 10:44:15,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS ODHIAMBO,subscription_loyal,load
+statement_combined.csv,TG120WSC3V,2026-07-02 13:41:56,in,290.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TGVXZSAQ72,2026-07-02 16:10:58,in,11.60,SALES_TILL,SALES_TILL,0,DIANA GITAU,voucher_till,load
+statement_combined.csv,TGSU7QEFP0,2026-07-02 17:14:53,in,23.20,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TGEHGYK8BU,2026-07-02 18:17:39,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TG3TUGAGC9,2026-07-03 09:06:29,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_school_fees_personal,load
+statement_combined.csv,TGF96UPUSU,2026-07-03 09:06:29,out,22500.00,SCHOOL_FEES,SCHOOL_FEES,0,ST JUDE ACADEMY,school_fees_personal,load
+statement_combined.csv,TGCKJ1H9LM,2026-07-03 12:13:14,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,FAITH KIPLAGAT,subscription_churned,load
+statement_combined.csv,TGK0TREC2Y,2026-07-03 15:24:36,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY NJOROGE,subscription_loyal,load
+statement_combined.csv,TG4UKFT0DY,2026-07-03 16:40:01,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,FAITH KIPROP,subscription_loyal,load
+statement_combined.csv,TG4GSGC0M2,2026-07-03 19:51:29,in,11.60,SALES_TILL,SALES_TILL,0,CAROLINE JEPTOO,voucher_till,load
+statement_combined.csv,TGLZG269PT,2026-07-04 09:17:08,out,5000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TGWTB2XS4E,2026-07-04 09:17:08,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TGJLXRYL58,2026-07-04 13:42:52,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,DIANA NJOROGE,subscription_churned,load
+statement_combined.csv,TG12PBRT12,2026-07-04 16:23:07,in,58.00,SALES_TILL,SALES_TILL,0,ROSE ATIENO,voucher_till,load
+statement_combined.csv,TG1HCLYWWF,2026-07-04 18:36:05,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,CAROLINE MUTUA,subscription_loyal,load
+statement_combined.csv,TGJXG58DKZ,2026-07-05 08:15:13,out,2500.00,UTILITIES,UTILITIES,0,ZUKU FIBER,office_wifi_fixed,load
+statement_combined.csv,TGVGZRT5Z7,2026-07-05 08:15:13,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_office_wifi_fixed,load
+statement_combined.csv,TGETNJM3XF,2026-07-05 09:24:24,in,290.00,SALES_TILL,SALES_TILL,0,GEORGE KARANJA,voucher_till,load
+statement_combined.csv,TGT35A77MB,2026-07-05 10:12:25,in,34.80,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,TG6F7GT1WG,2026-07-05 11:20:50,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TG307WDN1P,2026-07-05 17:13:54,in,58.00,SALES_TILL,SALES_TILL,0,GEORGE KARANJA,voucher_till,load
+statement_combined.csv,TG5S4TXA2S,2026-07-05 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,JANE WAMBUI NDUNGU,salary_p2p_transfer,load
+statement_combined.csv,TGSJ9HXRKT,2026-07-05 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TG26HA2XHF,2026-07-05 19:09:37,in,1160.00,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,TGU3U9J4M1,2026-07-06 09:03:36,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,ESTHER GITAU,subscription_loyal,load
+statement_combined.csv,TGBJ5U608B,2026-07-06 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TGTBGT0E7K,2026-07-06 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TG961TA6BQ,2026-07-06 09:39:00,in,580.00,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TGMM55Q0UY,2026-07-06 09:42:14,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS KIPROP,voucher_till,load
+statement_combined.csv,TGRLF9Z55E,2026-07-06 12:57:57,in,11.60,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,TG8BVF3PGC,2026-07-06 15:17:36,out,18400.00,STOCK_PURCHASES,STOCK_PURCHASES,0,TECHNO DISTRIBUTORS LTD,hardware_restock_irregular,load
+statement_combined.csv,TG1D20WF8M,2026-07-06 16:05:24,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,VICTOR MUTUA,subscription_loyal,load
+statement_combined.csv,TGPBMCDZJV,2026-07-06 18:29:59,in,6900.00,LOAN_DISBURSEMENT,LOAN_DISBURSEMENT,0,,fuliza_draw,load
+statement_combined.csv,TGUMAR079D,2026-07-06 18:29:59,in,100.00,LOAN_DISBURSEMENT,LOAN_DISBURSEMENT,0,,fuliza_draw,load
+statement_combined.csv,TGPASHYPHD,2026-07-06 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TGUFYR1MCJ,2026-07-06 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,MERCY ATIENO OCHIENG,salary_p2p_transfer,load
+statement_combined.csv,TGXYFKT0PB,2026-07-06 19:33:28,in,58.00,SALES_TILL,SALES_TILL,0,AGNES ATIENO,voucher_till,load
+statement_combined.csv,TGQB2Z9BQ9,2026-07-07 10:14:59,in,50000.00,LOAN_DISBURSEMENT,LOAN_DISBURSEMENT,0,,fuliza_draw,load
+statement_combined.csv,TGQFM2981J,2026-07-07 10:14:59,in,100.00,LOAN_DISBURSEMENT,LOAN_DISBURSEMENT,0,,fuliza_draw,load
+statement_combined.csv,TG0DUBGMKP,2026-07-07 10:15:00,out,50000.00,RENT,RENT,0,MWANGI PROPERTIES,rent_fixed_monthly,load
+statement_combined.csv,TG5RFK2DDH,2026-07-07 10:15:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_rent_fixed_monthly,load
+statement_combined.csv,TG2MZSCAU7,2026-07-07 10:35:53,in,290.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TG1C2E1N6Y,2026-07-07 13:37:22,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MOSES JEPTOO,subscription_loyal,load
+statement_combined.csv,TGET8YYVCH,2026-07-07 13:51:42,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TGN9YX5B6A,2026-07-07 18:07:18,in,34.80,SALES_TILL,SALES_TILL,0,NANCY KIPROP,voucher_till,load
+statement_combined.csv,TG10UM3S8G,2026-07-07 18:07:52,in,290.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,TGYATRFPQA,2026-07-08 08:21:51,in,58.00,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TGCAJBFNMK,2026-07-08 08:55:54,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,IAN CHEBET,subscription_loyal,load
+statement_combined.csv,TG1U271MA0,2026-07-08 11:46:02,in,13920.00,SALES_TRANSFER,SALES_TRANSFER,0,ACME CYBER CAFE,business_payment_on_time,load
+statement_combined.csv,TG4Q6RVG7U,2026-07-08 13:05:15,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,RUTH KARANJA,subscription_churned,load
+statement_combined.csv,TGS9EW8NWD,2026-07-08 13:24:02,in,34.80,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,TGBGQPBM6V,2026-07-08 13:34:43,in,23.20,SALES_TILL,SALES_TILL,0,WINNIE JEPTOO,voucher_till,load
+statement_combined.csv,TGJWX8NCHN,2026-07-08 15:06:18,in,58.00,SALES_TILL,SALES_TILL,0,AGNES ATIENO,voucher_till,load
+statement_combined.csv,TGGMMC3W6F,2026-07-08 15:52:05,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,JOSEPH MWANGI,subscription_loyal,load
+statement_combined.csv,TGSEEFCK2Y,2026-07-08 19:02:39,in,11.60,SALES_TILL,SALES_TILL,0,COLLINS MUTHONI,voucher_till,load
+statement_combined.csv,TGXS07FN5Y,2026-07-08 19:33:08,in,5800.00,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,TG9G8EYXGB,2026-07-09 08:15:22,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PAUL MUTHONI,subscription_loyal,load
+statement_combined.csv,TGUVGMECY9,2026-07-09 13:57:18,in,23.20,SALES_TILL,SALES_TILL,0,DANIEL OMONDI,voucher_till,load
+statement_combined.csv,TGQWELEB9V,2026-07-09 16:25:33,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARTIN MUTUA,subscription_loyal,load
+statement_combined.csv,TG22VTTU2K,2026-07-09 18:59:35,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TGER2AD6QK,2026-07-09 19:14:32,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,ROSE OTIENO,subscription_loyal,load
+statement_combined.csv,TGYETB334N,2026-07-09 19:44:24,in,1450.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TGJ5U6SLQH,2026-07-10 09:02:21,in,23200.00,SALES_TRANSFER,SALES_TRANSFER,0,RIVERSIDE CLINIC,business_payment_late_october,load
+statement_combined.csv,TGT4C5A9S8,2026-07-10 09:02:22,out,57100.00,LOAN_REPAYMENT,LOAN_REPAYMENT,0,,fuliza_repay,load
+statement_combined.csv,TGZMK96DLK,2026-07-10 09:33:06,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY KARANJA,subscription_loyal,load
+statement_combined.csv,TGCACHRP69,2026-07-10 10:09:17,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_family_support_p2p,load
+statement_combined.csv,TGCN66RE39,2026-07-10 10:09:17,out,5000.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,MAMA MSAFIRI,family_support_p2p,load
+statement_combined.csv,TGJ47DB1CH,2026-07-10 11:12:09,in,11.60,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TGCAU6MN1L,2026-07-10 14:09:30,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PURITY OMONDI,subscription_loyal,load
+statement_combined.csv,TG0FDBNT4H,2026-07-10 17:09:38,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,GEORGE MUTUA,subscription_churned,load
+statement_combined.csv,TGQALYGQKF,2026-07-10 18:58:18,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGEC28A5MG,2026-07-11 10:11:45,in,98600.00,SALES_TRANSFER,SALES_TRANSFER,0,KILIMANI TOWERS MANAGEMENT,business_payment_on_time,load
+statement_combined.csv,TGU68UZAMM,2026-07-11 11:12:19,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY JEPTOO,subscription_loyal,load
+statement_combined.csv,TGBSYGTE9X,2026-07-11 13:51:51,in,8782.36,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA MUTHONI,hardware,load
+statement_combined.csv,TGVLZ2QUL9,2026-07-11 15:46:55,in,23.20,SALES_TILL,SALES_TILL,0,COLLINS MUTUA,voucher_till,load
+statement_combined.csv,TG6BLQW0KA,2026-07-11 15:47:04,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA OMONDI,subscription_loyal,load
+statement_combined.csv,TG8GM2N4X2,2026-07-11 18:19:35,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TGYPPYPBTH,2026-07-11 18:19:35,out,2000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TG0D01QHUB,2026-07-11 18:23:37,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN MUTUA,subscription_loyal,load
+statement_combined.csv,TG8GB8GXRN,2026-07-11 19:46:15,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DAVID KARANJA,subscription_loyal,load
+statement_combined.csv,TGE7SLKH95,2026-07-12 09:54:27,in,11.60,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,TGEQ184P84,2026-07-12 10:10:51,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGYKBF7LS7,2026-07-12 13:38:43,in,34.80,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TGLZMX2Y83,2026-07-12 15:30:33,in,11.60,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,TGGP4W4V2T,2026-07-12 16:29:13,in,870.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TGXUJBDRWX,2026-07-12 17:49:59,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,BEATRICE CHEBET,subscription_churned,load
+statement_combined.csv,TG7A74TCKT,2026-07-13 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TGRGRRWNRY,2026-07-13 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TG72HNML78,2026-07-13 10:57:45,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS KIPROP,voucher_till,load
+statement_combined.csv,TG0QXGN03H,2026-07-13 11:18:55,in,11.60,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TG29Z98CWB,2026-07-13 12:23:32,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGDSEWWM2C,2026-07-13 13:44:37,in,13920.00,SALES_TRANSFER,SALES_TRANSFER,0,ST. MARY'S ACADEMY,business_payment_stops_paying,load
+statement_combined.csv,TG8NH0UKH8,2026-07-13 18:49:31,in,11.60,SALES_TILL,SALES_TILL,0,MERCY KARANJA,voucher_till,load
+statement_combined.csv,TGGR6U3BQA,2026-07-13 19:14:37,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN NYAMBURA,subscription_loyal,load
+statement_combined.csv,TGJXHVDUWZ,2026-07-14 09:56:49,in,9048.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY KIPLAGAT,hardware,load
+statement_combined.csv,TGUK0HZ9G1,2026-07-14 10:00:40,in,116.00,SALES_TILL,SALES_TILL,0,DANIEL OMONDI,voucher_till,load
+statement_combined.csv,TG4U86FA25,2026-07-14 11:00:00,out,15000.00,LICENSE_TAX,LICENSE_TAX,0,NAIROBI CITY COUNCIL,business_permit_annual,load
+statement_combined.csv,TGT4YUV03Y,2026-07-14 11:00:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_business_permit_annual,load
+statement_combined.csv,TG6CYJSLSP,2026-07-14 12:33:56,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGEFTU663R,2026-07-14 16:25:54,in,58.00,SALES_TILL,SALES_TILL,0,GEORGE KAMAU,voucher_till,load
+statement_combined.csv,TG9YY3VJRB,2026-07-14 18:56:47,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TGRZTM0B88,2026-07-14 20:02:22,in,34.80,SALES_TILL,SALES_TILL,0,CAROLINE WAFULA,voucher_till,load
+statement_combined.csv,TGTZ83MG1D,2026-07-15 08:39:02,in,1160.00,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TGF39N76MQ,2026-07-15 10:33:22,in,58.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,TG06NA2C8D,2026-07-15 11:02:36,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_electricity_variable,load
+statement_combined.csv,TGDGG92LL6,2026-07-15 11:02:36,out,14190.00,UTILITIES,UTILITIES,0,KPLC PREPAID,electricity_variable,load
+statement_combined.csv,TGN15BX970,2026-07-15 11:46:26,in,23200.00,SALES_TRANSFER,SALES_TRANSFER,0,BARAKA HOTEL,business_payment_on_time,load
+statement_combined.csv,TGYWAGM4VY,2026-07-15 13:08:07,in,11.60,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,TG22S0KZRD,2026-07-15 13:25:08,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS MUTUA,subscription_loyal,load
+statement_combined.csv,TGH2RX47B3,2026-07-15 14:27:29,out,3105.00,UTILITIES,UTILITIES,0,NAIROBI WATER,water_variable,load
+statement_combined.csv,TGXX3QDNML,2026-07-15 14:27:29,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_water_variable,load
+statement_combined.csv,TG0EG05SGW,2026-07-15 17:15:14,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGCD2X1WX1,2026-07-16 11:07:07,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN OMONDI,subscription_loyal,load
+statement_combined.csv,TGT6PCMVGE,2026-07-16 15:37:45,in,1160.00,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,TGBLE42W2T,2026-07-16 17:02:24,in,58.00,SALES_TILL,SALES_TILL,0,GEORGE KAMAU,voucher_till,load
+statement_combined.csv,TGCV8BWASZ,2026-07-16 18:32:05,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TG5URQB8QY,2026-07-16 18:54:08,in,58.00,SALES_TILL,SALES_TILL,0,ROSE ATIENO,voucher_till,load
+statement_combined.csv,TGPFX461K5,2026-07-17 10:37:36,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,STEPHEN KAMAU,subscription_loyal,load
+statement_combined.csv,TGY4J6AVYY,2026-07-17 10:55:52,in,9048.00,SALES_TRANSFER,SALES_TRANSFER,0,GRACE JEPTOO,hardware,load
+statement_combined.csv,TG0M65DKUM,2026-07-17 18:05:29,in,58.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,TGWSQVQ02S,2026-07-17 18:37:53,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGK4YKZNDC,2026-07-17 19:45:49,in,11.60,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,TGZ9NUSWXU,2026-07-17 19:51:57,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,PETER WANJIKU,subscription_loyal,load
+statement_combined.csv,TGCGKX40R0,2026-07-18 10:58:19,out,3000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TGD0R7YQCS,2026-07-18 10:58:19,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TGH475FGR5,2026-07-18 14:43:06,in,34.80,SALES_TILL,SALES_TILL,0,JOHN OTIENO,voucher_till,load
+statement_combined.csv,TGDV1K7W8C,2026-07-18 16:49:52,in,58.00,SALES_TILL,SALES_TILL,0,CAROLINE JEPTOO,voucher_till,load
+statement_combined.csv,TG95TH0N2Z,2026-07-18 17:53:40,in,23.20,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,TG1XSZB588,2026-07-20 08:47:35,in,58.00,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TG5GPGKVQ1,2026-07-20 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TGFSS3XLLU,2026-07-20 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TGDRB8NEYT,2026-07-20 10:25:34,in,58.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,TGN6H6CFC9,2026-07-20 11:41:53,in,11.60,SALES_TILL,SALES_TILL,0,CAROLINE JEPTOO,voucher_till,load
+statement_combined.csv,TGJEMAT5JG,2026-07-20 14:00:11,out,53.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_loan_repayment_fixed,load
+statement_combined.csv,TGJXNPTA7M,2026-07-20 14:00:11,out,8500.00,LOAN_REPAYMENT,LOAN_REPAYMENT,0,KCB LOAN REPAYMENT,loan_repayment_fixed,load
+statement_combined.csv,TG07Y6F24B,2026-07-20 15:47:10,in,4795.44,SALES_TRANSFER,SALES_TRANSFER,0,CAROLINE WAMBUA,hardware,load
+statement_combined.csv,TGJT88X6PW,2026-07-20 16:25:19,in,11.60,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,TGJ7XA23L3,2026-07-21 14:13:19,in,58.00,SALES_TILL,SALES_TILL,0,GEORGE KAMAU,voucher_till,load
+statement_combined.csv,TG5BW0GKRX,2026-07-21 15:07:26,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TG0306X9F8,2026-07-21 16:21:21,in,6960.00,SALES_TRANSFER,SALES_TRANSFER,0,JUJA HARDWARE LTD,business_payment_split,load
+statement_combined.csv,TG3RDLXWKK,2026-07-21 16:49:27,in,58.00,SALES_TILL,SALES_TILL,0,AGNES MWANGI,voucher_till,load
+statement_combined.csv,TGMRHWZQP3,2026-07-22 11:18:27,out,300.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TGR3QFD5M8,2026-07-22 12:09:40,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGPKXEKDSF,2026-07-23 10:13:54,in,174.00,SALES_TILL,SALES_TILL,0,LUCY WAMBUA,voucher_till,load
+statement_combined.csv,TG4YVDP9X3,2026-07-23 10:20:06,out,200.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TG6WQU23BX,2026-07-23 10:33:21,in,58.00,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TGR6Z4NKJQ,2026-07-23 11:48:45,in,58.00,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,TGBBKJ13KG,2026-07-23 14:39:17,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TGBNHMMKHK,2026-07-23 15:03:34,in,11.60,SALES_TILL,SALES_TILL,0,LUCY WAMBUA,voucher_till,load
+statement_combined.csv,TGFV4CTM1N,2026-07-23 16:56:42,in,104.40,SALES_TRANSFER,SALES_TRANSFER,0,MERCY KIPROP,hardware,load
+statement_combined.csv,TGABZYBUUW,2026-07-24 10:29:47,out,150.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TGFTWKA1UP,2026-07-24 19:43:35,in,58.00,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TGRJGYS3U5,2026-07-25 08:08:07,out,150.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TGEC6HM5A6,2026-07-25 08:38:05,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGNLCQ8HN9,2026-07-25 09:47:07,in,11.60,SALES_TILL,SALES_TILL,0,WINNIE ATIENO,voucher_till,load
+statement_combined.csv,TGCLN8PHCN,2026-07-25 10:21:35,out,5000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TGNNT9SH94,2026-07-25 10:21:35,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TGDSZP93N0,2026-07-25 16:59:27,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_family_support_p2p,load
+statement_combined.csv,TGFC1V03TH,2026-07-25 16:59:27,out,5000.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,MAMA MSAFIRI,family_support_p2p,load
+statement_combined.csv,TGNU1T6SA0,2026-07-25 19:46:11,in,11.60,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TG9NE0KH8Y,2026-07-26 09:19:17,in,58.00,SALES_TILL,SALES_TILL,0,DAVID KIPROP,voucher_till,load
+statement_combined.csv,TGFWUZV4SF,2026-07-26 12:42:46,in,290.00,SALES_TILL,SALES_TILL,0,JOYCE CHEBET,voucher_till,load
+statement_combined.csv,TG4M4JKCRK,2026-07-26 13:44:35,in,3480.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,TGH1CGQM3N,2026-07-26 16:31:26,in,6960.00,SALES_TRANSFER,SALES_TRANSFER,0,JUJA HARDWARE LTD,business_payment_split,load
+statement_combined.csv,TGNZNZPJ8J,2026-07-27 08:26:14,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TGFJ0U9V0Z,2026-07-27 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TGM0RYSWE6,2026-07-27 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TGW874N4V8,2026-07-27 13:53:49,in,11.60,SALES_TILL,SALES_TILL,0,LILIAN WAMBUA,voucher_till,load
+statement_combined.csv,TG11WPGK7H,2026-07-27 15:01:47,in,11.60,SALES_TILL,SALES_TILL,0,AGNES MWANGI,voucher_till,load
+statement_combined.csv,TGESB48YT4,2026-07-27 16:32:17,in,8782.36,SALES_TRANSFER,SALES_TRANSFER,0,SHARON CHEBET,hardware,load
+statement_combined.csv,TGCRMC19ME,2026-07-28 10:12:00,in,11.60,SALES_TILL,SALES_TILL,0,ROSE ATIENO,voucher_till,load
+statement_combined.csv,TGEJA0WZ1F,2026-07-28 10:55:34,in,11.60,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TGVAUG7UWV,2026-07-28 10:56:42,in,15979.00,SALES_TRANSFER,SALES_TRANSFER,0,MOSES ACHIENG,hardware,load
+statement_combined.csv,TGM92GBBPZ,2026-07-28 16:51:51,in,23.20,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TGBSUAMFQR,2026-07-28 17:05:40,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TG8EEKL2P5,2026-07-29 15:22:19,in,11.60,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TGUSX7WTUG,2026-07-29 17:03:47,in,3740.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY KIPLAGAT,hardware,load
+statement_combined.csv,TGQ8RPYJ4W,2026-07-30 10:43:44,in,3740.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY KIPLAGAT,hardware,load
+statement_combined.csv,TG9Z5ZWPBG,2026-07-30 11:45:31,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TG2BQQQQRL,2026-07-30 12:27:36,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TGX9D5XVFJ,2026-07-30 14:09:54,in,58.00,SALES_TILL,SALES_TILL,0,LUCY WAMBUA,voucher_till,load
+statement_combined.csv,TGNBQYQFGM,2026-07-30 17:15:48,in,58.00,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,TG00RVE6Z1,2026-07-31 08:06:38,out,27500.00,STOCK_PURCHASES,STOCK_PURCHASES,0,TECHNO DISTRIBUTORS LTD,hardware_restock_irregular,load
+statement_combined.csv,TGYK9WBVAN,2026-07-31 10:15:27,in,174.00,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,TH9009X2GH,2026-08-01 14:40:42,out,2000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TH94359UPV,2026-08-01 14:40:42,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,THJJCZTVJ4,2026-08-01 15:15:45,in,290.00,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,THS736K468,2026-08-01 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,THTE3H1WVN,2026-08-01 18:30:00,out,30000.00,WAGES,FAMILY_TRANSFER,1,PETER OTIENO KIBET,salary_p2p_transfer,load
+statement_combined.csv,THYSEBB31L,2026-08-02 08:06:59,in,58.00,SALES_TILL,SALES_TILL,0,WINNIE JEPTOO,voucher_till,load
+statement_combined.csv,TH9KU1FDMS,2026-08-02 10:21:50,in,580.00,SALES_TILL,SALES_TILL,0,DAVID KIPROP,voucher_till,load
+statement_combined.csv,THKZHZ3EMH,2026-08-02 12:38:46,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,KEVIN MUTUA,subscription_loyal,load
+statement_combined.csv,THZ3FT6AGE,2026-08-02 13:48:44,in,23.20,SALES_TILL,SALES_TILL,0,CAROLINE WAFULA,voucher_till,load
+statement_combined.csv,THUX8RL5LQ,2026-08-02 17:13:14,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,JAMES KARANJA,subscription_loyal,load
+statement_combined.csv,TH73KDNCBB,2026-08-02 19:48:19,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS ODHIAMBO,subscription_loyal,load
+statement_combined.csv,THK13XKEP7,2026-08-03 08:15:21,in,580.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,THC8CY9QV1,2026-08-03 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,THMH3AX31G,2026-08-03 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,THHPY36901,2026-08-03 10:00:00,in,100000.00,OWN_TRANSFER,OWN_TRANSFER,0,EQUITY BANK KENYA,owner_capital_from_bank,load
+statement_combined.csv,THYED088Q2,2026-08-03 10:02:46,in,34.80,SALES_TILL,SALES_TILL,0,FELIX ODHIAMBO,voucher_till,load
+statement_combined.csv,TH93UWB4SU,2026-08-03 13:14:38,in,58.00,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,THTXCWQUPL,2026-08-03 13:37:45,in,290.00,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TH62AQGYNY,2026-08-03 13:44:44,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY NJOROGE,subscription_loyal,load
+statement_combined.csv,THFNHP2W73,2026-08-03 15:52:26,in,11.60,SALES_TILL,SALES_TILL,0,JOYCE CHEBET,voucher_till,load
+statement_combined.csv,THKKGVHCVE,2026-08-03 19:45:00,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,FAITH KIPLAGAT,subscription_churned,load
+statement_combined.csv,TH3JDY5H86,2026-08-04 10:02:34,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,THGB8MFEBE,2026-08-04 10:35:36,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THSBZQJJ1E,2026-08-04 11:11:23,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,CAROLINE MUTUA,subscription_loyal,load
+statement_combined.csv,THLMFYCW1W,2026-08-04 13:47:11,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,DIANA NJOROGE,subscription_churned,load
+statement_combined.csv,THUWJ0TS2D,2026-08-04 15:20:32,in,58.00,SALES_TILL,SALES_TILL,0,DIANA GITAU,voucher_till,load
+statement_combined.csv,THTYZMV7RP,2026-08-04 15:33:28,in,870.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TH5U6NF1RZ,2026-08-04 15:34:39,in,34.80,SALES_TILL,SALES_TILL,0,FAITH KARANJA,voucher_till,load
+statement_combined.csv,TH2SKVYGCA,2026-08-04 18:15:42,in,580.00,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,THVTRWF999,2026-08-04 19:06:39,in,11.60,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,THEF2C7JG2,2026-08-05 09:52:35,out,2500.00,UTILITIES,UTILITIES,0,ZUKU FIBER,office_wifi_fixed,load
+statement_combined.csv,THEFHSXQWY,2026-08-05 09:52:35,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_office_wifi_fixed,load
+statement_combined.csv,THARTGFW6E,2026-08-05 10:11:15,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TH6EZAJA73,2026-08-05 14:35:55,in,58.00,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,TH083U3N0U,2026-08-05 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,JANE WAMBUI NDUNGU,salary_p2p_transfer,load
+statement_combined.csv,TH8R214CWP,2026-08-05 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TH5R7BAYS1,2026-08-06 11:43:08,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,VICTOR MUTUA,subscription_loyal,load
+statement_combined.csv,THKL95H0N9,2026-08-06 12:21:33,in,58.00,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,THY9AMM49Z,2026-08-06 13:14:23,in,290.00,SALES_TILL,SALES_TILL,0,JOHN OTIENO,voucher_till,load
+statement_combined.csv,THP32N7SVD,2026-08-06 14:37:09,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,FAITH KIPROP,subscription_loyal,load
+statement_combined.csv,THU6M5VNS1,2026-08-06 15:41:14,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,ESTHER GITAU,subscription_loyal,load
+statement_combined.csv,THTDJW63MK,2026-08-06 15:42:59,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TH3JTVNZ8Q,2026-08-06 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,MERCY ATIENO OCHIENG,salary_p2p_transfer,load
+statement_combined.csv,THCH0K2FLE,2026-08-06 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,THSMEKJMMU,2026-08-06 19:18:10,in,34.80,SALES_TILL,SALES_TILL,0,MARY ATIENO,voucher_till,load
+statement_combined.csv,THJZWVLY10,2026-08-07 10:15:00,out,50000.00,RENT,RENT,0,MWANGI PROPERTIES,rent_fixed_monthly,load
+statement_combined.csv,THZ7U1JLTU,2026-08-07 10:15:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_rent_fixed_monthly,load
+statement_combined.csv,THA10X0ZH9,2026-08-07 10:35:14,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MOSES JEPTOO,subscription_loyal,load
+statement_combined.csv,THLKJFSAGK,2026-08-07 10:53:40,out,300.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,THFH925YS9,2026-08-07 16:05:36,in,290.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,THGATDCZD1,2026-08-08 08:24:49,out,3000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,THRAEF8U18,2026-08-08 08:24:49,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,THF9HTP0EJ,2026-08-08 08:55:36,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,THKV5DGVJR,2026-08-08 11:32:52,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,RUTH KARANJA,subscription_churned,load
+statement_combined.csv,THLVJ7TL2N,2026-08-08 11:53:41,in,11.60,SALES_TILL,SALES_TILL,0,COLLINS MUTHONI,voucher_till,load
+statement_combined.csv,THK5R6ZUMX,2026-08-08 12:33:11,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,JOSEPH MWANGI,subscription_loyal,load
+statement_combined.csv,THJ3J6ZCRT,2026-08-08 15:27:56,in,13920.00,SALES_TRANSFER,SALES_TRANSFER,0,ACME CYBER CAFE,business_payment_on_time,load
+statement_combined.csv,TH591FN4ND,2026-08-09 11:30:00,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_turnover_tax_monthly,load
+statement_combined.csv,THWLJWSU6D,2026-08-09 11:30:00,out,4120.00,LICENSE_TAX,LICENSE_TAX,0,KRA,turnover_tax_monthly,load
+statement_combined.csv,TH2JNX8W5E,2026-08-09 11:43:09,in,58.00,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,THY108N8PX,2026-08-09 11:52:01,out,300.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TH9H5JSBTH,2026-08-09 12:05:41,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARTIN MUTUA,subscription_loyal,load
+statement_combined.csv,TH7L179DGT,2026-08-09 15:13:52,in,58.00,SALES_TILL,SALES_TILL,0,CAROLINE ATIENO,voucher_till,load
+statement_combined.csv,THL27NLK6P,2026-08-09 16:03:50,in,58.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,THJ7DMRCPJ,2026-08-09 16:10:35,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THTC6C88CM,2026-08-09 17:36:05,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PAUL MUTHONI,subscription_loyal,load
+statement_combined.csv,THA8SY1XD5,2026-08-10 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,THUVZ3HEHM,2026-08-10 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,THKBLST2P9,2026-08-10 09:25:56,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY KARANJA,subscription_loyal,load
+statement_combined.csv,THZ728AFJF,2026-08-10 10:49:59,in,1450.00,SALES_TILL,SALES_TILL,0,JOYCE CHEBET,voucher_till,load
+statement_combined.csv,TH3SAC09SN,2026-08-10 11:49:39,in,15979.00,SALES_TRANSFER,SALES_TRANSFER,0,MARTIN NJOROGE,hardware,load
+statement_combined.csv,THLHN0CDL0,2026-08-10 12:38:18,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TH7JCJE28Q,2026-08-10 12:59:50,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,GEORGE MUTUA,subscription_churned,load
+statement_combined.csv,TH055BT5ZM,2026-08-10 13:29:52,out,5000.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,MAMA MSAFIRI,family_support_p2p,load
+statement_combined.csv,THCD7UYBR1,2026-08-10 13:29:52,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_family_support_p2p,load
+statement_combined.csv,THL5R65SV7,2026-08-10 13:31:38,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PURITY OMONDI,subscription_loyal,load
+statement_combined.csv,THDUFPBBCH,2026-08-10 16:10:02,in,23200.00,SALES_TRANSFER,SALES_TRANSFER,0,RIVERSIDE CLINIC,business_payment_late_october,load
+statement_combined.csv,THKAWC91LX,2026-08-10 18:40:08,in,11.60,SALES_TILL,SALES_TILL,0,GEORGE KARANJA,voucher_till,load
+statement_combined.csv,THVRCDA2L8,2026-08-11 08:24:18,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,THNGRPKK5X,2026-08-11 09:39:17,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TH48N2QC5D,2026-08-11 10:52:46,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,IAN CHEBET,subscription_loyal,load
+statement_combined.csv,TH59YCWFZC,2026-08-11 12:54:47,in,5800.00,SALES_TILL,SALES_TILL,0,MARY ATIENO,voucher_till,load
+statement_combined.csv,THC67ANXNQ,2026-08-11 13:31:45,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN MUTUA,subscription_loyal,load
+statement_combined.csv,THGJH2WNQU,2026-08-11 15:55:21,in,98600.00,SALES_TRANSFER,SALES_TRANSFER,0,KILIMANI TOWERS MANAGEMENT,business_payment_on_time,load
+statement_combined.csv,TH3K2FQUSR,2026-08-11 16:22:53,in,58.00,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,TH7F3J4BZ7,2026-08-11 17:25:29,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA OMONDI,subscription_loyal,load
+statement_combined.csv,THU92Q2Q01,2026-08-11 17:48:39,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DAVID KARANJA,subscription_loyal,load
+statement_combined.csv,THFPMV7J6E,2026-08-11 19:14:17,out,200.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,THAQYEL62M,2026-08-11 19:51:51,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY JEPTOO,subscription_loyal,load
+statement_combined.csv,THB1CWMRG2,2026-08-11 19:56:04,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,THJA9GFSFJ,2026-08-12 12:01:52,in,290.00,SALES_TILL,SALES_TILL,0,PURITY ODHIAMBO,voucher_till,load
+statement_combined.csv,THPTNY8X77,2026-08-12 14:02:24,in,290.00,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,THG8774S3Z,2026-08-12 15:54:23,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,ROSE OTIENO,subscription_loyal,load
+statement_combined.csv,THUQK93FMP,2026-08-12 17:40:32,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,BEATRICE CHEBET,subscription_churned,load
+statement_combined.csv,THRZBJWXM6,2026-08-13 09:40:40,in,13920.00,SALES_TRANSFER,SALES_TRANSFER,0,ST. MARY'S ACADEMY,business_payment_stops_paying,load
+statement_combined.csv,THZNT0F37W,2026-08-13 10:03:23,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN NYAMBURA,subscription_loyal,load
+statement_combined.csv,TH1AP22Z6J,2026-08-13 12:37:32,in,58.00,SALES_TILL,SALES_TILL,0,NANCY KIPROP,voucher_till,load
+statement_combined.csv,THDLMYUMTW,2026-08-13 14:28:36,in,11.60,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,THMPZ5PN3R,2026-08-13 15:32:12,in,23.20,SALES_TILL,SALES_TILL,0,DIANA GITAU,voucher_till,load
+statement_combined.csv,THA610CMBY,2026-08-13 19:11:22,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TH1PDXET5D,2026-08-14 13:27:50,in,11.60,SALES_TILL,SALES_TILL,0,ROSE ATIENO,voucher_till,load
+statement_combined.csv,THK8LHCJYG,2026-08-14 13:35:45,in,174.00,SALES_TILL,SALES_TILL,0,COLLINS MUTUA,voucher_till,load
+statement_combined.csv,THZCGTLXSA,2026-08-14 14:29:46,in,290.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,THZP7EQR9R,2026-08-14 14:47:25,in,58.00,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,THLB435Q78,2026-08-14 18:56:40,in,290.00,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,TH6NH6BLFU,2026-08-15 09:49:50,out,11850.00,UTILITIES,UTILITIES,0,KPLC PREPAID,electricity_variable,load
+statement_combined.csv,THSF92XHDC,2026-08-15 09:49:50,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_electricity_variable,load
+statement_combined.csv,THSWPMHXFG,2026-08-15 10:49:07,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS MUTUA,subscription_loyal,load
+statement_combined.csv,THS202T6X0,2026-08-15 12:25:17,in,11.60,SALES_TILL,SALES_TILL,0,LUCY MUTHONI,voucher_till,load
+statement_combined.csv,THFWGZ7R7W,2026-08-15 12:43:09,in,11.60,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,THH9PXZZSQ,2026-08-15 14:32:51,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_water_variable,load
+statement_combined.csv,THUJW2FGBX,2026-08-15 14:32:51,out,2850.00,UTILITIES,UTILITIES,0,NAIROBI WATER,water_variable,load
+statement_combined.csv,THM9PC5D76,2026-08-15 15:13:33,in,3480.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,TH8U4RVU8E,2026-08-15 15:22:45,in,23200.00,SALES_TRANSFER,SALES_TRANSFER,0,BARAKA HOTEL,business_payment_on_time,load
+statement_combined.csv,TH7S9SHGBE,2026-08-15 18:16:49,out,5000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,THD8ZS83K7,2026-08-15 18:16:49,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,THZRZFNX5B,2026-08-16 10:09:21,in,290.00,SALES_TILL,SALES_TILL,0,AGNES MWANGI,voucher_till,load
+statement_combined.csv,THQ5CM6PUP,2026-08-16 16:30:55,in,58.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,TH4K8V2XVQ,2026-08-17 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,THAMQ7GGH1,2026-08-17 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TH6RK070NZ,2026-08-17 12:10:26,in,174.00,SALES_TILL,SALES_TILL,0,GEORGE KARANJA,voucher_till,load
+statement_combined.csv,THBUH6A4ZP,2026-08-17 12:12:31,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,PETER WANJIKU,subscription_loyal,load
+statement_combined.csv,TH1LKDQX3U,2026-08-17 14:21:35,out,42750.00,STOCK_PURCHASES,STOCK_PURCHASES,0,TECHNO DISTRIBUTORS LTD,hardware_restock_irregular,load
+statement_combined.csv,TH6ATB9GFL,2026-08-17 14:28:05,in,11.60,SALES_TILL,SALES_TILL,0,JOHN OTIENO,voucher_till,load
+statement_combined.csv,THDYSNFBAB,2026-08-17 19:09:29,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THW66LM70N,2026-08-18 09:43:45,in,23.20,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,THYA8ETZMX,2026-08-18 10:53:27,in,1160.00,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,THKHTP3SK5,2026-08-18 12:48:03,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,THE6GRPMB2,2026-08-18 13:45:41,in,1160.00,SALES_TILL,SALES_TILL,0,JOYCE CHEBET,voucher_till,load
+statement_combined.csv,TH0Z7CK6FN,2026-08-18 14:26:35,in,1160.00,SALES_TILL,SALES_TILL,0,PETER CHEBET,voucher_till,load
+statement_combined.csv,THGEU56DQF,2026-08-18 15:51:19,in,58.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,THE6XVGS5L,2026-08-19 13:41:31,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN OMONDI,subscription_loyal,load
+statement_combined.csv,TH9DJX0SSK,2026-08-19 18:50:57,in,15979.00,SALES_TRANSFER,SALES_TRANSFER,0,PETER MWANGI,hardware,load
+statement_combined.csv,THEQAALDNK,2026-08-20 08:57:41,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,STEPHEN KAMAU,subscription_loyal,load
+statement_combined.csv,THH2EJF70F,2026-08-20 10:56:45,in,23.20,SALES_TILL,SALES_TILL,0,FELIX ODHIAMBO,voucher_till,load
+statement_combined.csv,THHMHQ00RB,2026-08-20 12:39:27,out,53.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_loan_repayment_fixed,load
+statement_combined.csv,THJ7XAFSHF,2026-08-20 12:39:27,out,8500.00,LOAN_REPAYMENT,LOAN_REPAYMENT,0,KCB LOAN REPAYMENT,loan_repayment_fixed,load
+statement_combined.csv,THX0DHYFC0,2026-08-20 15:16:47,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,THT9ZZ0BAC,2026-08-20 16:17:31,in,12383.00,SALES_TRANSFER,SALES_TRANSFER,0,MOSES ACHIENG,hardware,load
+statement_combined.csv,TH9TVWP5WD,2026-08-20 16:35:50,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THNR66MH4N,2026-08-20 17:23:17,in,174.00,SALES_TILL,SALES_TILL,0,FELIX ODHIAMBO,voucher_till,load
+statement_combined.csv,TH4SJNCY3S,2026-08-21 10:08:17,in,290.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TH7SBLXHVJ,2026-08-21 10:21:39,in,6960.00,SALES_TRANSFER,SALES_TRANSFER,0,JUJA HARDWARE LTD,business_payment_split,load
+statement_combined.csv,TH394W15VQ,2026-08-21 14:00:00,out,53.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_repairs_once,load
+statement_combined.csv,THYWTRB5LA,2026-08-21 14:00:00,out,6800.00,REPAIRS,REPAIRS,0,QUICKFIX ELECTRICIAN REPAIRS,repairs_once,load
+statement_combined.csv,TH1V9D31TW,2026-08-21 14:16:55,in,58.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,THYZJ4TM69,2026-08-21 14:35:57,in,1450.00,SALES_TILL,SALES_TILL,0,CAROLINE JEPTOO,voucher_till,load
+statement_combined.csv,THFSMR94FE,2026-08-21 16:06:54,in,8782.36,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA MUTHONI,hardware,load
+statement_combined.csv,THRZ0E1WWB,2026-08-21 17:37:55,in,11.60,SALES_TILL,SALES_TILL,0,NANCY KIPROP,voucher_till,load
+statement_combined.csv,THAV2RFJGN,2026-08-22 14:11:29,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TH1RJ2ZNKC,2026-08-22 15:10:41,in,11.60,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,THLQ3JS6CT,2026-08-22 15:45:04,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,THWTL6T80A,2026-08-22 15:45:04,out,3000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,THP32YR8Q0,2026-08-22 17:55:30,in,290.00,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,THU4EP6UR5,2026-08-23 08:56:51,in,58.00,SALES_TILL,SALES_TILL,0,COLLINS MUTUA,voucher_till,load
+statement_combined.csv,THREFR1WB9,2026-08-23 12:46:55,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THV8P3JNX7,2026-08-23 13:18:09,in,116.00,SALES_TILL,SALES_TILL,0,GEORGE KARANJA,voucher_till,load
+statement_combined.csv,THFFUBLJ56,2026-08-24 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,THZFSY9PLP,2026-08-24 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,THPZT0E7MU,2026-08-24 13:30:20,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TH3D0F869Z,2026-08-24 20:00:32,in,58.00,SALES_TILL,SALES_TILL,0,CAROLINE ATIENO,voucher_till,load
+statement_combined.csv,TH6GGP0GNZ,2026-08-25 09:40:08,in,34.80,SALES_TILL,SALES_TILL,0,COLLINS MUTUA,voucher_till,load
+statement_combined.csv,TH0SSX03FR,2026-08-25 09:49:36,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_family_support_p2p,load
+statement_combined.csv,THUQY1TDA8,2026-08-25 09:49:36,out,5000.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,MAMA MSAFIRI,family_support_p2p,load
+statement_combined.csv,TH4P09LRNL,2026-08-25 12:49:30,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THXY0NRZKX,2026-08-26 10:16:16,in,290.00,SALES_TILL,SALES_TILL,0,DANIEL OTIENO,voucher_till,load
+statement_combined.csv,THD7FGN64T,2026-08-26 10:33:01,in,6960.00,SALES_TRANSFER,SALES_TRANSFER,0,JUJA HARDWARE LTD,business_payment_split,load
+statement_combined.csv,THAVTBAV0B,2026-08-26 14:07:38,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TH7CYNMNM8,2026-08-27 13:51:37,in,174.00,SALES_TILL,SALES_TILL,0,CAROLINE JEPTOO,voucher_till,load
+statement_combined.csv,TH1ZX4KUGQ,2026-08-27 14:40:05,out,200.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,THWVS39GLE,2026-08-27 14:58:28,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TH9LM329Y8,2026-08-27 16:10:10,out,250.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THH93V3P79,2026-08-28 10:10:57,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,THQ8LVHA80,2026-08-28 10:40:50,in,11.60,SALES_TILL,SALES_TILL,0,MERCY KARANJA,voucher_till,load
+statement_combined.csv,THX90Y37A8,2026-08-28 10:42:09,in,58.00,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,THETN251QN,2026-08-28 19:37:23,in,580.00,SALES_TILL,SALES_TILL,0,MARY ATIENO,voucher_till,load
+statement_combined.csv,THB9JFRSBL,2026-08-29 16:54:55,in,13339.98,SALES_TRANSFER,SALES_TRANSFER,0,ROSE KAMAU,hardware,load
+statement_combined.csv,THGD1X33PT,2026-08-29 18:08:24,in,5800.00,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TH450BXKNS,2026-08-30 09:31:41,in,580.00,SALES_TILL,SALES_TILL,0,WINNIE JEPTOO,voucher_till,load
+statement_combined.csv,THXJSHEG3Q,2026-08-30 12:15:34,in,14558.00,SALES_TRANSFER,SALES_TRANSFER,0,GRACE JEPTOO,hardware,load
+statement_combined.csv,THBMER7TMF,2026-08-30 15:59:03,in,174.00,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,THSZ6DV3ET,2026-08-31 08:01:14,in,58.00,SALES_TILL,SALES_TILL,0,LUCY MUTHONI,voucher_till,load
+statement_combined.csv,THCWEF32H8,2026-08-31 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,THES9QDMQ7,2026-08-31 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,THE6BC1TMV,2026-08-31 17:35:07,in,23.20,SALES_TILL,SALES_TILL,0,WINNIE ATIENO,voucher_till,load
+statement_combined.csv,TH3G454GER,2026-08-31 19:16:30,in,290.00,SALES_TILL,SALES_TILL,0,CAROLINE JEPTOO,voucher_till,load
+statement_combined.csv,THEP0YSCWB,2026-08-31 19:32:17,in,1160.00,SALES_TILL,SALES_TILL,0,PETER CHEBET,voucher_till,load
+statement_combined.csv,TISD9Y2STZ,2026-09-01 14:50:22,in,1160.00,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,TIS61V894W,2026-09-01 14:50:23,in,14558.00,SALES_TRANSFER,SALES_TRANSFER,0,CAROLINE WAMBUA,hardware,load
+statement_combined.csv,TIP858ZASL,2026-09-01 16:50:24,in,58.00,SALES_TILL,SALES_TILL,0,JOYCE CHEBET,voucher_till,load
+statement_combined.csv,TIBXBKWGYL,2026-09-01 17:20:24,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TI3MXM41EW,2026-09-01 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TIPGDY75Q6,2026-09-01 18:30:00,out,30000.00,WAGES,FAMILY_TRANSFER,1,PETER OTIENO KIBET,salary_p2p_transfer,load
+statement_combined.csv,TIJP6W31N3,2026-09-01 19:08:01,in,23.20,SALES_TILL,SALES_TILL,0,DIANA CHEBET,voucher_till,load
+statement_combined.csv,TI80AWH2YH,2026-09-02 09:35:27,in,3480.00,SALES_TILL,SALES_TILL,0,LILIAN WAMBUA,voucher_till,load
+statement_combined.csv,TI7H0Q6B45,2026-09-02 09:51:59,in,23.20,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,TIB9SPMVAW,2026-09-02 11:57:45,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS ODHIAMBO,subscription_loyal,load
+statement_combined.csv,TI0VHTDBLL,2026-09-02 11:58:54,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,KEVIN MUTUA,subscription_loyal,load
+statement_combined.csv,TI80DSX52A,2026-09-02 12:57:13,out,18400.00,STOCK_PURCHASES,STOCK_PURCHASES,0,TECHNO DISTRIBUTORS LTD,hardware_restock_irregular,load
+statement_combined.csv,TI645GBNN8,2026-09-02 16:38:35,in,58.00,SALES_TILL,SALES_TILL,0,CAROLINE ATIENO,voucher_till,load
+statement_combined.csv,TIJ8FBAJ4A,2026-09-02 17:16:57,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,JAMES KARANJA,subscription_loyal,load
+statement_combined.csv,TIW56503W5,2026-09-02 19:08:38,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI8J6VZY9S,2026-09-03 09:09:51,in,34.80,SALES_TILL,SALES_TILL,0,FAITH KARANJA,voucher_till,load
+statement_combined.csv,TI436KVEL0,2026-09-03 10:12:44,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_school_fees_personal,load
+statement_combined.csv,TIGUDYQZR6,2026-09-03 10:12:44,out,22500.00,SCHOOL_FEES,SCHOOL_FEES,0,ST JUDE ACADEMY,school_fees_personal,load
+statement_combined.csv,TIUAHE4FY5,2026-09-03 10:46:37,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,FAITH KIPROP,subscription_loyal,load
+statement_combined.csv,TIUBS9GR6Z,2026-09-03 11:01:56,in,116.00,SALES_TILL,SALES_TILL,0,PURITY ODHIAMBO,voucher_till,load
+statement_combined.csv,TIUJURG9ZX,2026-09-03 12:01:39,in,11.60,SALES_TILL,SALES_TILL,0,FAITH KARANJA,voucher_till,load
+statement_combined.csv,TI9QD1UAT2,2026-09-03 14:43:48,in,290.00,SALES_TILL,SALES_TILL,0,DIANA GITAU,voucher_till,load
+statement_combined.csv,TITAPW3778,2026-09-03 15:34:36,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TIV8C3BZUT,2026-09-03 16:19:30,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY NJOROGE,subscription_loyal,load
+statement_combined.csv,TINJC0KG9F,2026-09-04 14:13:47,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,CAROLINE MUTUA,subscription_loyal,load
+statement_combined.csv,TIPXAGGZQY,2026-09-05 08:38:13,in,174.00,SALES_TILL,SALES_TILL,0,MERCY KARANJA,voucher_till,load
+statement_combined.csv,TI4UPQA0VC,2026-09-05 08:38:52,in,11.60,SALES_TILL,SALES_TILL,0,NANCY KIPROP,voucher_till,load
+statement_combined.csv,TILSK0M3TU,2026-09-05 09:44:16,out,2500.00,UTILITIES,UTILITIES,0,ZUKU FIBER,office_wifi_fixed,load
+statement_combined.csv,TIVW1GS12M,2026-09-05 09:44:16,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_office_wifi_fixed,load
+statement_combined.csv,TIQTMCVGA5,2026-09-05 10:55:15,in,11.60,SALES_TILL,SALES_TILL,0,LUCY MUTHONI,voucher_till,load
+statement_combined.csv,TI1VNCJW0K,2026-09-05 12:56:02,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TI68VDGFQ8,2026-09-05 12:56:02,out,5000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TIE0J27DUH,2026-09-05 16:14:31,in,23.20,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,TIKCDXTZWR,2026-09-05 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TIQXMNAN3C,2026-09-05 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,JANE WAMBUI NDUNGU,salary_p2p_transfer,load
+statement_combined.csv,TIBWG3FDSP,2026-09-06 16:51:32,in,174.00,SALES_TILL,SALES_TILL,0,MERCY KARANJA,voucher_till,load
+statement_combined.csv,TIN592H1C1,2026-09-06 17:01:19,in,290.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,TIBP79G21B,2026-09-06 17:41:40,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,VICTOR MUTUA,subscription_loyal,load
+statement_combined.csv,TI8Y3L2KW2,2026-09-06 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,MERCY ATIENO OCHIENG,salary_p2p_transfer,load
+statement_combined.csv,TICTMD9TFF,2026-09-06 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TIJ6BN0K7G,2026-09-06 19:20:03,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,ESTHER GITAU,subscription_loyal,load
+statement_combined.csv,TI0ML4W6KF,2026-09-07 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TI8ZZSE41Z,2026-09-07 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TICZRTY83F,2026-09-07 10:15:00,out,50000.00,RENT,RENT,0,MWANGI PROPERTIES,rent_fixed_monthly,load
+statement_combined.csv,TIWK3VBN96,2026-09-07 10:15:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_rent_fixed_monthly,load
+statement_combined.csv,TINVNC7CCC,2026-09-07 10:41:10,in,11.60,SALES_TILL,SALES_TILL,0,GEORGE KAMAU,voucher_till,load
+statement_combined.csv,TIJS9EJTXU,2026-09-07 12:55:39,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MOSES JEPTOO,subscription_loyal,load
+statement_combined.csv,TIM2C5WBNY,2026-09-07 13:39:09,in,58.00,SALES_TILL,SALES_TILL,0,DIANA GITAU,voucher_till,load
+statement_combined.csv,TI84ATLWBQ,2026-09-07 14:34:10,out,200.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TI5C2SRXXZ,2026-09-07 18:07:21,in,1160.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TIL251V13W,2026-09-08 09:42:26,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,IAN CHEBET,subscription_loyal,load
+statement_combined.csv,TI4MCWU97E,2026-09-08 12:41:34,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TIWUAY521P,2026-09-08 12:46:03,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TIRGZG0PRU,2026-09-08 13:08:24,in,13920.00,SALES_TRANSFER,SALES_TRANSFER,0,ACME CYBER CAFE,business_payment_on_time,load
+statement_combined.csv,TIWZ7ASQU1,2026-09-08 14:46:25,in,290.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,TI10XF32G6,2026-09-08 15:00:55,in,11.60,SALES_TILL,SALES_TILL,0,DAVID KIPROP,voucher_till,load
+statement_combined.csv,TIM1DBU0LV,2026-09-08 15:23:09,in,11.60,SALES_TILL,SALES_TILL,0,DANIEL OMONDI,voucher_till,load
+statement_combined.csv,TIGRYD8KDT,2026-09-08 16:59:21,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,JOSEPH MWANGI,subscription_loyal,load
+statement_combined.csv,TIF6QAB8P9,2026-09-09 08:25:26,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,ROSE OTIENO,subscription_loyal,load
+statement_combined.csv,TINMX3QYMR,2026-09-09 08:25:47,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TIYHCEV3VS,2026-09-09 10:00:21,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARTIN MUTUA,subscription_loyal,load
+statement_combined.csv,TIC8D8Y9Q0,2026-09-09 11:30:00,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_turnover_tax_monthly,load
+statement_combined.csv,TIHTHBZSGD,2026-09-09 11:30:00,out,3890.00,LICENSE_TAX,LICENSE_TAX,0,KRA,turnover_tax_monthly,load
+statement_combined.csv,TIK48K9AHY,2026-09-09 12:25:45,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,TIJZK0YCKL,2026-09-09 13:58:18,in,290.00,SALES_TILL,SALES_TILL,0,MARY ATIENO,voucher_till,load
+statement_combined.csv,TI5MB8PKEZ,2026-09-09 14:31:22,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PAUL MUTHONI,subscription_loyal,load
+statement_combined.csv,TINCX46E5U,2026-09-10 11:42:25,in,290.00,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TIFZE7EC6C,2026-09-10 12:51:58,in,23.20,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TI4FH3TZUT,2026-09-10 13:49:48,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PURITY OMONDI,subscription_loyal,load
+statement_combined.csv,TICVSAASC1,2026-09-10 14:40:24,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY KARANJA,subscription_loyal,load
+statement_combined.csv,TIPEKBN4EB,2026-09-10 16:42:34,in,23200.00,SALES_TRANSFER,SALES_TRANSFER,0,RIVERSIDE CLINIC,business_payment_late_october,load
+statement_combined.csv,TIF24NAJCE,2026-09-10 18:07:25,out,5000.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,MAMA MSAFIRI,family_support_p2p,load
+statement_combined.csv,TIN447LXLX,2026-09-10 18:07:25,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_family_support_p2p,load
+statement_combined.csv,TIZ11NWR94,2026-09-10 18:23:43,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TIC43RSZQT,2026-09-11 08:52:43,in,58.00,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,TIG4Y5Z5T1,2026-09-11 09:22:56,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DAVID KARANJA,subscription_loyal,load
+statement_combined.csv,TI4E3598UD,2026-09-11 10:58:19,in,23.20,SALES_TILL,SALES_TILL,0,LUCY WAMBUA,voucher_till,load
+statement_combined.csv,TIG41WGNKB,2026-09-11 11:26:35,out,63200.00,STOCK_PURCHASES,STOCK_PURCHASES,0,TECHNO DISTRIBUTORS LTD,hardware_restock_irregular,load
+statement_combined.csv,TIFK5FY3R6,2026-09-11 11:49:59,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI54V7TEZ3,2026-09-11 12:46:33,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY JEPTOO,subscription_loyal,load
+statement_combined.csv,TI10V0EQHH,2026-09-11 13:56:10,in,98600.00,SALES_TRANSFER,SALES_TRANSFER,0,KILIMANI TOWERS MANAGEMENT,business_payment_on_time,load
+statement_combined.csv,TIBNM0XH2N,2026-09-11 14:13:32,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA OMONDI,subscription_loyal,load
+statement_combined.csv,TIY3SKP50W,2026-09-11 18:15:38,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN MUTUA,subscription_loyal,load
+statement_combined.csv,TI3NS9N3AS,2026-09-12 08:09:22,out,300.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TIXYEL26YR,2026-09-12 11:13:03,in,174.00,SALES_TILL,SALES_TILL,0,NANCY KIPROP,voucher_till,load
+statement_combined.csv,TIHB3MX21F,2026-09-12 11:29:13,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TILUMHDJKJ,2026-09-12 11:29:13,out,5000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TIQC9MV3EG,2026-09-12 12:26:48,in,11.60,SALES_TILL,SALES_TILL,0,CAROLINE ATIENO,voucher_till,load
+statement_combined.csv,TIZC7AN6M5,2026-09-12 13:20:00,in,450.00,UNCLASSIFIED,UNCLASSIFIED,1,,reversal_in,load
+statement_combined.csv,TI3TPCMZJ8,2026-09-12 15:25:29,in,34.80,SALES_TILL,SALES_TILL,0,DAVID KIPROP,voucher_till,load
+statement_combined.csv,TIQBG1TV9D,2026-09-13 09:05:08,in,58.00,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TI9N6T48R5,2026-09-13 09:20:34,out,18400.00,STOCK_PURCHASES,STOCK_PURCHASES,0,TECHNO DISTRIBUTORS LTD,hardware_restock_irregular,load
+statement_combined.csv,TIC0P1DC5X,2026-09-13 10:01:56,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN NYAMBURA,subscription_loyal,load
+statement_combined.csv,TICMD4QX1Y,2026-09-13 11:25:58,in,1160.00,SALES_TILL,SALES_TILL,0,PURITY ODHIAMBO,voucher_till,load
+statement_combined.csv,TIMX93Y83N,2026-09-13 18:22:51,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI3J3FF5KV,2026-09-13 18:46:26,in,34.80,SALES_TILL,SALES_TILL,0,ROSE ATIENO,voucher_till,load
+statement_combined.csv,TITNE0ZAM5,2026-09-14 08:38:48,in,290.00,SALES_TILL,SALES_TILL,0,MERCY KARANJA,voucher_till,load
+statement_combined.csv,TI8LECS8LQ,2026-09-14 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TIGP60GSWM,2026-09-14 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TIUY0U64UL,2026-09-14 16:44:29,in,23.20,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,TI5L4DD2HW,2026-09-14 18:53:26,in,11.60,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TIDB2N708A,2026-09-14 19:15:33,in,870.00,SALES_TILL,SALES_TILL,0,DAVID KIPROP,voucher_till,load
+statement_combined.csv,TIMUPKGQ7U,2026-09-14 19:50:33,in,34.80,SALES_TILL,SALES_TILL,0,JOHN MUTUA,voucher_till,load
+statement_combined.csv,TILCRU0ETV,2026-09-15 10:04:33,in,58.00,SALES_TILL,SALES_TILL,0,COLLINS MUTUA,voucher_till,load
+statement_combined.csv,TIFAKE99YA,2026-09-15 11:22:20,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_electricity_variable,load
+statement_combined.csv,TIZ7JQBFAM,2026-09-15 11:22:20,out,12640.00,UTILITIES,UTILITIES,0,KPLC PREPAID,electricity_variable,load
+statement_combined.csv,TIE7BBDDRA,2026-09-15 12:12:51,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TIVZVN43QD,2026-09-15 12:41:14,out,150.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TI49Y0HH1Z,2026-09-15 13:02:13,out,3020.00,UTILITIES,UTILITIES,0,NAIROBI WATER,water_variable,load
+statement_combined.csv,TIEAKCF8M3,2026-09-15 13:02:13,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_water_variable,load
+statement_combined.csv,TIDGTXGXCH,2026-09-15 13:52:07,in,116.00,SALES_TILL,SALES_TILL,0,WINNIE JEPTOO,voucher_till,load
+statement_combined.csv,TIHEBJEZAD,2026-09-15 15:10:59,in,23200.00,SALES_TRANSFER,SALES_TRANSFER,0,BARAKA HOTEL,business_payment_on_time,load
+statement_combined.csv,TIG29SJTU7,2026-09-15 15:26:55,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS MUTUA,subscription_loyal,load
+statement_combined.csv,TITH0TL46Q,2026-09-16 14:01:33,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN OMONDI,subscription_loyal,load
+statement_combined.csv,TIACNQL79H,2026-09-16 15:10:10,in,11.60,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TILD3SDXQH,2026-09-17 08:44:12,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,STEPHEN KAMAU,subscription_loyal,load
+statement_combined.csv,TI5UZC7EGF,2026-09-17 11:07:50,in,34.80,SALES_TILL,SALES_TILL,0,DANIEL OMONDI,voucher_till,load
+statement_combined.csv,TIA64SDYPK,2026-09-17 15:30:51,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI6F21SCQL,2026-09-17 16:20:30,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,PETER WANJIKU,subscription_loyal,load
+statement_combined.csv,TIA4C9M0LC,2026-09-17 19:13:37,in,11.60,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TID60M80VF,2026-09-18 08:00:51,in,58.00,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,TI5P65TPAB,2026-09-18 15:22:48,in,290.00,SALES_TILL,SALES_TILL,0,DANIEL OMONDI,voucher_till,load
+statement_combined.csv,TIES8WG90Y,2026-09-19 08:22:45,in,58.00,SALES_TILL,SALES_TILL,0,CAROLINE ATIENO,voucher_till,load
+statement_combined.csv,TINSVR93P7,2026-09-19 08:32:30,out,2000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TIRRF6G6ZN,2026-09-19 08:32:30,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TIRRVBDUFX,2026-09-19 13:28:00,in,11.60,SALES_TILL,SALES_TILL,0,LILIAN WAMBUA,voucher_till,load
+statement_combined.csv,TIKPSYCPH6,2026-09-19 15:21:53,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TIAWVVWVP3,2026-09-19 15:45:05,in,5800.00,SALES_TILL,SALES_TILL,0,JOHN OTIENO,voucher_till,load
+statement_combined.csv,TI01DCJN99,2026-09-19 16:46:11,in,58.00,SALES_TILL,SALES_TILL,0,MOSES WAMBUA,voucher_till,load
+statement_combined.csv,TIZ44RTSDA,2026-09-19 18:08:46,out,63200.00,STOCK_PURCHASES,STOCK_PURCHASES,0,TECHNO DISTRIBUTORS LTD,hardware_restock_irregular,load
+statement_combined.csv,TIPSYANPJM,2026-09-20 09:09:09,out,8500.00,LOAN_REPAYMENT,LOAN_REPAYMENT,0,KCB LOAN REPAYMENT,loan_repayment_fixed,load
+statement_combined.csv,TIUA9YMX3M,2026-09-20 09:09:09,out,53.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_loan_repayment_fixed,load
+statement_combined.csv,TIKUD5ZWR6,2026-09-20 13:48:44,in,34.80,SALES_TILL,SALES_TILL,0,FAITH KARANJA,voucher_till,load
+statement_combined.csv,TITBZTHT5F,2026-09-20 16:23:58,out,150.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TI16GKBQV6,2026-09-20 18:42:36,in,870.00,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TIF5FNCZ6A,2026-09-21 09:03:58,in,6960.00,SALES_TRANSFER,SALES_TRANSFER,0,JUJA HARDWARE LTD,business_payment_split,load
+statement_combined.csv,TI9PVDMY05,2026-09-21 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TITFW1MNQ0,2026-09-21 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TIJ09HH3S6,2026-09-21 14:28:33,out,200.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TI0F9KKWTA,2026-09-22 10:34:01,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI2B6CV509,2026-09-22 18:34:27,in,34.80,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,TIQQPBCKG2,2026-09-22 18:55:45,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TI5M38GGSM,2026-09-22 19:00:09,in,58.00,SALES_TILL,SALES_TILL,0,LUCY WAMBUA,voucher_till,load
+statement_combined.csv,TI01LRX7WT,2026-09-23 09:02:33,out,150.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TI6USZ006H,2026-09-23 12:31:06,in,11.60,SALES_TILL,SALES_TILL,0,DANIEL OMONDI,voucher_till,load
+statement_combined.csv,TIYP6T6VZL,2026-09-23 13:40:47,in,58.00,SALES_TILL,SALES_TILL,0,NANCY KIPROP,voucher_till,load
+statement_combined.csv,TIU98AT6YP,2026-09-24 09:27:59,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TINR3G5D76,2026-09-24 12:33:55,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI48AK26QM,2026-09-24 15:37:41,in,11.60,SALES_TILL,SALES_TILL,0,WINNIE JEPTOO,voucher_till,load
+statement_combined.csv,TIAUETMLDG,2026-09-24 17:02:48,in,580.00,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,TIVRM5007A,2026-09-24 17:24:05,in,174.00,SALES_TILL,SALES_TILL,0,DANIEL OMONDI,voucher_till,load
+statement_combined.csv,TI8U3SPH4X,2026-09-25 09:30:02,out,5000.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,MAMA MSAFIRI,family_support_p2p,load
+statement_combined.csv,TI96BLBHLK,2026-09-25 09:30:02,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_family_support_p2p,load
+statement_combined.csv,TIAL8U0LH9,2026-09-25 09:59:00,in,116.00,SALES_TILL,SALES_TILL,0,WINNIE JEPTOO,voucher_till,load
+statement_combined.csv,TI8YC2HUUL,2026-09-25 14:41:21,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI2J1BUZ4Y,2026-09-25 19:46:37,in,12383.00,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA MUTHONI,hardware,load
+statement_combined.csv,TI851FDHBZ,2026-09-26 09:07:20,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS KIPROP,voucher_till,load
+statement_combined.csv,TI5ZY86Y07,2026-09-26 11:40:01,in,290.00,SALES_TILL,SALES_TILL,0,DENNIS KIPROP,voucher_till,load
+statement_combined.csv,TI6VGY50PG,2026-09-26 14:44:19,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI9DEV4TJ6,2026-09-26 15:30:00,out,10000.00,SAVINGS_DEPOSIT,SAVINGS_DEPOSIT,0,,savings_no_rule,load
+statement_combined.csv,TISUZ8FBS7,2026-09-26 16:07:54,in,13339.98,SALES_TRANSFER,SALES_TRANSFER,0,DIANA KIPROP,hardware,load
+statement_combined.csv,TI9LJ1GWEY,2026-09-26 16:08:03,in,6960.00,SALES_TRANSFER,SALES_TRANSFER,0,JUJA HARDWARE LTD,business_payment_split,load
+statement_combined.csv,TI1KD44RZK,2026-09-26 18:13:55,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TIZX74S1Z2,2026-09-26 18:13:55,out,3000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TIR5XS6N9Z,2026-09-26 18:29:21,in,58.00,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TIENMDUP84,2026-09-27 14:19:54,in,174.00,SALES_TILL,SALES_TILL,0,MERCY KARANJA,voucher_till,load
+statement_combined.csv,TIHBLCGH5G,2026-09-27 19:21:43,in,580.00,SALES_TILL,SALES_TILL,0,AGNES ATIENO,voucher_till,load
+statement_combined.csv,TI3P0V8V4V,2026-09-28 09:01:56,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TIK7941KYN,2026-09-28 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TIVTYW21QR,2026-09-28 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TIB09MTQFA,2026-09-28 16:58:09,in,11.60,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,TI7H87QBJ1,2026-09-28 17:19:35,in,13339.98,SALES_TRANSFER,SALES_TRANSFER,0,GRACE JEPTOO,hardware,load
+statement_combined.csv,TI1WMF53UG,2026-09-29 11:23:56,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TIHLPGKY0P,2026-09-29 16:33:41,in,2320.00,SALES_TILL,SALES_TILL,0,DAVID KIPROP,voucher_till,load
+statement_combined.csv,TIKMSRFJ3C,2026-09-29 19:39:46,in,58.00,SALES_TILL,SALES_TILL,0,NANCY WAFULA,voucher_till,load
+statement_combined.csv,TIK169QV9R,2026-09-29 19:57:36,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TI8MJY76FC,2026-09-30 08:46:39,in,58.00,SALES_TILL,SALES_TILL,0,PETER CHEBET,voucher_till,load
+statement_combined.csv,TI2H1RKY53,2026-09-30 08:51:05,in,2320.00,SALES_TILL,SALES_TILL,0,FAITH KARANJA,voucher_till,load
+statement_combined.csv,TIKCCRY4PS,2026-09-30 10:17:47,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TIALFBXLXW,2026-09-30 14:13:27,in,23.20,SALES_TILL,SALES_TILL,0,COLLINS MUTUA,voucher_till,load
+statement_combined.csv,TIB0KDBGQF,2026-09-30 14:54:34,in,174.00,SALES_TILL,SALES_TILL,0,FELIX ODHIAMBO,voucher_till,load
+statement_combined.csv,TI3N4YH4LA,2026-09-30 16:21:44,in,870.00,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,TJ4S7V3WC7,2026-10-01 08:45:48,in,34.80,SALES_TILL,SALES_TILL,0,JOSEPH WAFULA,voucher_till,load
+statement_combined.csv,TJ98HP2EGJ,2026-10-01 09:58:00,in,1450.00,SALES_TILL,SALES_TILL,0,LUCY MUTHONI,voucher_till,load
+statement_combined.csv,TJZEN0H0FK,2026-10-01 10:07:19,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TJ16JGNF2K,2026-10-01 12:18:14,in,290.00,SALES_TILL,SALES_TILL,0,JOYCE CHEBET,voucher_till,load
+statement_combined.csv,TJAWPRJE9B,2026-10-01 14:28:15,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS KIPROP,voucher_till,load
+statement_combined.csv,TJGWX2YRJH,2026-10-01 18:06:32,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TJ6SRQW7SW,2026-10-01 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TJLR0P9C9U,2026-10-01 18:30:00,out,30000.00,WAGES,FAMILY_TRANSFER,1,PETER OTIENO KIBET,salary_p2p_transfer,load
+statement_combined.csv,TJMK23L8B5,2026-10-02 10:13:19,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,KEVIN MUTUA,subscription_loyal,load
+statement_combined.csv,TJ0LD79NZH,2026-10-02 10:52:22,out,200.00,TRANSPORT,TRANSPORT,0,BODA RIDER KAMAU,boda_delivery_p2p,load
+statement_combined.csv,TJPXDHAWB3,2026-10-02 15:28:57,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,JAMES KARANJA,subscription_loyal,load
+statement_combined.csv,TJG4DEURGR,2026-10-02 16:45:00,out,1200.00,OTHER_OPEX,FAMILY_TRANSFER,1,BARAKA HOTEL,customer_refund_p2p,load
+statement_combined.csv,TJKWFMX3YV,2026-10-02 18:43:16,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS ODHIAMBO,subscription_loyal,load
+statement_combined.csv,TJXD9SFCXY,2026-10-02 19:07:03,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TJ8JRLD1RX,2026-10-03 09:54:48,in,8540.00,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA KIPROP,subscription_new_install,load
+statement_combined.csv,TJHRBARF1J,2026-10-03 10:08:56,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,FAITH KIPROP,subscription_loyal,load
+statement_combined.csv,TJE7XW1ZNS,2026-10-03 12:39:02,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TJTG0SQTTK,2026-10-03 12:39:02,out,3000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TJETDUY4FC,2026-10-03 14:09:17,in,174.00,SALES_TILL,SALES_TILL,0,CAROLINE ATIENO,voucher_till,load
+statement_combined.csv,TJAXLM2MK6,2026-10-03 14:17:24,in,58.00,SALES_TILL,SALES_TILL,0,CAROLINE ATIENO,voucher_till,load
+statement_combined.csv,TJ1TR3B53E,2026-10-03 17:59:38,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,LUCY NJOROGE,subscription_loyal,load
+statement_combined.csv,TJ36W37WLQ,2026-10-03 18:00:10,in,11.60,SALES_TILL,SALES_TILL,0,LUCY WAMBUA,voucher_till,load
+statement_combined.csv,TJSRFCGJ61,2026-10-04 13:48:38,in,290.00,SALES_TILL,SALES_TILL,0,CAROLINE WAFULA,voucher_till,load
+statement_combined.csv,TJNZ94ZXGG,2026-10-04 13:50:15,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TJG97RMDL6,2026-10-04 15:04:46,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,CAROLINE MUTUA,subscription_loyal,load
+statement_combined.csv,TJJU62XNMU,2026-10-05 08:38:29,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_office_wifi_fixed,load
+statement_combined.csv,TJK1KXWAFM,2026-10-05 08:38:29,out,2500.00,UTILITIES,UTILITIES,0,ZUKU FIBER,office_wifi_fixed,load
+statement_combined.csv,TJKS0CQUNG,2026-10-05 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TJWA6ZXWT5,2026-10-05 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TJ2SVJV1U9,2026-10-05 14:29:24,in,11.60,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TJS2UK48B9,2026-10-05 17:26:23,out,100.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TJ818VX03R,2026-10-05 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,JANE WAMBUI NDUNGU,salary_p2p_transfer,load
+statement_combined.csv,TJBTKJQUVL,2026-10-05 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TJKX4TAP7D,2026-10-05 19:52:46,in,11.60,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TJ03JLBQ11,2026-10-06 09:49:57,in,1160.00,SALES_TILL,SALES_TILL,0,AGNES KIPROP,voucher_till,load
+statement_combined.csv,TJJU615MX6,2026-10-06 11:05:29,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,VICTOR MUTUA,subscription_loyal,load
+statement_combined.csv,TJN4MHM537,2026-10-06 11:11:42,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TJHRMTBL5Y,2026-10-06 18:30:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_salary_p2p_transfer,load
+statement_combined.csv,TJV84J2DJG,2026-10-06 18:30:00,out,15000.00,WAGES,FAMILY_TRANSFER,1,MERCY ATIENO OCHIENG,salary_p2p_transfer,load
+statement_combined.csv,TJUWXPY5L4,2026-10-06 19:20:18,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,ESTHER GITAU,subscription_loyal,load
+statement_combined.csv,TJF4CK67ZY,2026-10-07 09:17:15,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MOSES JEPTOO,subscription_loyal,load
+statement_combined.csv,TJC7MLE6V2,2026-10-07 09:44:38,in,870.00,SALES_TILL,SALES_TILL,0,CAROLINE JEPTOO,voucher_till,load
+statement_combined.csv,TJRRCUEZH4,2026-10-07 10:14:59,in,100.00,LOAN_DISBURSEMENT,LOAN_DISBURSEMENT,0,,fuliza_draw,load
+statement_combined.csv,TJS1RU5WQ4,2026-10-07 10:14:59,in,16900.00,LOAN_DISBURSEMENT,LOAN_DISBURSEMENT,0,,fuliza_draw,load
+statement_combined.csv,TJLC8VKA9H,2026-10-07 10:15:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_rent_fixed_monthly,load
+statement_combined.csv,TJZMF7GB7A,2026-10-07 10:15:00,out,50000.00,RENT,RENT,0,MWANGI PROPERTIES,rent_fixed_monthly,load
+statement_combined.csv,TJF91AL6VY,2026-10-07 13:10:56,in,174.00,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,TJFBJ8KSEH,2026-10-07 19:37:54,in,34.80,SALES_TILL,SALES_TILL,0,CAROLINE WAFULA,voucher_till,load
+statement_combined.csv,TJDA5JDHYF,2026-10-08 08:30:58,in,58.00,SALES_TILL,SALES_TILL,0,DENNIS MWANGI,voucher_till,load
+statement_combined.csv,TJUDF84CX9,2026-10-08 08:53:17,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,IAN CHEBET,subscription_loyal,load
+statement_combined.csv,TJ6UXZ7CUY,2026-10-08 11:24:37,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,JOSEPH MWANGI,subscription_loyal,load
+statement_combined.csv,TJ1FU2AF3F,2026-10-08 13:04:20,out,2000.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TJLRFAHFG4,2026-10-08 15:01:48,in,13920.00,SALES_TRANSFER,SALES_TRANSFER,0,ACME CYBER CAFE,business_payment_on_time,load
+statement_combined.csv,TJTTVZZRMA,2026-10-09 11:12:44,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,ROSE OTIENO,subscription_loyal,load
+statement_combined.csv,TJ10CAN3JZ,2026-10-09 11:12:45,out,17000.00,LOAN_REPAYMENT,LOAN_REPAYMENT,0,,fuliza_repay,load
+statement_combined.csv,TJB40HLP06,2026-10-09 11:30:00,out,3890.00,LICENSE_TAX,LICENSE_TAX,0,KRA,turnover_tax_monthly,load
+statement_combined.csv,TJT0Q4YAF6,2026-10-09 11:30:00,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_turnover_tax_monthly,load
+statement_combined.csv,TJCE1JCCKZ,2026-10-09 13:37:22,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARTIN MUTUA,subscription_loyal,load
+statement_combined.csv,TJ5CUYJMLZ,2026-10-09 14:45:16,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PAUL MUTHONI,subscription_loyal,load
+statement_combined.csv,TJWHE0XRRT,2026-10-09 16:35:33,in,58.00,SALES_TILL,SALES_TILL,0,DAVID WAFULA,voucher_till,load
+statement_combined.csv,TJ97BWW24B,2026-10-10 08:16:13,in,174.00,SALES_TILL,SALES_TILL,0,CAROLINE WAFULA,voucher_till,load
+statement_combined.csv,TJYANE7PZ8,2026-10-10 09:25:29,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_family_support_p2p,load
+statement_combined.csv,TJZ5MB9H53,2026-10-10 09:25:29,out,5000.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,MAMA MSAFIRI,family_support_p2p,load
+statement_combined.csv,TJWJBCH0U9,2026-10-10 11:02:08,in,870.00,SALES_TILL,SALES_TILL,0,JOYCE CHEBET,voucher_till,load
+statement_combined.csv,TJ9XFE1T61,2026-10-10 15:44:11,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TJYJC5YDLT,2026-10-10 16:30:31,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,PURITY OMONDI,subscription_loyal,load
+statement_combined.csv,TJ33FYWBTZ,2026-10-10 18:15:49,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY KARANJA,subscription_loyal,load
+statement_combined.csv,TJQHHFK0EX,2026-10-11 08:19:16,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,CYNTHIA OMONDI,subscription_loyal,load
+statement_combined.csv,TJ1FD0BQHT,2026-10-11 09:12:50,in,4060.00,SALES_TRANSFER,SALES_TRANSFER,0,DAVID KARANJA,subscription_loyal,load
+statement_combined.csv,TJP22JMCA5,2026-10-11 10:13:08,in,98600.00,SALES_TRANSFER,SALES_TRANSFER,0,KILIMANI TOWERS MANAGEMENT,business_payment_on_time,load
+statement_combined.csv,TJGSAFURQX,2026-10-11 10:50:35,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,MARY JEPTOO,subscription_loyal,load
+statement_combined.csv,TJWWGJ1Q7X,2026-10-11 11:25:52,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN MUTUA,subscription_loyal,load
+statement_combined.csv,TJ2CT4KBFC,2026-10-11 13:00:18,in,58.00,SALES_TILL,SALES_TILL,0,WINNIE OMONDI,voucher_till,load
+statement_combined.csv,TJ1Q568G6U,2026-10-11 13:23:52,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TJ3PW6GSV5,2026-10-11 16:02:14,in,7380.00,SALES_TRANSFER,SALES_TRANSFER,0,DANIEL KIPROP,subscription_new_install,load
+statement_combined.csv,TJMUPZF8C7,2026-10-11 17:08:33,in,580.00,SALES_TILL,SALES_TILL,0,AGNES MWANGI,voucher_till,load
+statement_combined.csv,TJ2F7R9NUM,2026-10-12 09:05:00,out,31800.00,STOCK_PURCHASES,STOCK_PURCHASES,0,LIQUID BANDWIDTH WHOLESALE,bandwidth_weekly_fixed,load
+statement_combined.csv,TJWNDNH03V,2026-10-12 09:05:00,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_bandwidth_weekly_fixed,load
+statement_combined.csv,TJ3UMV9FHM,2026-10-12 14:37:46,in,1450.00,SALES_TILL,SALES_TILL,0,DIANA GITAU,voucher_till,load
+statement_combined.csv,TJP8SXRCQ8,2026-10-13 08:40:26,in,11.60,SALES_TILL,SALES_TILL,0,JOHN OTIENO,voucher_till,load
+statement_combined.csv,TJFVELMWAG,2026-10-13 10:19:57,out,1500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TJ7ULHM3SV,2026-10-13 17:10:03,in,11.60,SALES_TILL,SALES_TILL,0,CAROLINE WAFULA,voucher_till,load
+statement_combined.csv,TJGEQGZJB4,2026-10-13 18:13:05,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN NYAMBURA,subscription_loyal,load
+statement_combined.csv,TJANK4C328,2026-10-14 08:39:11,in,8540.00,SALES_TRANSFER,SALES_TRANSFER,0,ANN NJOROGE,subscription_new_install,load
+statement_combined.csv,TJDVFKVQSK,2026-10-14 10:55:06,in,23.20,SALES_TILL,SALES_TILL,0,COLLINS MUTUA,voucher_till,load
+statement_combined.csv,TJYK0PRDT8,2026-10-14 13:23:13,out,50.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_combined.csv,TJ5976MWZL,2026-10-14 15:56:53,in,14558.00,SALES_TRANSFER,SALES_TRANSFER,0,ROSE KAMAU,hardware,load
+statement_combined.csv,TJ0GXMMMND,2026-10-15 10:06:07,out,13275.50,UTILITIES,UTILITIES,0,KPLC PREPAID,electricity_variable,load
+statement_combined.csv,TJTN5ABEE5,2026-10-15 10:06:07,out,108.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_electricity_variable,load
+statement_combined.csv,TJP754DQYN,2026-10-15 12:46:40,out,23.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_water_variable,load
+statement_combined.csv,TJYBEW245V,2026-10-15 12:46:40,out,3105.00,UTILITIES,UTILITIES,0,NAIROBI WATER,water_variable,load
+statement_combined.csv,TJPBAMDGV0,2026-10-15 14:51:46,in,7380.00,SALES_TRANSFER,SALES_TRANSFER,0,ROSE OMONDI,subscription_new_install,load
+statement_combined.csv,TJKERUWF16,2026-10-15 15:11:37,in,6380.00,SALES_TRANSFER,SALES_TRANSFER,0,DENNIS MUTUA,subscription_loyal,load
+statement_combined.csv,TJHU29W1ZD,2026-10-15 15:19:30,in,11.60,SALES_TILL,SALES_TILL,0,DAVID KIPROP,voucher_till,load
+statement_combined.csv,TJVGUGJX5D,2026-10-15 15:35:19,in,23200.00,SALES_TRANSFER,SALES_TRANSFER,0,BARAKA HOTEL,business_payment_on_time,load
+statement_combined.csv,TJ9KE5ZQ0G,2026-10-15 17:51:29,in,11.60,SALES_TILL,SALES_TILL,0,MERCY KARANJA,voucher_till,load
+statement_combined.csv,TJC1HBKS3T,2026-10-15 18:29:44,out,2500.00,TRANSPORT,TRANSPORT,0,RUBIS FUEL STATION,fuel_till,load
+statement_combined.csv,TJ3AH7SW0D,2026-10-16 09:40:13,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,LILIAN OMONDI,subscription_loyal,load
+statement_combined.csv,TJQHB1MZXH,2026-10-16 12:13:26,in,11.60,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TJUL1LSJ60,2026-10-16 16:40:25,in,11.60,SALES_TILL,SALES_TILL,0,SAMUEL NJOROGE,voucher_till,load
+statement_combined.csv,TJT334A7BV,2026-10-17 13:46:54,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,STEPHEN KAMAU,subscription_loyal,load
+statement_combined.csv,TJXHLWKW5A,2026-10-17 13:49:28,in,1160.00,SALES_TILL,SALES_TILL,0,JOHN GITAU,voucher_till,load
+statement_combined.csv,TJ8AYQ93PM,2026-10-17 14:40:56,in,2900.00,SALES_TRANSFER,SALES_TRANSFER,0,PETER WANJIKU,subscription_loyal,load
+statement_combined.csv,TJ2JG4D3E5,2026-10-17 17:42:56,out,29.00,TXN_CHARGES,TXN_CHARGES,0,,charge_for_agent_withdrawal_personal,load
+statement_combined.csv,TJ5VW5779S,2026-10-17 17:42:56,out,5000.00,PERSONAL_WITHDRAWAL,PERSONAL_WITHDRAWAL,0,JUJA AGENCIES,agent_withdrawal_personal,load
+statement_combined.csv,TJVREKAZ10,2026-10-17 17:44:49,in,11.60,SALES_TILL,SALES_TILL,0,AGNES ATIENO,voucher_till,load
+statement_combined.csv,TJP9J3Y6TN,2026-10-17 18:49:35,out,200.00,AIRTIME_DATA,AIRTIME_DATA,0,,airtime_no_party,load
+statement_edge_cases.csv,EDG0000001,2026-10-10 08:00:00,in,100.00,SALES_TRANSFER,SALES_TRANSFER,0,,ISO timestamp,load
+statement_edge_cases.csv,EDG0000002,10/10/2026 08:05,in,200.00,SALES_TRANSFER,SALES_TRANSFER,0,,"DD/MM/YYYY HH:MM must read as 10 Oct, not 10 Oct by luck: see EDG0000003",load
+statement_edge_cases.csv,EDG0000003,03/10/2026 09:00,in,50.00,SALES_TRANSFER,SALES_TRANSFER,0,,"03/10/2026 is 3 October (day first), not 10 March",load
+statement_edge_cases.csv,EDG0000004,"Oct 10, 2026 08:32 PM",in,25.00,SALES_TRANSFER,SALES_TRANSFER,0,,"'Mon DD, YYYY hh:mm AM' format; 20:32",load
+statement_edge_cases.csv,EDG0000005,2026-10-10 09:00:00,in,999.00,,,,,status Failed: not money moved,skip
+statement_edge_cases.csv,EDG0000006,2026-10-10 09:01:00,in,999.00,,,,,status Pending,skip
+statement_edge_cases.csv,EDG0000007,2026-10-10 09:02:00,in,0.00,,,,,zero amount,skip
+statement_edge_cases.csv,EDG0000008,2026-10-10 09:03:00,in,"1,250.75",SALES_TRANSFER,SALES_TRANSFER,0,,thousands separator in a quoted amount,load
+statement_edge_cases.csv,EDG0000009,2026-10-10 09:04:00,out,"1,000.00",UTILITIES,UTILITIES,0,,negative withdrawn with thousands separator,load
+statement_edge_cases.csv,EDG0000010,2026-10-10 09:04:00,out,13.00,TXN_CHARGES,TXN_CHARGES,0,,same second as the bill it belongs to; positive withdrawn value,load
+statement_edge_cases.csv,EDG0000011,2026-10-10 09:05:00,in,10.00,SALES_TRANSFER,SALES_TRANSFER,1,,prompt injection in the payer name,load_flagged
+statement_edge_cases.csv,EDG0000012,2026-10-10 09:06:00,out,5.00,FAMILY_TRANSFER,FAMILY_TRANSFER,1,,payment-instruction injection,load_flagged
+statement_edge_cases.csv,EDG0000013,2026-10-10 09:07:00,in,300.00,SALES_TRANSFER,SALES_TRANSFER,0,,punctuation in a party name,load
+statement_edge_cases.csv,EDG0000014,2026-10-10 09:08:00,in,40.00,SALES_TRANSFER,SALES_TRANSFER,0,,non-ASCII name,load
+statement_edge_cases.csv,EDG0000015,2026-10-10 09:09:00,out,7.00,UNCLASSIFIED,UNCLASSIFIED,1,,"empty details: no party, needs review",load
+statement_edge_cases.csv,EDG0000016,2026-10-10 09:10:00,in,100.00,SALES_TRANSFER,SALES_TRANSFER,0,,balance jumps by 50 more than the amount: one reconciliation warning expected,load
+statement_edge_cases.csv,EDG0000016,2026-10-10 09:11:00,in,60.00,SALES_TRANSFER,,,,same receipt number as the row above: second one is not loaded,duplicate
+statement_edge_cases.csv,EDG0000018,2026-10-10 09:12:00,in,0.01,SALES_TRANSFER,SALES_TRANSFER,0,,"smallest possible amount, 1 cent",load
+statement_edge_cases.csv,EDG0000019,2026-10-10 09:13:00,in,999999.99,SALES_TRANSFER,SALES_TRANSFER,0,,very large amount,load
+statement_edge_cases.csv,EDG0000020,2026-10-10 09:14:00,out,0.01,STOCK_PURCHASES,STOCK_PURCHASES,0,,1-cent outflow,load
+statement_edge_cases.csv,EDG0000021,2026-10-10 09:15:00,in,10.00,SALES_TRANSFER,SALES_TRANSFER,0,,both columns filled: Paid In wins,load
+statement_edge_cases.csv,EDG0000022,2026-10-10 09:16:00,in,70.00,,,,,status Reversed,skip
+statement_edge_cases.csv,EDG0000023,2026-10-10 09:17:00,in,15.00,SALES_TRANSFER,SALES_TRANSFER,0,,status in capitals is still Completed; name upper-cased for the party,load
+statement_edge_cases.csv,EDG0000024,2026-10-10 09:18:00,in,5.00,SALES_TRANSFER,SALES_TRANSFER,0,,party name whitespace collapses to 'EDGE EXTRA SPACES',load
+statement_edge_cases.csv,EDG0000025,2026-10-10 09:19:00,in,abc,,,,,amount is not a number: row has no money in or out,skip

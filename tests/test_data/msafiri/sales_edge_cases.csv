@@ -1,0 +1,16 @@
+sale_ref,sale_date,customer,sku,quantity,unit_price,discount_pct,payment_method,notes
+E-001,2026-10-15 10:00,Edge Valid Customer,VCH-1D,2,,,cash,
+E-002,2026-10-15 10:05,,NOPE-SKU,1,,,cash,
+E-003,2030-01-01 10:00,,VCH-1D,1,,,cash,
+E-004,2026-10-15 10:10,,VCH-1D,1,,,bitcoin,
+E-005,2026-10-15 10:15,,VCH-1D,1,,,cash,
+E-005,2026-10-15 10:16,,VCH-1H,1,,,cash,
+E-006,2026-10-15 10:20,,ANT-OUT,1,,,cash,
+E-007,2026-10-15 10:25,,VCH-1D,0,,,cash,
+E-008,2026-10-15 10:30,,VCH-1D,1,,120,cash,
+E-009,2026-10-15 10:35,,VCH-1D,1,49.999,,cash,
+E-010,15-10-2026,,VCH-1D,1,,,cash,
+E-011,15/10/2026 11:00,Edge Valid Customer,RTR-DB,1,4000.00,10,credit,"day-first date, credit"
+,2026-10-15 11:05,,VCH-1D,1,,,cash,
+E-012,2026-10-15 11:10,,DEP-RTR,1,,,m_pesa,VAT-exempt
+E-013,2026-10-15 11:15,,VCH-1D,1,0.00,,cash,

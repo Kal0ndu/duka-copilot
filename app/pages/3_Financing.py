@@ -58,7 +58,7 @@ daily_budget = col3.number_input(
     help="Maximum you can safely repay each day without choking your business. Defaults to 40% of estimated daily net profit."
 )
 
-offers = MockLender.compare_all(int(amount * 100), int(term))
+offers = MockLender.compare_all(int(round(amount * 100)), int(term))
 
 if daily_budget > 0:
     affordable = [o for o in offers if (o.daily_repayment_minor / 100.0) <= daily_budget]

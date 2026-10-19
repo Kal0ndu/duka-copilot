@@ -63,8 +63,9 @@ class POSSetting:
 class POSEngine:
     """Handle POS sales, payment processing, and receipt generation."""
 
-    def __init__(self, db_path: str = "data/duka.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        from core.config import config
+        self.db_path = db_path or config.DB_PATH
 
     def _get_conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
@@ -172,14 +173,23 @@ class POSEngine:
         payment_method: str = "cash",
         notes: Optional[str] = None,
         created_by_user: Optional[str] = None,
+        sale_date: Optional[datetime] = None,
+        sale_number: Optional[str] = None,
     ) -> Sale:
-        """Create a new complete sale with line items in a single transaction."""
-        sale_number = self.get_next_sale_number(business_id)
-        sale_date = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        """Create a new complete sale with line items in a single transaction.
+
+        sale_date and sale_number default to now and the next POS number;
+        imports pass their own. A credit sale is owed, not paid: it is saved
+        with amount_paid 0 and payment_status 'pending'."""
+        sale_number = sale_number or self.get_next_sale_number(business_id)
+        sale_date = (sale_date or datetime.now()).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         subtotal_minor = sum(li.line_subtotal_minor for li in line_items)
         vat_amount_minor = sum(li.vat_amount_minor for li in line_items)
         total_amount_minor = subtotal_minor + vat_amount_minor
+        on_credit = payment_method == "credit"
+        amount_paid_minor = 0 if on_credit else total_amount_minor
+        payment_status = "pending" if on_credit else "completed"
 
         with self._get_conn() as conn:
             cur = conn.execute(
@@ -193,8 +203,8 @@ class POSEngine:
                 (
                     business_id, sale_number, sale_date, customer_id,
                     customer_name_token, subtotal_minor, vat_amount_minor,
-                    total_amount_minor, total_amount_minor, 0,
-                    payment_method, "completed", notes, "completed",
+                    total_amount_minor, amount_paid_minor, 0,
+                    payment_method, payment_status, notes, "completed",
                     created_by_user,
                 ),
             )
@@ -245,10 +255,10 @@ class POSEngine:
             subtotal_minor=subtotal_minor,
             vat_amount_minor=vat_amount_minor,
             total_amount_minor=total_amount_minor,
-            amount_paid_minor=total_amount_minor,
+            amount_paid_minor=amount_paid_minor,
             change_due_minor=0,
             payment_method=payment_method,
-            payment_status="completed",
+            payment_status=payment_status,
             notes=notes,
             status="completed",
             created_by_user=created_by_user,

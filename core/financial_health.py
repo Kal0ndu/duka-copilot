@@ -3,6 +3,8 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 import pandas as pd
+
+from core.dates import parse_local_dates
 import numpy as np
 
 
@@ -131,7 +133,7 @@ class FinancialHealthAnalyzer:
 
         total_revenue = inflows["amount_kes"].sum()
         total_outflow = outflows["amount_kes"].sum()
-        dates = pd.to_datetime(self.df["local_date"], format='mixed', dayfirst=True)
+        dates = parse_local_dates(self.df["local_date"])
         unique_days = self.df["local_date"].nunique()
 
         period_start = str(self.df["local_date"].min())
@@ -455,7 +457,7 @@ class FinancialHealthAnalyzer:
             return pd.DataFrame()
 
         df = self.df.copy()
-        df["date_dt"] = pd.to_datetime(df["local_date"], format='mixed', dayfirst=True)
+        df["date_dt"] = parse_local_dates(df["local_date"])
         df["week"] = df["date_dt"].dt.to_period("W").astype(str)
 
         weekly = df.groupby("week").agg(

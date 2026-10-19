@@ -1,0 +1,670 @@
+{
+  "generated_by": "tests/test_data/msafiri/generate.py",
+  "seed": 20261019,
+  "business_id": 6,
+  "period": [
+    "2026-07-01",
+    "2026-10-17"
+  ],
+  "statement_combined": {
+    "rows": 670,
+    "money_in_rows": 419,
+    "money_out_rows": 251,
+    "opening_balance_minor": 8000000,
+    "closing_balance_minor": 16313316,
+    "total_in_minor": 166939966,
+    "total_out_minor": 158626650,
+    "fuliza_draws": 6
+  },
+  "statement_income": {
+    "rows": 419,
+    "closing_balance_minor": 166939966
+  },
+  "statement_expenses": {
+    "rows": 251,
+    "opening_balance_minor": 200000000,
+    "closing_balance_minor": 41373350
+  },
+  "intended_by_direction_and_category": {
+    "in:LOAN_DISBURSEMENT": {
+      "count": 6,
+      "total_minor": 7410000
+    },
+    "in:OWN_TRANSFER": {
+      "count": 1,
+      "total_minor": 10000000
+    },
+    "in:SALES_TILL": {
+      "count": 253,
+      "total_minor": 8784680
+    },
+    "in:SALES_TRANSFER": {
+      "count": 158,
+      "total_minor": 140700286
+    },
+    "in:UNCLASSIFIED": {
+      "count": 1,
+      "total_minor": 45000
+    },
+    "out:AIRTIME_DATA": {
+      "count": 51,
+      "total_minor": 750000
+    },
+    "out:FAMILY_TRANSFER": {
+      "count": 7,
+      "total_minor": 3500000
+    },
+    "out:LICENSE_TAX": {
+      "count": 4,
+      "total_minor": 2690000
+    },
+    "out:LOAN_REPAYMENT": {
+      "count": 5,
+      "total_minor": 9960000
+    },
+    "out:OTHER_OPEX": {
+      "count": 1,
+      "total_minor": 120000
+    },
+    "out:PERSONAL_WITHDRAWAL": {
+      "count": 14,
+      "total_minor": 5100000
+    },
+    "out:RENT": {
+      "count": 4,
+      "total_minor": 20000000
+    },
+    "out:REPAIRS": {
+      "count": 1,
+      "total_minor": 680000
+    },
+    "out:SAVINGS_DEPOSIT": {
+      "count": 1,
+      "total_minor": 1000000
+    },
+    "out:SCHOOL_FEES": {
+      "count": 2,
+      "total_minor": 4500000
+    },
+    "out:STOCK_PURCHASES": {
+      "count": 22,
+      "total_minor": 72885000
+    },
+    "out:TRANSPORT": {
+      "count": 41,
+      "total_minor": 5465000
+    },
+    "out:TXN_CHARGES": {
+      "count": 74,
+      "total_minor": 573100
+    },
+    "out:UTILITIES": {
+      "count": 12,
+      "total_minor": 7403550
+    },
+    "out:WAGES": {
+      "count": 12,
+      "total_minor": 24000000
+    }
+  },
+  "intended_pnl_minor": {
+    "revenue": 149484966,
+    "cogs": 72885000,
+    "opex_incl_tax": 61681650,
+    "operating_cashflow": 14918316,
+    "financing_out": 9960000,
+    "personal_out": 13100000,
+    "total_costs_kpi": 144526650,
+    "net_profit_kpi": 4958316,
+    "personal_mix_bp": 826,
+    "gross_margin_pct": 51.2,
+    "operating_margin_pct": 10.0,
+    "trading_days": 108
+  },
+  "expected_app_pnl_minor_before_teaching": {
+    "revenue": 149484966,
+    "cogs": 72885000,
+    "opex_incl_tax": 37561650,
+    "operating_cashflow": 39038316,
+    "financing_out": 9960000,
+    "personal_out": 37220000,
+    "total_costs_kpi": 120406650,
+    "net_profit_kpi": 29078316,
+    "personal_mix_bp": 2346,
+    "gross_margin_pct": 51.2,
+    "operating_margin_pct": 26.1,
+    "trading_days": 108
+  },
+  "expected_needs_review_combined": 21,
+  "statement_edge_cases": {
+    "rows_in_file": 25,
+    "rows_parsed": 20,
+    "rows_loaded": 19,
+    "rows_duplicate": 1,
+    "rows_flagged": 2
+  },
+  "sales_import": {
+    "sales": 612,
+    "line_rows": 661,
+    "subtotal_minor": 153199595,
+    "vat_minor": 24351931,
+    "total_minor": 177551526,
+    "by_payment_method": {
+      "m_pesa": {
+        "count": 388,
+        "total_minor": 81276966
+      },
+      "credit": {
+        "count": 24,
+        "total_minor": 74704000
+      },
+      "cash": {
+        "count": 190,
+        "total_minor": 11099704
+      },
+      "card": {
+        "count": 10,
+        "total_minor": 10470856
+      }
+    },
+    "by_month": {
+      "2026-07": {
+        "vat_minor": 6752512,
+        "subtotal_minor": 42603200,
+        "total_minor": 49355712
+      },
+      "2026-08": {
+        "vat_minor": 6582814,
+        "subtotal_minor": 41142598,
+        "total_minor": 47725412
+      },
+      "2026-09": {
+        "vat_minor": 5570637,
+        "subtotal_minor": 34816497,
+        "total_minor": 40387134
+      },
+      "2026-10": {
+        "vat_minor": 5445968,
+        "subtotal_minor": 34637300,
+        "total_minor": 40083268
+      }
+    },
+    "stock_after_import": {
+      "PLN-HOME-10": 9959,
+      "PLN-HOME-20": 9953,
+      "PLN-HOME-40": 9971,
+      "PLN-BIZ-50": 9987,
+      "PLN-BIZ-100": 9987,
+      "PLN-DED-200": 9995,
+      "VCH-1H": 4597,
+      "VCH-1D": 4685,
+      "VCH-1W": 1882,
+      "VCH-1M": 942,
+      "INS-STD": 9990,
+      "INS-FIB": 9994,
+      "SUP-ONSITE": 9996,
+      "TRN-BASIC": 9996,
+      "DEP-RTR": 9995,
+      "RTR-DB": 43,
+      "RTR-MESH": 7,
+      "ONT-GPON": 40,
+      "CBL-CAT6-1M": 343,
+      "CBL-CAT6-305": 3,
+      "CON-RJ45-100": 26,
+      "SW-8P": 15,
+      "UPS-650": 5,
+      "ANT-OUT": 0
+    },
+    "reorder_alerts_after_import": [
+      "ANT-OUT"
+    ]
+  },
+  "products_import": {
+    "rows": 24,
+    "created": 24
+  },
+  "customers_import": {
+    "rows": 55,
+    "created": 55
+  },
+  "business_credit_accounts": {
+    "Kilimani Towers Management": {
+      "billed_minor": 39440000,
+      "paid_by_mpesa_minor": 39440000,
+      "unpaid_minor": 0
+    },
+    "Baraka Hotel": {
+      "billed_minor": 9280000,
+      "paid_by_mpesa_minor": 9280000,
+      "unpaid_minor": 0
+    },
+    "Acme Cyber Cafe": {
+      "billed_minor": 5568000,
+      "paid_by_mpesa_minor": 5568000,
+      "unpaid_minor": 0
+    },
+    "Juja Hardware Ltd": {
+      "billed_minor": 5568000,
+      "paid_by_mpesa_minor": 4176000,
+      "unpaid_minor": 1392000
+    },
+    "St. Mary's Academy": {
+      "billed_minor": 5568000,
+      "paid_by_mpesa_minor": 2784000,
+      "unpaid_minor": 2784000
+    },
+    "Riverside Clinic": {
+      "billed_minor": 9280000,
+      "paid_by_mpesa_minor": 6960000,
+      "unpaid_minor": 2320000
+    }
+  },
+  "obligations_as_of": "2026-10-19",
+  "expected_obligations": [
+    {
+      "payee": "JANE WAMBUI NDUNGU",
+      "label": "Family Transfer (monthly)",
+      "kind": "other",
+      "amount_minor": 1500000,
+      "cadence": "monthly",
+      "day_of_month": 5,
+      "next_due": "2026-11-05",
+      "essential": 0
+    },
+    {
+      "payee": "KCB LOAN REPAYMENT",
+      "label": "Loan Repayment (monthly)",
+      "kind": "loan_repayment",
+      "amount_minor": 850000,
+      "cadence": "monthly",
+      "day_of_month": 20,
+      "next_due": "2026-10-20",
+      "essential": 1
+    },
+    {
+      "payee": "KPLC PREPAID",
+      "label": "Utilities (monthly)",
+      "kind": "utility",
+      "amount_minor": 1295775,
+      "cadence": "monthly",
+      "day_of_month": 15,
+      "next_due": "2026-11-15",
+      "essential": 1
+    },
+    {
+      "payee": "KRA",
+      "label": "License Tax (monthly)",
+      "kind": "tax",
+      "amount_minor": 389000,
+      "cadence": "monthly",
+      "day_of_month": 9,
+      "next_due": "2026-11-09",
+      "essential": 1
+    },
+    {
+      "payee": "LIQUID BANDWIDTH WHOLESALE",
+      "label": "Stock Purchases (weekly)",
+      "kind": "supplier_standing",
+      "amount_minor": 3180000,
+      "cadence": "weekly",
+      "day_of_month": null,
+      "next_due": "2026-10-19",
+      "essential": 0
+    },
+    {
+      "payee": "MAMA MSAFIRI",
+      "label": "Family Transfer (biweekly)",
+      "kind": "other",
+      "amount_minor": 500000,
+      "cadence": "biweekly",
+      "day_of_month": null,
+      "next_due": "2026-10-24",
+      "essential": 0
+    },
+    {
+      "payee": "MERCY ATIENO OCHIENG",
+      "label": "Family Transfer (monthly)",
+      "kind": "other",
+      "amount_minor": 1500000,
+      "cadence": "monthly",
+      "day_of_month": 6,
+      "next_due": "2026-11-06",
+      "essential": 0
+    },
+    {
+      "payee": "MWANGI PROPERTIES",
+      "label": "Rent (monthly)",
+      "kind": "rent",
+      "amount_minor": 5000000,
+      "cadence": "monthly",
+      "day_of_month": 7,
+      "next_due": "2026-11-07",
+      "essential": 1
+    },
+    {
+      "payee": "NAIROBI WATER",
+      "label": "Utilities (monthly)",
+      "kind": "utility",
+      "amount_minor": 306250,
+      "cadence": "monthly",
+      "day_of_month": 15,
+      "next_due": "2026-11-15",
+      "essential": 1
+    },
+    {
+      "payee": "PETER OTIENO KIBET",
+      "label": "Family Transfer (monthly)",
+      "kind": "other",
+      "amount_minor": 3000000,
+      "cadence": "monthly",
+      "day_of_month": 1,
+      "next_due": "2026-11-01",
+      "essential": 0
+    },
+    {
+      "payee": "ZUKU FIBER",
+      "label": "Utilities (monthly)",
+      "kind": "utility",
+      "amount_minor": 250000,
+      "cadence": "monthly",
+      "day_of_month": 5,
+      "next_due": "2026-11-05",
+      "essential": 1
+    }
+  ],
+  "expected_recurring_patterns": [
+    {
+      "payee": "LIQUID BANDWIDTH WHOLESALE",
+      "category": "STOCK_PURCHASES",
+      "amount_minor": 3180000,
+      "is_variable": false,
+      "cadence": "weekly",
+      "interval": 1,
+      "fixed_day": null,
+      "payments_seen": 15,
+      "last_paid": "2026-10-12",
+      "next_due": "2026-10-19",
+      "confidence": 100
+    },
+    {
+      "payee": "MAMA MSAFIRI",
+      "category": "FAMILY_TRANSFER",
+      "amount_minor": 500000,
+      "is_variable": false,
+      "cadence": "weekly",
+      "interval": 2,
+      "fixed_day": null,
+      "payments_seen": 7,
+      "last_paid": "2026-10-10",
+      "next_due": "2026-10-24",
+      "confidence": 70
+    },
+    {
+      "payee": "MWANGI PROPERTIES",
+      "category": "RENT",
+      "amount_minor": 5000000,
+      "is_variable": false,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 7,
+      "payments_seen": 4,
+      "last_paid": "2026-10-07",
+      "next_due": "2026-11-07",
+      "confidence": 40
+    },
+    {
+      "payee": "PETER OTIENO KIBET",
+      "category": "FAMILY_TRANSFER",
+      "amount_minor": 3000000,
+      "is_variable": false,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 1,
+      "payments_seen": 4,
+      "last_paid": "2026-10-01",
+      "next_due": "2026-11-01",
+      "confidence": 40
+    },
+    {
+      "payee": "JANE WAMBUI NDUNGU",
+      "category": "FAMILY_TRANSFER",
+      "amount_minor": 1500000,
+      "is_variable": false,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 5,
+      "payments_seen": 4,
+      "last_paid": "2026-10-05",
+      "next_due": "2026-11-05",
+      "confidence": 40
+    },
+    {
+      "payee": "MERCY ATIENO OCHIENG",
+      "category": "FAMILY_TRANSFER",
+      "amount_minor": 1500000,
+      "is_variable": false,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 6,
+      "payments_seen": 4,
+      "last_paid": "2026-10-06",
+      "next_due": "2026-11-06",
+      "confidence": 40
+    },
+    {
+      "payee": "KPLC PREPAID",
+      "category": "UTILITIES",
+      "amount_minor": 1298888,
+      "is_variable": true,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 15,
+      "payments_seen": 4,
+      "last_paid": "2026-10-15",
+      "next_due": "2026-11-15",
+      "confidence": 40
+    },
+    {
+      "payee": "NAIROBI WATER",
+      "category": "UTILITIES",
+      "amount_minor": 302000,
+      "is_variable": true,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 15,
+      "payments_seen": 4,
+      "last_paid": "2026-10-15",
+      "next_due": "2026-11-15",
+      "confidence": 40
+    },
+    {
+      "payee": "ZUKU FIBER",
+      "category": "UTILITIES",
+      "amount_minor": 250000,
+      "is_variable": false,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 5,
+      "payments_seen": 4,
+      "last_paid": "2026-10-05",
+      "next_due": "2026-11-05",
+      "confidence": 40
+    },
+    {
+      "payee": "KCB LOAN REPAYMENT",
+      "category": "LOAN_REPAYMENT",
+      "amount_minor": 850000,
+      "is_variable": false,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 20,
+      "payments_seen": 3,
+      "last_paid": "2026-09-20",
+      "next_due": "2026-10-20",
+      "confidence": 30
+    },
+    {
+      "payee": "KRA",
+      "category": "LICENSE_TAX",
+      "amount_minor": 396667,
+      "is_variable": true,
+      "cadence": "monthly",
+      "interval": 1,
+      "fixed_day": 9,
+      "payments_seen": 3,
+      "last_paid": "2026-10-09",
+      "next_due": "2026-11-09",
+      "confidence": 30
+    },
+    {
+      "payee": "ST JUDE ACADEMY",
+      "category": "SCHOOL_FEES",
+      "amount_minor": 2250000,
+      "is_variable": false,
+      "cadence": "monthly",
+      "interval": 2,
+      "fixed_day": 3,
+      "payments_seen": 2,
+      "last_paid": "2026-09-03",
+      "next_due": "2026-11-03",
+      "confidence": 20
+    }
+  ],
+  "party_intelligence": {
+    "reference_date": "2026-10-17",
+    "customers": 91,
+    "concentration_risks": [
+      "KILIMANI TOWERS MANAGEMENT"
+    ],
+    "supplier_dependencies": [
+      "LIQUID BANDWIDTH WHOLESALE"
+    ],
+    "churn_watchlist": 24,
+    "top_10": [
+      {
+        "customer": "KILIMANI TOWERS MANAGEMENT",
+        "inflow_minor": 39440000,
+        "orders": 4,
+        "concentration_pct": 26.4,
+        "concentration_risk": true,
+        "days_since": 6,
+        "churn_risk": 5,
+        "segment": "High Value"
+      },
+      {
+        "customer": "BARAKA HOTEL",
+        "inflow_minor": 9280000,
+        "orders": 5,
+        "concentration_pct": 6.2,
+        "concentration_risk": false,
+        "days_since": 2,
+        "churn_risk": 5,
+        "segment": "Growth"
+      },
+      {
+        "customer": "RIVERSIDE CLINIC",
+        "inflow_minor": 6960000,
+        "orders": 3,
+        "concentration_pct": 4.7,
+        "concentration_risk": false,
+        "days_since": 37,
+        "churn_risk": 47,
+        "segment": "At Risk"
+      },
+      {
+        "customer": "ACME CYBER CAFE",
+        "inflow_minor": 5568000,
+        "orders": 4,
+        "concentration_pct": 3.7,
+        "concentration_risk": false,
+        "days_since": 9,
+        "churn_risk": 5,
+        "segment": "Growth"
+      },
+      {
+        "customer": "JUJA HARDWARE LTD",
+        "inflow_minor": 4176000,
+        "orders": 6,
+        "concentration_pct": 2.8,
+        "concentration_risk": false,
+        "days_since": 21,
+        "churn_risk": 25,
+        "segment": "Growth"
+      },
+      {
+        "customer": "GRACE JEPTOO",
+        "inflow_minor": 3694598,
+        "orders": 3,
+        "concentration_pct": 2.5,
+        "concentration_risk": false,
+        "days_since": 19,
+        "churn_risk": 25,
+        "segment": "Growth"
+      },
+      {
+        "customer": "CYNTHIA MUTHONI",
+        "inflow_minor": 2994772,
+        "orders": 3,
+        "concentration_pct": 2.0,
+        "concentration_risk": false,
+        "days_since": 22,
+        "churn_risk": 25,
+        "segment": "At Risk"
+      },
+      {
+        "customer": "LUCY KIPLAGAT",
+        "inflow_minor": 2891100,
+        "orders": 4,
+        "concentration_pct": 1.9,
+        "concentration_risk": false,
+        "days_since": 79,
+        "churn_risk": 94,
+        "segment": "Dormant"
+      },
+      {
+        "customer": "MOSES ACHIENG",
+        "inflow_minor": 2836200,
+        "orders": 2,
+        "concentration_pct": 1.9,
+        "concentration_risk": false,
+        "days_since": 58,
+        "churn_risk": 68,
+        "segment": "Dormant"
+      },
+      {
+        "customer": "ROSE KAMAU",
+        "inflow_minor": 2789798,
+        "orders": 2,
+        "concentration_pct": 1.9,
+        "concentration_risk": false,
+        "days_since": 3,
+        "churn_risk": 5,
+        "segment": "Growth"
+      }
+    ],
+    "churned_by_design": [
+      "BEATRICE CHEBET",
+      "DIANA NJOROGE",
+      "FAITH KIPLAGAT",
+      "GEORGE MUTUA",
+      "RUTH KARANJA"
+    ]
+  },
+  "edge_imports": {
+    "products_edge_cases.csv": {
+      "created": 2,
+      "updated": 1,
+      "rejected": 15
+    },
+    "customers_edge_cases.csv": {
+      "created": 2,
+      "updated": 1,
+      "rejected": 4
+    },
+    "sales_edge_cases.csv": {
+      "created": 3,
+      "rejected_sales": 10,
+      "rows_without_ref": 1
+    }
+  }
+}

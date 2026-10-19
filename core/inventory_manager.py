@@ -72,8 +72,9 @@ class InventoryTransaction:
 class InventoryManager:
     """Manage products, stock levels, and inventory transactions."""
 
-    def __init__(self, db_path: str = "data/duka.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        from core.config import config
+        self.db_path = db_path or config.DB_PATH
 
     def _get_conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)

@@ -1,0 +1,662 @@
+sale_ref,sale_date,customer,sku,quantity,unit_price,discount_pct,payment_method,notes
+S00571,2026-07-01 08:14,Lucy Kiplagat,RTR-DB,2,,12.5,m_pesa,hardware
+S00571,2026-07-01 08:14,Lucy Kiplagat,SW-8P,1,,12.5,m_pesa,hardware
+S00139,2026-07-01 08:15,Diana Chebet,VCH-1H,1,,,m_pesa,voucher_till
+S00115,2026-07-01 09:00,Kilimani Towers Management,PLN-DED-200,1,,,credit,business_credit_on_time
+S00115,2026-07-01 09:00,Kilimani Towers Management,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00119,2026-07-01 09:00,Baraka Hotel,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00123,2026-07-01 09:00,Acme Cyber Cafe,PLN-BIZ-50,1,,,credit,business_credit_on_time
+S00127,2026-07-01 09:00,Juja Hardware Ltd,PLN-BIZ-50,1,,,credit,business_credit_split
+S00131,2026-07-01 09:00,St. Mary's Academy,PLN-BIZ-50,1,,,credit,business_credit_stops_paying
+S00135,2026-07-01 09:00,Riverside Clinic,PLN-BIZ-100,1,,,credit,business_credit_late_october
+S00140,2026-07-01 09:18,Felix Odhiambo,VCH-1H,5,,,m_pesa,voucher_till
+S00141,2026-07-01 13:15,,VCH-1D,3,,,cash,voucher_cash
+S00142,2026-07-01 14:50,Winnie Omondi,VCH-1D,1,,,m_pesa,voucher_till
+S00081,2026-07-02 08:04,James Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00013,2026-07-02 10:32,Kevin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00085,2026-07-02 10:36,Dennis Odhiambo,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00148,2026-07-02 10:45,,VCH-1D,5,,,cash,voucher_cash
+S00144,2026-07-02 13:40,Samuel Njoroge,VCH-1D,5,,,m_pesa,voucher_till
+S00572,2026-07-02 14:59,Lucy Kiplagat,RTR-DB,1,,,card,hardware
+S00572,2026-07-02 14:59,Lucy Kiplagat,CBL-CAT6-1M,2,,,card,hardware
+S00572,2026-07-02 14:59,Lucy Kiplagat,INS-STD,1,,,card,hardware
+S00146,2026-07-02 16:02,Diana Gitau,VCH-1H,1,,,m_pesa,voucher_till
+S00147,2026-07-02 16:28,,VCH-1D,3,,,cash,voucher_cash
+S00145,2026-07-02 17:14,Winnie Omondi,VCH-1H,2,,,m_pesa,voucher_till
+S00143,2026-07-02 17:58,,VCH-1D,1,,,cash,voucher_cash
+S00101,2026-07-03 12:08,Faith Kiplagat,PLN-HOME-10,1,,,m_pesa,subscription_churned
+S00573,2026-07-03 14:29,Mercy Kiprop,CBL-CAT6-305,1,,10,card,hardware
+S00573,2026-07-03 14:29,Mercy Kiprop,CON-RJ45-100,2,,,card,hardware
+S00005,2026-07-03 15:21,Lucy Njoroge,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00150,2026-07-03 15:50,,VCH-1W,1,,,cash,voucher_cash
+S00049,2026-07-03 16:39,Faith Kiprop,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00149,2026-07-03 19:47,Caroline Jeptoo,VCH-1H,1,,,m_pesa,voucher_till
+S00154,2026-07-04 09:42,,VCH-1D,1,,,cash,voucher_cash
+S00152,2026-07-04 09:56,,VCH-1D,1,,,cash,voucher_cash
+S00153,2026-07-04 11:28,,VCH-1H,5,,,cash,voucher_cash
+S00105,2026-07-04 13:34,Diana Njoroge,PLN-HOME-10,1,,,m_pesa,subscription_churned
+S00151,2026-07-04 16:21,Rose Atieno,VCH-1D,1,,,m_pesa,voucher_till
+S00061,2026-07-04 18:26,Caroline Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00160,2026-07-05 09:21,George Karanja,VCH-1W,1,,,m_pesa,voucher_till
+S00156,2026-07-05 10:07,Daniel Otieno,VCH-1H,3,,,m_pesa,voucher_till
+S00158,2026-07-05 13:01,,VCH-1H,5,,,cash,voucher_cash
+S00159,2026-07-05 17:07,George Karanja,VCH-1D,1,,,m_pesa,voucher_till
+S00155,2026-07-05 18:20,,VCH-1D,1,,,cash,voucher_cash
+S00157,2026-07-05 19:00,Diana Chebet,VCH-1M,1,,,m_pesa,voucher_till
+S00065,2026-07-06 08:56,Esther Gitau,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00164,2026-07-06 09:35,Moses Wambua,VCH-1W,2,,,m_pesa,voucher_till
+S00165,2026-07-06 09:40,Dennis Kiprop,VCH-1D,1,,,m_pesa,voucher_till
+S00162,2026-07-06 12:53,Daniel Otieno,VCH-1H,1,,,m_pesa,voucher_till
+S00161,2026-07-06 13:21,,VCH-1H,1,,,cash,voucher_cash
+S00041,2026-07-06 16:01,Victor Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00163,2026-07-06 19:24,Agnes Atieno,VCH-1D,1,,,m_pesa,voucher_till
+S00574,2026-07-07 10:27,Caroline Wambua,RTR-MESH,1,,5,cash,hardware
+S00166,2026-07-07 10:29,Samuel Njoroge,VCH-1W,1,,,m_pesa,voucher_till
+S00168,2026-07-07 11:35,,VCH-1D,1,,,cash,voucher_cash
+S00009,2026-07-07 13:33,Moses Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00169,2026-07-07 18:04,Joseph Wafula,VCH-1D,5,,,m_pesa,voucher_till
+S00167,2026-07-07 18:07,Nancy Kiprop,VCH-1H,3,,,m_pesa,voucher_till
+S00170,2026-07-08 08:19,John Gitau,VCH-1D,1,,,m_pesa,voucher_till
+S00025,2026-07-08 08:53,Ian Chebet,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00109,2026-07-08 12:56,Ruth Karanja,PLN-HOME-20,1,,,m_pesa,subscription_churned
+S00172,2026-07-08 13:22,David Wafula,VCH-1H,3,,,m_pesa,voucher_till
+S00175,2026-07-08 13:29,Winnie Jeptoo,VCH-1H,2,,,m_pesa,voucher_till
+S00171,2026-07-08 15:00,Agnes Atieno,VCH-1H,5,,,m_pesa,voucher_till
+S00021,2026-07-08 15:49,Joseph Mwangi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00173,2026-07-08 18:56,Collins Muthoni,VCH-1H,1,,,m_pesa,voucher_till
+S00575,2026-07-08 19:17,Sharon Kiprop,CBL-CAT6-1M,3,30.00,,cash,hardware
+S00174,2026-07-08 19:30,John Mutua,VCH-1M,5,,,m_pesa,voucher_till
+S00045,2026-07-09 08:06,Paul Muthoni,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00177,2026-07-09 09:39,,VCH-1D,3,,,cash,voucher_cash
+S00179,2026-07-09 13:56,Daniel Omondi,VCH-1H,2,,,m_pesa,voucher_till
+S00176,2026-07-09 15:42,,VCH-1H,3,,,cash,voucher_cash
+S00029,2026-07-09 16:16,Martin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00073,2026-07-09 19:05,Rose Otieno,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00178,2026-07-09 19:35,Samuel Njoroge,VCH-1W,5,,,m_pesa,voucher_till
+S00017,2026-07-10 09:24,Mary Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00181,2026-07-10 11:09,Moses Wambua,VCH-1H,1,,,m_pesa,voucher_till
+S00053,2026-07-10 14:03,Purity Omondi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00180,2026-07-10 14:27,,VCH-1H,1,,,cash,voucher_cash
+S00107,2026-07-10 17:01,George Mutua,PLN-HOME-20,1,,,m_pesa,subscription_churned
+S00057,2026-07-11 11:12,Mary Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00184,2026-07-11 12:23,,VCH-1D,5,,,cash,voucher_cash
+S00576,2026-07-11 13:43,Cynthia Muthoni,RTR-DB,1,,,m_pesa,hardware
+S00576,2026-07-11 13:43,Cynthia Muthoni,CBL-CAT6-1M,2,,,m_pesa,hardware
+S00576,2026-07-11 13:43,Cynthia Muthoni,INS-STD,1,,,m_pesa,hardware
+S00182,2026-07-11 15:37,Collins Mutua,VCH-1H,2,,,m_pesa,voucher_till
+S00033,2026-07-11 15:46,Cynthia Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00089,2026-07-11 18:23,Lilian Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00183,2026-07-11 19:11,,VCH-1H,3,,,cash,voucher_cash
+S00069,2026-07-11 19:46,David Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00186,2026-07-12 08:22,,VCH-1H,1,,,cash,voucher_cash
+S00185,2026-07-12 09:50,Daniel Otieno,VCH-1H,1,,,m_pesa,voucher_till
+S00188,2026-07-12 13:32,Winnie Omondi,VCH-1H,3,,,m_pesa,voucher_till
+S00187,2026-07-12 15:20,Agnes Kiprop,VCH-1H,1,,,m_pesa,voucher_till
+S00189,2026-07-12 16:23,Samuel Njoroge,VCH-1W,3,,,m_pesa,voucher_till
+S00103,2026-07-12 17:45,Beatrice Chebet,PLN-HOME-10,1,,,m_pesa,subscription_churned
+S00577,2026-07-13 08:02,Martin Njoroge,RTR-DB,2,,12.5,card,hardware
+S00577,2026-07-13 08:02,Martin Njoroge,SW-8P,1,,12.5,card,hardware
+S00190,2026-07-13 10:57,Dennis Kiprop,VCH-1D,1,,,m_pesa,voucher_till
+S00192,2026-07-13 11:17,Winnie Omondi,VCH-1H,1,,,m_pesa,voucher_till
+S00191,2026-07-13 12:58,,VCH-1M,1,,,cash,voucher_cash
+S00193,2026-07-13 18:43,Mercy Karanja,VCH-1H,1,,,m_pesa,voucher_till
+S00077,2026-07-13 19:11,Lilian Nyambura,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00578,2026-07-14 09:54,Lucy Kiplagat,UPS-650,1,,,m_pesa,hardware
+S00195,2026-07-14 09:57,Daniel Omondi,VCH-1D,2,,,m_pesa,voucher_till
+S00194,2026-07-14 10:51,,VCH-1D,1,,,cash,voucher_cash
+S00197,2026-07-14 15:39,,VCH-1H,1,,,cash,voucher_cash
+S00198,2026-07-14 16:17,George Kamau,VCH-1D,1,,,m_pesa,voucher_till
+S00196,2026-07-14 19:55,Caroline Wafula,VCH-1H,3,,,m_pesa,voucher_till
+S00200,2026-07-15 08:30,John Gitau,VCH-1M,1,,,m_pesa,voucher_till
+S00199,2026-07-15 10:29,Nancy Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00201,2026-07-15 11:16,,VCH-1H,3,,,cash,voucher_cash
+S00202,2026-07-15 13:02,John Mutua,VCH-1H,1,,,m_pesa,voucher_till
+S00093,2026-07-15 13:18,Dennis Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00204,2026-07-15 16:52,,VCH-1W,1,,,cash,voucher_cash
+S00203,2026-07-15 18:23,,VCH-1H,1,,,cash,voucher_cash
+S00206,2026-07-16 09:16,,VCH-1H,1,,,cash,voucher_cash
+S00579,2026-07-16 09:16,Rose Kamau,CBL-CAT6-305,1,,10,card,hardware
+S00579,2026-07-16 09:16,Rose Kamau,CON-RJ45-100,2,,,card,hardware
+S00001,2026-07-16 11:02,Lilian Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00205,2026-07-16 15:28,Dennis Mwangi,VCH-1M,1,,,m_pesa,voucher_till
+S00208,2026-07-16 16:54,George Kamau,VCH-1D,1,,,m_pesa,voucher_till
+S00207,2026-07-16 18:46,Rose Atieno,VCH-1D,1,,,m_pesa,voucher_till
+S00213,2026-07-17 08:02,,VCH-1D,3,,,cash,voucher_cash
+S00097,2026-07-17 10:31,Stephen Kamau,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00580,2026-07-17 10:47,Grace Jeptoo,UPS-650,1,,,m_pesa,hardware
+S00211,2026-07-17 15:27,,VCH-1H,2,,,cash,voucher_cash
+S00209,2026-07-17 17:49,,VCH-1H,1,,,cash,voucher_cash
+S00212,2026-07-17 17:57,Joseph Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00210,2026-07-17 19:38,Daniel Otieno,VCH-1H,1,,,m_pesa,voucher_till
+S00037,2026-07-17 19:44,Peter Wanjiku,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00216,2026-07-18 13:31,,VCH-1H,5,,,cash,voucher_cash
+S00215,2026-07-18 14:40,John Otieno,VCH-1H,3,,,m_pesa,voucher_till
+S00214,2026-07-18 16:49,Caroline Jeptoo,VCH-1D,1,,,m_pesa,voucher_till
+S00217,2026-07-18 17:48,Dennis Mwangi,VCH-1H,2,,,m_pesa,voucher_till
+S00219,2026-07-19 12:09,,VCH-1H,2,,,cash,voucher_cash
+S00218,2026-07-19 16:15,,VCH-1D,1,,,cash,voucher_cash
+S00225,2026-07-20 08:41,John Gitau,VCH-1D,1,,,m_pesa,voucher_till
+S00221,2026-07-20 10:18,Nancy Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00223,2026-07-20 10:43,,VCH-1H,1,,,cash,voucher_cash
+S00220,2026-07-20 11:39,Caroline Jeptoo,VCH-1H,1,,,m_pesa,voucher_till
+S00581,2026-07-20 15:43,Caroline Wambua,SW-8P,1,,,m_pesa,hardware
+S00581,2026-07-20 15:43,Caroline Wambua,CBL-CAT6-1M,8,,,m_pesa,hardware
+S00581,2026-07-20 15:43,Caroline Wambua,CON-RJ45-100,1,,,m_pesa,hardware
+S00222,2026-07-20 16:23,Diana Chebet,VCH-1H,1,,,m_pesa,voucher_till
+S00224,2026-07-20 19:23,,VCH-1D,3,,,cash,voucher_cash
+S00227,2026-07-21 08:41,,VCH-1D,1,,,cash,voucher_cash
+S00226,2026-07-21 11:47,,VCH-1H,5,,,cash,voucher_cash
+S00228,2026-07-21 14:05,George Kamau,VCH-1D,1,,,m_pesa,voucher_till
+S00582,2026-07-21 15:27,Mercy Kiprop,CBL-CAT6-1M,3,30.00,,cash,hardware
+S00229,2026-07-21 16:41,Agnes Mwangi,VCH-1D,1,,,m_pesa,voucher_till
+S00230,2026-07-22 09:52,,VCH-1H,5,,,cash,voucher_cash
+S00231,2026-07-22 18:04,,VCH-1H,1,,,cash,voucher_cash
+S00232,2026-07-23 10:09,Lucy Wambua,VCH-1D,3,,,m_pesa,voucher_till
+S00235,2026-07-23 10:23,Winnie Omondi,VCH-1D,1,,,m_pesa,voucher_till
+S00237,2026-07-23 11:44,Daniel Otieno,VCH-1H,5,,,m_pesa,voucher_till
+S00234,2026-07-23 14:40,,VCH-1D,3,,,cash,voucher_cash
+S00236,2026-07-23 14:57,Lucy Wambua,VCH-1H,1,,,m_pesa,voucher_till
+S00583,2026-07-23 16:49,Mercy Kiprop,CBL-CAT6-1M,3,30.00,,m_pesa,hardware
+S00233,2026-07-23 17:27,,VCH-1D,1,,,cash,voucher_cash
+S00240,2026-07-24 11:47,,VCH-1H,3,,,cash,voucher_cash
+S00584,2026-07-24 13:38,Caroline Wambua,RTR-DB,2,,12.5,card,hardware
+S00584,2026-07-24 13:38,Caroline Wambua,SW-8P,1,,12.5,card,hardware
+S00239,2026-07-24 18:26,,VCH-1D,5,,,cash,voucher_cash
+S00238,2026-07-24 19:35,Moses Wambua,VCH-1H,5,,,m_pesa,voucher_till
+S00242,2026-07-25 09:15,,VCH-1H,2,,,cash,voucher_cash
+S00243,2026-07-25 09:43,Winnie Atieno,VCH-1H,1,,,m_pesa,voucher_till
+S00241,2026-07-25 19:41,John Gitau,VCH-1H,1,,,m_pesa,voucher_till
+S00244,2026-07-26 09:18,David Kiprop,VCH-1D,1,,,m_pesa,voucher_till
+S00245,2026-07-26 12:38,Joyce Chebet,VCH-1W,1,,,m_pesa,voucher_till
+S00246,2026-07-26 13:36,Nancy Wafula,VCH-1M,3,,,m_pesa,voucher_till
+S00247,2026-07-26 13:58,,VCH-1W,1,,,cash,voucher_cash
+S00249,2026-07-27 13:48,Lilian Wambua,VCH-1H,1,,,m_pesa,voucher_till
+S00248,2026-07-27 14:57,Agnes Mwangi,VCH-1H,1,,,m_pesa,voucher_till
+S00585,2026-07-27 16:23,Sharon Chebet,RTR-DB,1,,,m_pesa,hardware
+S00585,2026-07-27 16:23,Sharon Chebet,CBL-CAT6-1M,2,,,m_pesa,hardware
+S00585,2026-07-27 16:23,Sharon Chebet,INS-STD,1,,,m_pesa,hardware
+S00254,2026-07-28 10:04,Rose Atieno,VCH-1H,1,,,m_pesa,voucher_till
+S00251,2026-07-28 10:50,Winnie Omondi,VCH-1H,1,,,m_pesa,voucher_till
+S00586,2026-07-28 10:54,Moses Achieng,RTR-MESH,1,,5,m_pesa,hardware
+S00253,2026-07-28 14:00,,VCH-1H,2,,,cash,voucher_cash
+S00250,2026-07-28 14:41,,VCH-1H,1,,,cash,voucher_cash
+S00252,2026-07-28 16:44,Moses Wambua,VCH-1H,2,,,m_pesa,voucher_till
+S00257,2026-07-29 10:17,,VCH-1W,5,,,cash,voucher_cash
+S00255,2026-07-29 15:15,Moses Wambua,VCH-1H,1,,,m_pesa,voucher_till
+S00587,2026-07-29 16:59,Lucy Kiplagat,SUP-ONSITE,1,,,m_pesa,hardware
+S00587,2026-07-29 16:59,Lucy Kiplagat,TRN-BASIC,1,,,m_pesa,hardware
+S00256,2026-07-29 18:17,,VCH-1H,1,,,cash,voucher_cash
+S00588,2026-07-30 10:39,Lucy Kiplagat,SUP-ONSITE,1,,,m_pesa,hardware
+S00588,2026-07-30 10:39,Lucy Kiplagat,TRN-BASIC,1,,,m_pesa,hardware
+S00259,2026-07-30 12:08,,VCH-1H,1,,,cash,voucher_cash
+S00260,2026-07-30 14:01,Lucy Wambua,VCH-1D,1,,,m_pesa,voucher_till
+S00258,2026-07-30 17:09,John Mutua,VCH-1D,1,,,m_pesa,voucher_till
+S00261,2026-07-31 10:12,Diana Chebet,VCH-1D,3,,,m_pesa,voucher_till
+S00262,2026-07-31 15:56,,VCH-1D,1,,,cash,voucher_cash
+S00116,2026-08-01 09:00,Kilimani Towers Management,PLN-DED-200,1,,,credit,business_credit_on_time
+S00116,2026-08-01 09:00,Kilimani Towers Management,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00120,2026-08-01 09:00,Baraka Hotel,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00124,2026-08-01 09:00,Acme Cyber Cafe,PLN-BIZ-50,1,,,credit,business_credit_on_time
+S00128,2026-08-01 09:00,Juja Hardware Ltd,PLN-BIZ-50,1,,,credit,business_credit_split
+S00132,2026-08-01 09:00,St. Mary's Academy,PLN-BIZ-50,1,,,credit,business_credit_stops_paying
+S00136,2026-08-01 09:00,Riverside Clinic,PLN-BIZ-100,1,,,credit,business_credit_late_october
+S00263,2026-08-01 15:09,Agnes Kiprop,VCH-1D,5,,,m_pesa,voucher_till
+S00265,2026-08-01 17:05,,VCH-1D,1,,,cash,voucher_cash
+S00264,2026-08-01 18:00,,VCH-1H,1,,,cash,voucher_cash
+S00267,2026-08-02 08:05,Winnie Jeptoo,VCH-1D,1,,,m_pesa,voucher_till
+S00269,2026-08-02 10:14,David Kiprop,VCH-1W,2,,,m_pesa,voucher_till
+S00014,2026-08-02 12:31,Kevin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00266,2026-08-02 13:43,Caroline Wafula,VCH-1H,2,,,m_pesa,voucher_till
+S00268,2026-08-02 14:28,,VCH-1D,1,,,cash,voucher_cash
+S00082,2026-08-02 17:09,James Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00086,2026-08-02 19:39,Dennis Odhiambo,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00274,2026-08-03 08:07,,VCH-1D,2,,,cash,voucher_cash
+S00273,2026-08-03 08:11,Nancy Wafula,VCH-1W,2,,,m_pesa,voucher_till
+S00271,2026-08-03 10:02,Felix Odhiambo,VCH-1H,3,,,m_pesa,voucher_till
+S00275,2026-08-03 13:12,Daniel Otieno,VCH-1D,1,,,m_pesa,voucher_till
+S00272,2026-08-03 13:35,John Gitau,VCH-1D,5,,,m_pesa,voucher_till
+S00006,2026-08-03 13:43,Lucy Njoroge,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00270,2026-08-03 15:48,Joyce Chebet,VCH-1H,1,,,m_pesa,voucher_till
+S00589,2026-08-03 16:37,Sharon Chebet,RTR-DB,1,,,card,hardware
+S00589,2026-08-03 16:37,Sharon Chebet,CBL-CAT6-1M,2,,,card,hardware
+S00589,2026-08-03 16:37,Sharon Chebet,INS-STD,1,,,card,hardware
+S00102,2026-08-03 19:42,Faith Kiplagat,PLN-HOME-10,1,,,m_pesa,subscription_churned
+S00062,2026-08-04 11:09,Caroline Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00106,2026-08-04 13:46,Diana Njoroge,PLN-HOME-10,1,,,m_pesa,subscription_churned
+S00278,2026-08-04 15:17,Diana Gitau,VCH-1D,1,,,m_pesa,voucher_till
+S00276,2026-08-04 15:29,Samuel Njoroge,VCH-1W,3,,,m_pesa,voucher_till
+S00280,2026-08-04 15:32,Faith Karanja,VCH-1H,3,,,m_pesa,voucher_till
+S00277,2026-08-04 18:13,Daniel Otieno,VCH-1W,2,,,m_pesa,voucher_till
+S00279,2026-08-04 19:06,Winnie Omondi,VCH-1H,1,,,m_pesa,voucher_till
+S00281,2026-08-05 12:30,,VCH-1D,5,,,cash,voucher_cash
+S00282,2026-08-05 14:33,David Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00283,2026-08-05 18:19,,VCH-1D,1,,,cash,voucher_cash
+S00042,2026-08-06 11:40,Victor Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00289,2026-08-06 12:15,Agnes Kiprop,VCH-1D,1,,,m_pesa,voucher_till
+S00288,2026-08-06 13:08,John Otieno,VCH-1D,5,,,m_pesa,voucher_till
+S00287,2026-08-06 13:46,,VCH-1D,1,,,cash,voucher_cash
+S00050,2026-08-06 14:31,Faith Kiprop,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00285,2026-08-06 15:02,,VCH-1H,1,,,cash,voucher_cash
+S00066,2026-08-06 15:34,Esther Gitau,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00286,2026-08-06 17:47,,VCH-1H,3,,,cash,voucher_cash
+S00284,2026-08-06 19:17,Mary Atieno,VCH-1H,3,,,m_pesa,voucher_till
+S00010,2026-08-07 10:31,Moses Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00293,2026-08-07 14:52,,VCH-1H,3,,,cash,voucher_cash
+S00290,2026-08-07 16:03,Nancy Wafula,VCH-1W,1,,,m_pesa,voucher_till
+S00291,2026-08-07 16:21,,VCH-1W,1,,,cash,voucher_cash
+S00292,2026-08-07 16:51,,VCH-1H,1,,,cash,voucher_cash
+S00297,2026-08-08 08:46,Dennis Mwangi,VCH-1D,1,,,m_pesa,voucher_till
+S00110,2026-08-08 11:23,Ruth Karanja,PLN-HOME-20,1,,,m_pesa,subscription_churned
+S00295,2026-08-08 11:46,Collins Muthoni,VCH-1H,1,,,m_pesa,voucher_till
+S00022,2026-08-08 12:32,Joseph Mwangi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00294,2026-08-08 13:20,,VCH-1H,1,,,cash,voucher_cash
+S00590,2026-08-08 16:40,Sharon Kiprop,CBL-CAT6-1M,3,30.00,,cash,hardware
+S00296,2026-08-08 17:30,,VCH-1H,3,,,cash,voucher_cash
+S00300,2026-08-09 11:34,John Mutua,VCH-1H,5,,,m_pesa,voucher_till
+S00030,2026-08-09 12:04,Martin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00299,2026-08-09 15:07,Caroline Atieno,VCH-1D,1,,,m_pesa,voucher_till
+S00298,2026-08-09 16:02,Nancy Wafula,VCH-1H,5,,,m_pesa,voucher_till
+S00046,2026-08-09 17:33,Paul Muthoni,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00018,2026-08-10 09:25,Mary Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00304,2026-08-10 09:47,,VCH-1D,1,,,cash,voucher_cash
+S00301,2026-08-10 10:46,Joyce Chebet,VCH-1W,5,,,m_pesa,voucher_till
+S00591,2026-08-10 11:40,Martin Njoroge,RTR-MESH,1,,5,m_pesa,hardware
+S00303,2026-08-10 12:27,,VCH-1H,1,,,cash,voucher_cash
+S00108,2026-08-10 12:58,George Mutua,PLN-HOME-20,1,,,m_pesa,subscription_churned
+S00054,2026-08-10 13:22,Purity Omondi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00302,2026-08-10 18:40,George Karanja,VCH-1H,1,,,m_pesa,voucher_till
+S00307,2026-08-11 08:14,,VCH-1H,5,,,cash,voucher_cash
+S00305,2026-08-11 08:22,Dennis Mwangi,VCH-1D,1,,,m_pesa,voucher_till
+S00026,2026-08-11 10:50,Ian Chebet,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00306,2026-08-11 12:54,Mary Atieno,VCH-1M,5,,,m_pesa,voucher_till
+S00090,2026-08-11 13:26,Lilian Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00310,2026-08-11 15:27,,VCH-1D,1,,,cash,voucher_cash
+S00309,2026-08-11 16:14,John Mutua,VCH-1H,5,,,m_pesa,voucher_till
+S00308,2026-08-11 17:20,,VCH-1D,1,,,cash,voucher_cash
+S00034,2026-08-11 17:25,Cynthia Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00070,2026-08-11 17:39,David Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00058,2026-08-11 19:48,Mary Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00312,2026-08-12 10:03,,VCH-1D,2,,,cash,voucher_cash
+S00313,2026-08-12 11:58,Purity Odhiambo,VCH-1D,5,,,m_pesa,voucher_till
+S00311,2026-08-12 14:00,Diana Chebet,VCH-1D,5,,,m_pesa,voucher_till
+S00074,2026-08-12 15:48,Rose Otieno,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00104,2026-08-12 17:40,Beatrice Chebet,PLN-HOME-10,1,,,m_pesa,subscription_churned
+S00078,2026-08-13 09:56,Lilian Nyambura,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00318,2026-08-13 10:06,,VCH-1D,3,,,cash,voucher_cash
+S00319,2026-08-13 12:34,Nancy Kiprop,VCH-1D,1,,,m_pesa,voucher_till
+S00317,2026-08-13 12:37,,VCH-1M,1,,,cash,voucher_cash
+S00316,2026-08-13 14:26,Dennis Mwangi,VCH-1H,1,,,m_pesa,voucher_till
+S00315,2026-08-13 15:25,Diana Gitau,VCH-1H,2,,,m_pesa,voucher_till
+S00314,2026-08-13 19:59,,VCH-1D,1,,,cash,voucher_cash
+S00324,2026-08-14 09:40,,VCH-1H,5,,,cash,voucher_cash
+S00592,2026-08-14 10:32,Rose Kamau,SW-8P,1,,,card,hardware
+S00592,2026-08-14 10:32,Rose Kamau,CBL-CAT6-1M,8,,,card,hardware
+S00592,2026-08-14 10:32,Rose Kamau,CON-RJ45-100,1,,,card,hardware
+S00321,2026-08-14 13:26,Rose Atieno,VCH-1H,1,,,m_pesa,voucher_till
+S00320,2026-08-14 13:26,Collins Mutua,VCH-1D,3,,,m_pesa,voucher_till
+S00323,2026-08-14 14:28,Joseph Wafula,VCH-1D,5,,,m_pesa,voucher_till
+S00325,2026-08-14 14:41,David Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00322,2026-08-14 18:56,Agnes Kiprop,VCH-1W,1,,,m_pesa,voucher_till
+S00327,2026-08-15 09:24,,VCH-1D,5,,,cash,voucher_cash
+S00094,2026-08-15 10:39,Dennis Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00329,2026-08-15 12:17,Lucy Muthoni,VCH-1H,1,,,m_pesa,voucher_till
+S00331,2026-08-15 12:38,Dennis Mwangi,VCH-1H,1,,,m_pesa,voucher_till
+S00326,2026-08-15 15:05,Joseph Wafula,VCH-1M,3,,,m_pesa,voucher_till
+S00328,2026-08-15 16:02,,VCH-1H,1,,,cash,voucher_cash
+S00330,2026-08-15 18:18,,VCH-1D,1,,,cash,voucher_cash
+S00332,2026-08-16 08:23,,VCH-1H,1,,,cash,voucher_cash
+S00335,2026-08-16 10:08,Agnes Mwangi,VCH-1W,1,,,m_pesa,voucher_till
+S00333,2026-08-16 14:54,,VCH-1D,1,,,cash,voucher_cash
+S00334,2026-08-16 16:22,Joseph Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00337,2026-08-17 09:23,,VCH-1D,1,,,cash,voucher_cash
+S00336,2026-08-17 12:04,George Karanja,VCH-1D,3,,,m_pesa,voucher_till
+S00038,2026-08-17 12:12,Peter Wanjiku,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00338,2026-08-17 14:24,John Otieno,VCH-1H,1,,,m_pesa,voucher_till
+S00339,2026-08-18 09:35,,VCH-1H,1,,,cash,voucher_cash
+S00343,2026-08-18 09:36,John Gitau,VCH-1H,2,,,m_pesa,voucher_till
+S00344,2026-08-18 10:51,Diana Chebet,VCH-1M,1,,,m_pesa,voucher_till
+S00341,2026-08-18 13:36,Joyce Chebet,VCH-1M,1,,,m_pesa,voucher_till
+S00340,2026-08-18 14:24,Peter Chebet,VCH-1M,1,,,m_pesa,voucher_till
+S00342,2026-08-18 15:45,Samuel Njoroge,VCH-1D,1,,,m_pesa,voucher_till
+S00346,2026-08-19 10:24,,VCH-1D,5,,,cash,voucher_cash
+S00002,2026-08-19 13:36,Lilian Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00345,2026-08-19 16:30,,VCH-1D,2,,,cash,voucher_cash
+S00593,2026-08-19 18:49,Peter Mwangi,RTR-MESH,1,,5,m_pesa,hardware
+S00347,2026-08-19 19:00,,VCH-1W,3,,,cash,voucher_cash
+S00098,2026-08-20 08:48,Stephen Kamau,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00352,2026-08-20 10:56,Felix Odhiambo,VCH-1H,2,,,m_pesa,voucher_till
+S00353,2026-08-20 11:29,,VCH-1H,1,,,cash,voucher_cash
+S00349,2026-08-20 14:35,,VCH-1W,1,,,cash,voucher_cash
+S00594,2026-08-20 16:14,Moses Achieng,RTR-DB,2,,12.5,m_pesa,hardware
+S00594,2026-08-20 16:14,Moses Achieng,SW-8P,1,,12.5,m_pesa,hardware
+S00350,2026-08-20 16:56,,VCH-1W,5,,,cash,voucher_cash
+S00348,2026-08-20 17:15,Felix Odhiambo,VCH-1D,3,,,m_pesa,voucher_till
+S00351,2026-08-20 19:04,,VCH-1W,5,,,cash,voucher_cash
+S00354,2026-08-21 10:02,Samuel Njoroge,VCH-1W,1,,,m_pesa,voucher_till
+S00356,2026-08-21 12:47,,VCH-1H,1,,,cash,voucher_cash
+S00359,2026-08-21 14:10,Joseph Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00358,2026-08-21 14:30,Caroline Jeptoo,VCH-1W,5,,,m_pesa,voucher_till
+S00595,2026-08-21 16:03,Cynthia Muthoni,RTR-DB,1,,,m_pesa,hardware
+S00595,2026-08-21 16:03,Cynthia Muthoni,CBL-CAT6-1M,2,,,m_pesa,hardware
+S00595,2026-08-21 16:03,Cynthia Muthoni,INS-STD,1,,,m_pesa,hardware
+S00355,2026-08-21 16:21,,VCH-1D,5,,,cash,voucher_cash
+S00357,2026-08-21 17:36,Nancy Kiprop,VCH-1H,1,,,m_pesa,voucher_till
+S00360,2026-08-22 15:09,Agnes Kiprop,VCH-1H,1,,,m_pesa,voucher_till
+S00361,2026-08-22 17:52,Moses Wambua,VCH-1D,5,,,m_pesa,voucher_till
+S00363,2026-08-23 08:51,Collins Mutua,VCH-1D,1,,,m_pesa,voucher_till
+S00362,2026-08-23 13:14,George Karanja,VCH-1D,2,,,m_pesa,voucher_till
+S00365,2026-08-24 16:02,,VCH-1H,1,,,cash,voucher_cash
+S00364,2026-08-24 19:55,Caroline Atieno,VCH-1D,1,,,m_pesa,voucher_till
+S00366,2026-08-25 09:32,Collins Mutua,VCH-1H,3,,,m_pesa,voucher_till
+S00368,2026-08-25 12:40,,VCH-1H,2,,,cash,voucher_cash
+S00367,2026-08-25 13:48,,VCH-1H,2,,,cash,voucher_cash
+S00596,2026-08-25 19:31,Mercy Kiprop,ONT-GPON,1,,,cash,hardware
+S00596,2026-08-25 19:31,Mercy Kiprop,INS-FIB,1,,,cash,hardware
+S00597,2026-08-26 09:56,Mercy Kiprop,RTR-MESH,1,,5,card,hardware
+S00369,2026-08-26 10:11,Daniel Otieno,VCH-1W,1,,,m_pesa,voucher_till
+S00371,2026-08-26 12:43,,VCH-1H,1,,,cash,voucher_cash
+S00370,2026-08-26 13:11,,VCH-1H,3,,,cash,voucher_cash
+S00372,2026-08-27 13:42,Caroline Jeptoo,VCH-1D,3,,,m_pesa,voucher_till
+S00373,2026-08-27 13:51,,VCH-1D,2,,,cash,voucher_cash
+S00376,2026-08-28 10:34,Mercy Karanja,VCH-1H,1,,,m_pesa,voucher_till
+S00374,2026-08-28 10:38,David Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00375,2026-08-28 14:02,,VCH-1D,1,,,cash,voucher_cash
+S00377,2026-08-28 19:30,Mary Atieno,VCH-1W,2,,,m_pesa,voucher_till
+S00379,2026-08-29 12:37,,VCH-1H,2,,,cash,voucher_cash
+S00378,2026-08-29 16:33,,VCH-1H,1,,,cash,voucher_cash
+S00598,2026-08-29 16:50,Rose Kamau,ONT-GPON,1,,,m_pesa,hardware
+S00598,2026-08-29 16:50,Rose Kamau,INS-FIB,1,,,m_pesa,hardware
+S00380,2026-08-29 18:01,Moses Wambua,VCH-1M,5,,,m_pesa,voucher_till
+S00383,2026-08-30 08:16,,VCH-1H,1,,,cash,voucher_cash
+S00381,2026-08-30 09:24,Winnie Jeptoo,VCH-1W,2,,,m_pesa,voucher_till
+S00599,2026-08-30 12:07,Grace Jeptoo,CBL-CAT6-305,1,,10,m_pesa,hardware
+S00599,2026-08-30 12:07,Grace Jeptoo,CON-RJ45-100,2,,,m_pesa,hardware
+S00382,2026-08-30 15:54,Winnie Omondi,VCH-1D,3,,,m_pesa,voucher_till
+S00386,2026-08-31 08:00,Lucy Muthoni,VCH-1D,1,,,m_pesa,voucher_till
+S00384,2026-08-31 17:33,Winnie Atieno,VCH-1H,2,,,m_pesa,voucher_till
+S00385,2026-08-31 19:07,Caroline Jeptoo,VCH-1W,1,,,m_pesa,voucher_till
+S00387,2026-08-31 19:31,Peter Chebet,VCH-1M,1,,,m_pesa,voucher_till
+S00117,2026-09-01 09:00,Kilimani Towers Management,PLN-DED-200,1,,,credit,business_credit_on_time
+S00117,2026-09-01 09:00,Kilimani Towers Management,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00121,2026-09-01 09:00,Baraka Hotel,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00125,2026-09-01 09:00,Acme Cyber Cafe,PLN-BIZ-50,1,,,credit,business_credit_on_time
+S00129,2026-09-01 09:00,Juja Hardware Ltd,PLN-BIZ-50,1,,,credit,business_credit_split
+S00133,2026-09-01 09:00,St. Mary's Academy,PLN-BIZ-50,1,,,credit,business_credit_stops_paying
+S00137,2026-09-01 09:00,Riverside Clinic,PLN-BIZ-100,1,,,credit,business_credit_late_october
+S00389,2026-09-01 11:08,,VCH-1D,1,,,cash,voucher_cash
+S00390,2026-09-01 14:43,Diana Chebet,VCH-1M,1,,,m_pesa,voucher_till
+S00600,2026-09-01 14:48,Caroline Wambua,CBL-CAT6-305,1,,10,m_pesa,hardware
+S00600,2026-09-01 14:48,Caroline Wambua,CON-RJ45-100,2,,,m_pesa,hardware
+S00388,2026-09-01 16:23,,VCH-1H,1,,,cash,voucher_cash
+S00392,2026-09-01 16:48,Joyce Chebet,VCH-1D,1,,,m_pesa,voucher_till
+S00391,2026-09-01 19:02,Diana Chebet,VCH-1H,2,,,m_pesa,voucher_till
+S00395,2026-09-02 09:26,Lilian Wambua,VCH-1M,3,,,m_pesa,voucher_till
+S00393,2026-09-02 09:49,John Mutua,VCH-1H,2,,,m_pesa,voucher_till
+S00396,2026-09-02 11:24,,VCH-1H,5,,,cash,voucher_cash
+S00087,2026-09-02 11:50,Dennis Odhiambo,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00015,2026-09-02 11:52,Kevin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00394,2026-09-02 16:34,Caroline Atieno,VCH-1D,1,,,m_pesa,voucher_till
+S00083,2026-09-02 17:15,James Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00399,2026-09-03 09:07,Faith Karanja,VCH-1H,3,,,m_pesa,voucher_till
+S00051,2026-09-03 10:40,Faith Kiprop,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00398,2026-09-03 10:59,Purity Odhiambo,VCH-1D,2,,,m_pesa,voucher_till
+S00400,2026-09-03 11:59,Faith Karanja,VCH-1H,1,,,m_pesa,voucher_till
+S00397,2026-09-03 14:41,Diana Gitau,VCH-1W,1,,,m_pesa,voucher_till
+S00007,2026-09-03 16:18,Lucy Njoroge,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00601,2026-09-03 17:56,Grace Jeptoo,CBL-CAT6-1M,3,30.00,,card,hardware
+S00063,2026-09-04 14:08,Caroline Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00402,2026-09-04 17:47,,VCH-1M,2,,,cash,voucher_cash
+S00401,2026-09-04 19:11,,VCH-1H,5,,,cash,voucher_cash
+S00407,2026-09-05 08:32,Mercy Karanja,VCH-1D,3,,,m_pesa,voucher_till
+S00404,2026-09-05 08:34,Nancy Kiprop,VCH-1H,1,,,m_pesa,voucher_till
+S00405,2026-09-05 10:54,Lucy Muthoni,VCH-1H,1,,,m_pesa,voucher_till
+S00403,2026-09-05 13:56,,VCH-1H,1,,,cash,voucher_cash
+S00406,2026-09-05 16:07,David Wafula,VCH-1H,2,,,m_pesa,voucher_till
+S00408,2026-09-06 13:46,,VCH-1D,1,,,cash,voucher_cash
+S00410,2026-09-06 16:46,Mercy Karanja,VCH-1D,3,,,m_pesa,voucher_till
+S00409,2026-09-06 16:56,Nancy Wafula,VCH-1D,5,,,m_pesa,voucher_till
+S00043,2026-09-06 17:34,Victor Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00067,2026-09-06 19:10,Esther Gitau,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00411,2026-09-07 10:32,George Kamau,VCH-1H,1,,,m_pesa,voucher_till
+S00011,2026-09-07 12:46,Moses Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00415,2026-09-07 13:30,Diana Gitau,VCH-1D,1,,,m_pesa,voucher_till
+S00414,2026-09-07 14:13,,VCH-1D,1,,,cash,voucher_cash
+S00413,2026-09-07 16:10,,VCH-1D,1,,,cash,voucher_cash
+S00412,2026-09-07 17:07,,VCH-1H,1,,,cash,voucher_cash
+S00416,2026-09-07 18:05,Samuel Njoroge,VCH-1M,1,,,m_pesa,voucher_till
+S00027,2026-09-08 09:33,Ian Chebet,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00418,2026-09-08 13:43,,VCH-1H,1,,,cash,voucher_cash
+S00419,2026-09-08 14:40,Joseph Wafula,VCH-1W,1,,,m_pesa,voucher_till
+S00417,2026-09-08 14:53,David Kiprop,VCH-1H,1,,,m_pesa,voucher_till
+S00420,2026-09-08 15:20,Daniel Omondi,VCH-1H,1,,,m_pesa,voucher_till
+S00023,2026-09-08 16:57,Joseph Mwangi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00075,2026-09-09 08:17,Rose Otieno,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00031,2026-09-09 09:52,Martin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00423,2026-09-09 12:18,Dennis Mwangi,VCH-1D,1,,,m_pesa,voucher_till
+S00422,2026-09-09 13:51,Mary Atieno,VCH-1D,5,,,m_pesa,voucher_till
+S00047,2026-09-09 14:24,Paul Muthoni,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00421,2026-09-09 16:28,,VCH-1D,1,,,cash,voucher_cash
+S00426,2026-09-10 11:33,Winnie Omondi,VCH-1D,5,,,m_pesa,voucher_till
+S00424,2026-09-10 12:47,Moses Wambua,VCH-1H,2,,,m_pesa,voucher_till
+S00055,2026-09-10 13:41,Purity Omondi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00019,2026-09-10 14:33,Mary Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00425,2026-09-10 19:59,,VCH-1H,3,,,cash,voucher_cash
+S00428,2026-09-11 08:51,Agnes Kiprop,VCH-1D,1,,,m_pesa,voucher_till
+S00071,2026-09-11 09:13,David Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00427,2026-09-11 10:54,Lucy Wambua,VCH-1H,2,,,m_pesa,voucher_till
+S00059,2026-09-11 12:43,Mary Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00035,2026-09-11 14:07,Cynthia Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00091,2026-09-11 18:10,Lilian Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00429,2026-09-12 10:15,,VCH-1H,2,,,cash,voucher_cash
+S00432,2026-09-12 11:05,Nancy Kiprop,VCH-1D,3,,,m_pesa,voucher_till
+S00430,2026-09-12 12:17,Caroline Atieno,VCH-1H,1,,,m_pesa,voucher_till
+S00431,2026-09-12 12:53,,VCH-1H,1,,,cash,voucher_cash
+S00433,2026-09-12 15:15,David Kiprop,VCH-1H,3,,,m_pesa,voucher_till
+S00436,2026-09-13 09:03,Samuel Njoroge,VCH-1H,5,,,m_pesa,voucher_till
+S00079,2026-09-13 09:54,Lilian Nyambura,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00435,2026-09-13 11:16,Purity Odhiambo,VCH-1M,1,,,m_pesa,voucher_till
+S00434,2026-09-13 12:39,,VCH-1H,1,,,cash,voucher_cash
+S00437,2026-09-13 13:21,,VCH-1D,2,,,cash,voucher_cash
+S00438,2026-09-13 18:46,Rose Atieno,VCH-1H,3,,,m_pesa,voucher_till
+S00442,2026-09-14 08:36,Mercy Karanja,VCH-1D,5,,,m_pesa,voucher_till
+S00441,2026-09-14 10:05,,VCH-1H,1,,,cash,voucher_cash
+S00443,2026-09-14 16:40,John Mutua,VCH-1H,2,,,m_pesa,voucher_till
+S00440,2026-09-14 18:47,Winnie Omondi,VCH-1H,1,,,m_pesa,voucher_till
+S00439,2026-09-14 19:09,David Kiprop,VCH-1W,3,,,m_pesa,voucher_till
+S00444,2026-09-14 19:41,John Mutua,VCH-1H,3,,,m_pesa,voucher_till
+S00447,2026-09-15 10:03,Collins Mutua,VCH-1H,5,,,m_pesa,voucher_till
+S00445,2026-09-15 13:47,Winnie Jeptoo,VCH-1D,2,,,m_pesa,voucher_till
+S00095,2026-09-15 15:17,Dennis Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00446,2026-09-15 16:22,,VCH-1D,3,,,cash,voucher_cash
+S00448,2026-09-16 13:17,,VCH-1H,5,,,cash,voucher_cash
+S00003,2026-09-16 13:54,Lilian Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00449,2026-09-16 15:06,John Gitau,VCH-1H,1,,,m_pesa,voucher_till
+S00099,2026-09-17 08:34,Stephen Kamau,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00453,2026-09-17 11:03,Daniel Omondi,VCH-1H,3,,,m_pesa,voucher_till
+S00451,2026-09-17 12:26,,VCH-1D,1,,,cash,voucher_cash
+S00450,2026-09-17 15:29,,VCH-1D,1,,,cash,voucher_cash
+S00039,2026-09-17 16:12,Peter Wanjiku,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00452,2026-09-17 17:23,,VCH-1W,3,,,cash,voucher_cash
+S00454,2026-09-17 19:03,Samuel Njoroge,VCH-1H,1,,,m_pesa,voucher_till
+S00457,2026-09-18 08:00,David Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00455,2026-09-18 11:38,,VCH-1W,1,,,cash,voucher_cash
+S00456,2026-09-18 15:22,Daniel Omondi,VCH-1W,1,,,m_pesa,voucher_till
+S00461,2026-09-19 08:21,Caroline Atieno,VCH-1D,1,,,m_pesa,voucher_till
+S00460,2026-09-19 13:26,Lilian Wambua,VCH-1H,1,,,m_pesa,voucher_till
+S00458,2026-09-19 15:40,John Otieno,VCH-1M,5,,,m_pesa,voucher_till
+S00459,2026-09-19 16:36,Moses Wambua,VCH-1D,1,,,m_pesa,voucher_till
+S00464,2026-09-20 09:06,,VCH-1D,5,,,cash,voucher_cash
+S00465,2026-09-20 13:44,,VCH-1M,2,,,cash,voucher_cash
+S00462,2026-09-20 13:47,Faith Karanja,VCH-1H,3,,,m_pesa,voucher_till
+S00463,2026-09-20 18:34,Winnie Omondi,VCH-1W,3,,,m_pesa,voucher_till
+S00466,2026-09-21 11:56,,VCH-1H,3,,,cash,voucher_cash
+S00468,2026-09-21 16:35,,VCH-1W,1,,,cash,voucher_cash
+S00467,2026-09-21 17:29,,VCH-1H,2,,,cash,voucher_cash
+S00472,2026-09-22 10:42,,VCH-1M,1,,,cash,voucher_cash
+S00469,2026-09-22 18:32,,VCH-1M,1,,,cash,voucher_cash
+S00471,2026-09-22 18:33,Agnes Kiprop,VCH-1H,3,,,m_pesa,voucher_till
+S00470,2026-09-22 18:56,Lucy Wambua,VCH-1D,1,,,m_pesa,voucher_till
+S00474,2026-09-23 09:05,,VCH-1D,1,,,cash,voucher_cash
+S00476,2026-09-23 12:23,Daniel Omondi,VCH-1H,1,,,m_pesa,voucher_till
+S00473,2026-09-23 13:39,Nancy Kiprop,VCH-1H,5,,,m_pesa,voucher_till
+S00475,2026-09-23 17:08,,VCH-1D,1,,,cash,voucher_cash
+S00478,2026-09-24 15:31,,VCH-1D,1,,,cash,voucher_cash
+S00479,2026-09-24 15:33,Winnie Jeptoo,VCH-1H,1,,,m_pesa,voucher_till
+S00480,2026-09-24 17:00,Agnes Kiprop,VCH-1W,2,,,m_pesa,voucher_till
+S00477,2026-09-24 17:22,Daniel Omondi,VCH-1D,3,,,m_pesa,voucher_till
+S00481,2026-09-25 09:58,Winnie Jeptoo,VCH-1D,2,,,m_pesa,voucher_till
+S00484,2026-09-25 10:25,,VCH-1H,1,,,cash,voucher_cash
+S00482,2026-09-25 11:15,,VCH-1D,1,,,cash,voucher_cash
+S00483,2026-09-25 11:17,,VCH-1D,1,,,cash,voucher_cash
+S00602,2026-09-25 19:36,Cynthia Muthoni,RTR-DB,2,,12.5,m_pesa,hardware
+S00602,2026-09-25 19:36,Cynthia Muthoni,SW-8P,1,,12.5,m_pesa,hardware
+S00487,2026-09-26 08:02,,VCH-1M,3,,,cash,voucher_cash
+S00490,2026-09-26 09:06,Dennis Kiprop,VCH-1H,5,,,m_pesa,voucher_till
+S00489,2026-09-26 11:31,Dennis Kiprop,VCH-1W,1,,,m_pesa,voucher_till
+S00488,2026-09-26 13:23,,VCH-1H,1,,,cash,voucher_cash
+S00603,2026-09-26 16:02,Diana Kiprop,ONT-GPON,1,,,m_pesa,hardware
+S00603,2026-09-26 16:02,Diana Kiprop,INS-FIB,1,,,m_pesa,hardware
+S00486,2026-09-26 18:26,Winnie Omondi,VCH-1D,1,,,m_pesa,voucher_till
+S00485,2026-09-26 19:37,,VCH-1H,1,,,cash,voucher_cash
+S00492,2026-09-27 14:11,Mercy Karanja,VCH-1D,3,,,m_pesa,voucher_till
+S00493,2026-09-27 15:35,,VCH-1H,1,,,cash,voucher_cash
+S00491,2026-09-27 19:20,Agnes Atieno,VCH-1W,2,,,m_pesa,voucher_till
+S00494,2026-09-28 12:28,,VCH-1W,5,,,cash,voucher_cash
+S00495,2026-09-28 16:52,Agnes Kiprop,VCH-1H,1,,,m_pesa,voucher_till
+S00604,2026-09-28 17:18,Grace Jeptoo,ONT-GPON,1,,,m_pesa,hardware
+S00604,2026-09-28 17:18,Grace Jeptoo,INS-FIB,1,,,m_pesa,hardware
+S00498,2026-09-29 16:26,David Kiprop,VCH-1M,2,,,m_pesa,voucher_till
+S00496,2026-09-29 17:57,,VCH-1D,3,,,cash,voucher_cash
+S00605,2026-09-29 18:09,Grace Jeptoo,ONT-GPON,1,,,cash,hardware
+S00605,2026-09-29 18:09,Grace Jeptoo,INS-FIB,1,,,cash,hardware
+S00497,2026-09-29 19:33,Nancy Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00500,2026-09-30 08:39,Peter Chebet,VCH-1D,1,,,m_pesa,voucher_till
+S00499,2026-09-30 08:47,Faith Karanja,VCH-1M,2,,,m_pesa,voucher_till
+S00503,2026-09-30 14:10,Collins Mutua,VCH-1H,2,,,m_pesa,voucher_till
+S00501,2026-09-30 14:52,Felix Odhiambo,VCH-1D,3,,,m_pesa,voucher_till
+S00502,2026-09-30 16:17,Joseph Wafula,VCH-1W,3,,,m_pesa,voucher_till
+S00506,2026-10-01 08:37,Joseph Wafula,VCH-1H,3,,,m_pesa,voucher_till
+S00118,2026-10-01 09:00,Kilimani Towers Management,PLN-DED-200,1,,,credit,business_credit_on_time
+S00118,2026-10-01 09:00,Kilimani Towers Management,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00122,2026-10-01 09:00,Baraka Hotel,PLN-BIZ-100,1,,,credit,business_credit_on_time
+S00126,2026-10-01 09:00,Acme Cyber Cafe,PLN-BIZ-50,1,,,credit,business_credit_on_time
+S00130,2026-10-01 09:00,Juja Hardware Ltd,PLN-BIZ-50,1,,,credit,business_credit_split
+S00134,2026-10-01 09:00,St. Mary's Academy,PLN-BIZ-50,1,,,credit,business_credit_stops_paying
+S00138,2026-10-01 09:00,Riverside Clinic,PLN-BIZ-100,1,,,credit,business_credit_late_october
+S00504,2026-10-01 09:45,,VCH-1H,3,,,cash,voucher_cash
+S00505,2026-10-01 09:56,Lucy Muthoni,VCH-1W,5,,,m_pesa,voucher_till
+S00508,2026-10-01 12:10,Joyce Chebet,VCH-1D,5,,,m_pesa,voucher_till
+S00507,2026-10-01 14:18,Dennis Kiprop,VCH-1H,5,,,m_pesa,voucher_till
+S00016,2026-10-02 10:03,Kevin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00510,2026-10-02 11:00,,VCH-1H,1,,,cash,voucher_cash
+S00509,2026-10-02 11:35,,VCH-1H,3,,,cash,voucher_cash
+S00084,2026-10-02 15:20,James Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00511,2026-10-02 17:08,,VCH-1W,1,,,cash,voucher_cash
+S00088,2026-10-02 18:35,Dennis Odhiambo,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00113,2026-10-03 09:45,Cynthia Kiprop,PLN-HOME-20,1,,,m_pesa,subscription_new_install
+S00113,2026-10-03 09:45,Cynthia Kiprop,INS-STD,1,,,m_pesa,subscription_new_install
+S00113,2026-10-03 09:45,Cynthia Kiprop,DEP-RTR,1,,,m_pesa,subscription_new_install
+S00052,2026-10-03 10:06,Faith Kiprop,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00516,2026-10-03 10:29,,VCH-1H,3,,,cash,voucher_cash
+S00514,2026-10-03 11:48,,VCH-1D,5,,,cash,voucher_cash
+S00606,2026-10-03 12:52,Caroline Wambua,SW-8P,1,,,cash,hardware
+S00606,2026-10-03 12:52,Caroline Wambua,CBL-CAT6-1M,8,,,cash,hardware
+S00606,2026-10-03 12:52,Caroline Wambua,CON-RJ45-100,1,,,cash,hardware
+S00512,2026-10-03 14:05,Caroline Atieno,VCH-1D,3,,,m_pesa,voucher_till
+S00515,2026-10-03 14:12,Caroline Atieno,VCH-1H,5,,,m_pesa,voucher_till
+S00517,2026-10-03 17:54,Lucy Wambua,VCH-1H,1,,,m_pesa,voucher_till
+S00008,2026-10-03 17:55,Lucy Njoroge,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00513,2026-10-03 19:02,,VCH-1D,2,,,cash,voucher_cash
+S00521,2026-10-04 08:29,,VCH-1H,1,,,cash,voucher_cash
+S00518,2026-10-04 12:26,,VCH-1M,2,,,cash,voucher_cash
+S00520,2026-10-04 13:39,Caroline Wafula,VCH-1W,1,,,m_pesa,voucher_till
+S00064,2026-10-04 15:02,Caroline Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00519,2026-10-04 17:20,,VCH-1H,1,,,cash,voucher_cash
+S00522,2026-10-04 18:00,,VCH-1W,1,,,cash,voucher_cash
+S00523,2026-10-05 09:00,,VCH-1H,5,,,cash,voucher_cash
+S00525,2026-10-05 14:25,Winnie Omondi,VCH-1H,1,,,m_pesa,voucher_till
+S00524,2026-10-05 19:51,John Gitau,VCH-1H,1,,,m_pesa,voucher_till
+S00527,2026-10-06 08:56,,VCH-1D,1,,,cash,voucher_cash
+S00528,2026-10-06 09:47,Agnes Kiprop,VCH-1M,1,,,m_pesa,voucher_till
+S00529,2026-10-06 10:34,,VCH-1W,1,,,cash,voucher_cash
+S00044,2026-10-06 10:58,Victor Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00526,2026-10-06 18:58,,VCH-1H,3,,,cash,voucher_cash
+S00068,2026-10-06 19:18,Esther Gitau,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00534,2026-10-07 08:25,,VCH-1H,1,,,cash,voucher_cash
+S00012,2026-10-07 09:15,Moses Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00532,2026-10-07 09:38,Caroline Jeptoo,VCH-1W,3,,,m_pesa,voucher_till
+S00531,2026-10-07 10:24,,VCH-1H,2,,,cash,voucher_cash
+S00535,2026-10-07 13:00,David Wafula,VCH-1D,3,,,m_pesa,voucher_till
+S00607,2026-10-07 15:23,Grace Jeptoo,RTR-DB,2,,12.5,card,hardware
+S00607,2026-10-07 15:23,Grace Jeptoo,SW-8P,1,,12.5,card,hardware
+S00530,2026-10-07 17:56,,VCH-1D,1,,,cash,voucher_cash
+S00533,2026-10-07 19:28,Caroline Wafula,VCH-1H,3,,,m_pesa,voucher_till
+S00536,2026-10-08 08:25,Dennis Mwangi,VCH-1H,5,,,m_pesa,voucher_till
+S00028,2026-10-08 08:45,Ian Chebet,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00024,2026-10-08 11:17,Joseph Mwangi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00537,2026-10-08 12:24,,VCH-1H,2,,,cash,voucher_cash
+S00538,2026-10-08 15:51,,VCH-1W,3,,,cash,voucher_cash
+S00539,2026-10-08 17:06,,VCH-1H,1,,,cash,voucher_cash
+S00608,2026-10-08 17:19,Collins Wanjiku,SUP-ONSITE,1,,,cash,hardware
+S00608,2026-10-08 17:19,Collins Wanjiku,TRN-BASIC,1,,,cash,hardware
+S00609,2026-10-09 08:50,Rose Kamau,UPS-650,1,,,cash,hardware
+S00541,2026-10-09 09:36,,VCH-1D,3,,,cash,voucher_cash
+S00076,2026-10-09 11:12,Rose Otieno,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00542,2026-10-09 12:13,,VCH-1D,1,,,cash,voucher_cash
+S00032,2026-10-09 13:28,Martin Mutua,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00048,2026-10-09 14:41,Paul Muthoni,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00540,2026-10-09 16:27,David Wafula,VCH-1D,1,,,m_pesa,voucher_till
+S00546,2026-10-10 08:10,Caroline Wafula,VCH-1D,3,,,m_pesa,voucher_till
+S00543,2026-10-10 10:54,Joyce Chebet,VCH-1W,3,,,m_pesa,voucher_till
+S00544,2026-10-10 11:41,,VCH-1H,1,,,cash,voucher_cash
+S00545,2026-10-10 12:14,,VCH-1H,3,,,cash,voucher_cash
+S00056,2026-10-10 16:26,Purity Omondi,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00020,2026-10-10 18:09,Mary Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00036,2026-10-11 08:19,Cynthia Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00072,2026-10-11 09:09,David Karanja,PLN-HOME-20,1,,,m_pesa,subscription_loyal
+S00060,2026-10-11 10:47,Mary Jeptoo,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00092,2026-10-11 11:18,Lilian Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00549,2026-10-11 12:53,Winnie Omondi,VCH-1H,5,,,m_pesa,voucher_till
+S00114,2026-10-11 15:57,Daniel Kiprop,PLN-HOME-10,1,,,m_pesa,subscription_new_install
+S00114,2026-10-11 15:57,Daniel Kiprop,INS-STD,1,,,m_pesa,subscription_new_install
+S00114,2026-10-11 15:57,Daniel Kiprop,DEP-RTR,1,,,m_pesa,subscription_new_install
+S00548,2026-10-11 17:06,Agnes Mwangi,VCH-1W,2,,,m_pesa,voucher_till
+S00547,2026-10-11 19:18,,VCH-1D,3,,,cash,voucher_cash
+S00550,2026-10-12 14:35,Diana Gitau,VCH-1W,5,,,m_pesa,voucher_till
+S00551,2026-10-12 15:55,,VCH-1D,5,,,cash,voucher_cash
+S00552,2026-10-13 08:34,John Otieno,VCH-1H,1,,,m_pesa,voucher_till
+S00610,2026-10-13 09:58,Sharon Chebet,SW-8P,1,,,cash,hardware
+S00610,2026-10-13 09:58,Sharon Chebet,CBL-CAT6-1M,8,,,cash,hardware
+S00610,2026-10-13 09:58,Sharon Chebet,CON-RJ45-100,1,,,cash,hardware
+S00553,2026-10-13 17:00,Caroline Wafula,VCH-1H,1,,,m_pesa,voucher_till
+S00080,2026-10-13 18:05,Lilian Nyambura,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00111,2026-10-14 08:32,Ann Njoroge,PLN-HOME-20,1,,,m_pesa,subscription_new_install
+S00111,2026-10-14 08:32,Ann Njoroge,INS-STD,1,,,m_pesa,subscription_new_install
+S00111,2026-10-14 08:32,Ann Njoroge,DEP-RTR,1,,,m_pesa,subscription_new_install
+S00555,2026-10-14 10:53,Collins Mutua,VCH-1H,2,,,m_pesa,voucher_till
+S00554,2026-10-14 13:23,,VCH-1D,1,,,cash,voucher_cash
+S00611,2026-10-14 15:55,Rose Kamau,CBL-CAT6-305,1,,10,m_pesa,hardware
+S00611,2026-10-14 15:55,Rose Kamau,CON-RJ45-100,2,,,m_pesa,hardware
+S00557,2026-10-15 13:28,,VCH-1D,1,,,cash,voucher_cash
+S00112,2026-10-15 14:46,Rose Omondi,PLN-HOME-10,1,,,m_pesa,subscription_new_install
+S00112,2026-10-15 14:46,Rose Omondi,INS-STD,1,,,m_pesa,subscription_new_install
+S00112,2026-10-15 14:46,Rose Omondi,DEP-RTR,1,,,m_pesa,subscription_new_install
+S00096,2026-10-15 15:05,Dennis Mutua,PLN-HOME-40,1,,,m_pesa,subscription_loyal
+S00559,2026-10-15 15:13,David Kiprop,VCH-1H,1,,,m_pesa,voucher_till
+S00558,2026-10-15 17:45,Mercy Karanja,VCH-1H,1,,,m_pesa,voucher_till
+S00556,2026-10-15 19:38,,VCH-1H,5,,,cash,voucher_cash
+S00560,2026-10-16 09:08,,VCH-1H,1,,,cash,voucher_cash
+S00004,2026-10-16 09:30,Lilian Omondi,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00562,2026-10-16 10:49,,VCH-1W,1,,,cash,voucher_cash
+S00563,2026-10-16 12:07,Samuel Njoroge,VCH-1H,1,,,m_pesa,voucher_till
+S00564,2026-10-16 15:42,,VCH-1H,1,,,cash,voucher_cash
+S00561,2026-10-16 16:33,Samuel Njoroge,VCH-1H,1,,,m_pesa,voucher_till
+S00612,2026-10-17 13:04,Sharon Kiprop,UPS-650,1,,,cash,hardware
+S00567,2026-10-17 13:38,,VCH-1H,1,,,cash,voucher_cash
+S00100,2026-10-17 13:40,Stephen Kamau,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00569,2026-10-17 13:46,John Gitau,VCH-1M,1,,,m_pesa,voucher_till
+S00040,2026-10-17 14:35,Peter Wanjiku,PLN-HOME-10,1,,,m_pesa,subscription_loyal
+S00565,2026-10-17 15:35,,VCH-1H,1,,,cash,voucher_cash
+S00566,2026-10-17 17:32,,VCH-1H,1,,,cash,voucher_cash
+S00568,2026-10-17 17:38,Agnes Atieno,VCH-1H,1,,,m_pesa,voucher_till
+S00570,2026-10-17 18:03,,VCH-1D,2,,,cash,voucher_cash

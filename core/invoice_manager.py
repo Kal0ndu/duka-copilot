@@ -1,8 +1,15 @@
 """Invoice Manager: invoicing, quotations, payments, follow-ups."""
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+import re
 import sqlite3
+
+# An invoice the customer owes on: issued, not a draft and not cancelled.
+ISSUED_STATUSES = ("active", "sent", "overdue")
+OPEN_PAYMENT_STATUSES = ("unpaid", "partial", "overdue")
+_ISSUED_SQL = "(" + ",".join(f"'{s}'" for s in ISSUED_STATUSES) + ")"
+_OPEN_SQL = "(" + ",".join(f"'{s}'" for s in OPEN_PAYMENT_STATUSES) + ")"
 
 
 @dataclass
@@ -108,11 +115,59 @@ class PaymentRecord:
     created_at: str = ""
 
 
+def normalise_customer_name(name: Optional[str]) -> str:
+    """How customer names are keyed: single spaces, upper case, max 80 chars."""
+    return re.sub(r"\s+", " ", (name or "")).strip().upper()[:80]
+
+
+def upsert_customer(conn, business_id: int, name: Optional[str]) -> int:
+    """party_id of this business's customer called `name`, created on first
+    use. Names are tokenised the same way statement payers are (original
+    kept only in the local token_vault), so "Acme Ltd" on an invoice, an
+    import and an M-Pesa receipt is one party."""
+    key = normalise_customer_name(name)
+    if not key:
+        raise ValueError("A customer name is required.")
+    from core.ingestion import _party_token
+    token = _party_token(business_id, key)
+    conn.execute(
+        """INSERT INTO party (business_id, kind, display_token, is_business_related, first_seen, last_seen)
+           VALUES (?, 'customer', ?, 1, date('now'), date('now'))
+           ON CONFLICT (business_id, display_token) DO UPDATE SET
+             kind = CASE WHEN party.kind = 'unknown' THEN 'customer' ELSE party.kind END,
+             last_seen = date('now')""",
+        (business_id, token),
+    )
+    conn.execute(
+        "INSERT OR IGNORE INTO token_vault (token, business_id, entity_type, original_value) VALUES (?, ?, 'PERSON', ?)",
+        (token, business_id, key),
+    )
+    return conn.execute(
+        "SELECT party_id FROM party WHERE business_id = ? AND display_token = ?", (business_id, token)
+    ).fetchone()[0]
+
+
+def list_customers(db_path: str, business_id: int) -> List[Dict]:
+    """This business's customer parties with their names (from the local vault)."""
+    with sqlite3.connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """SELECT p.party_id, COALESCE(v.original_value, p.display_token) AS name, p.note, p.first_seen
+               FROM party p
+               LEFT JOIN token_vault v ON v.token = p.display_token AND v.business_id = p.business_id
+               WHERE p.business_id = ? AND p.kind = 'customer'
+               ORDER BY name""",
+            (business_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 class InvoiceManager:
     """Manage invoices, quotations, payments, and follow-ups."""
 
-    def __init__(self, db_path: str = "data/duka.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        from core.config import config
+        self.db_path = db_path or config.DB_PATH
 
     def _get_conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
@@ -120,51 +175,46 @@ class InvoiceManager:
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
 
+    def _resolve_customer(self, conn, business_id: int, customer_id: int,
+                          customer_name: Optional[str]) -> int:
+        """The party_id to bill: customer_id when given, else the customer
+        party for the typed name (created on first use)."""
+        if customer_id:
+            return customer_id
+        return upsert_customer(conn, business_id, customer_name)
+
     # ------------------------------------------------------------------
     # Number Generation
     # ------------------------------------------------------------------
 
-    def _get_next_invoice_number(self, business_id: int) -> str:
-        """Generate next invoice number using prefix + sequence."""
+    def _next_number(self, business_id: int, kind: str) -> str:
+        """Next free {prefix}-{business_id}-{seq:06d} for 'invoice' or
+        'quotation'. The sequence lives in pos_setting; a business without
+        POS settings starts at 1000. Numbers already used are skipped, so
+        the sequence can never hand out a duplicate."""
+        table, number_col = ("invoice", "invoice_number") if kind == "invoice" else ("quotation", "quotation_number")
+        default_prefix = "INV" if kind == "invoice" else "QT"
         with self._get_conn() as conn:
             pos = conn.execute(
-                "SELECT invoice_prefix, invoice_sequence FROM pos_setting WHERE business_id = ?",
+                f"SELECT {kind}_prefix AS prefix, {kind}_sequence AS seq FROM pos_setting WHERE business_id = ?",
                 (business_id,),
             ).fetchone()
-
-        prefix = pos["invoice_prefix"] if pos else "INV"
-        seq = pos["invoice_sequence"] if pos else 1000
-
-        with self._get_conn() as conn:
-            conn.execute(
-                "UPDATE pos_setting SET invoice_sequence = invoice_sequence + 1 WHERE business_id = ?",
-                (business_id,),
-            )
-            count = conn.execute(
-                "SELECT COUNT(*) + 1 AS cnt FROM invoice WHERE business_id = ?",
-                (business_id,),
-            ).fetchone()["cnt"]
-
+            prefix = (pos["prefix"] if pos else None) or default_prefix
+            seq = (pos["seq"] if pos else None) or 1000
+            while conn.execute(f"SELECT 1 FROM {table} WHERE {number_col} = ?",
+                               (f"{prefix}-{business_id}-{seq:06d}",)).fetchone():
+                seq += 1
+            conn.execute(f"UPDATE pos_setting SET {kind}_sequence = ? WHERE business_id = ?",
+                         (seq + 1, business_id))
         return f"{prefix}-{business_id}-{seq:06d}"
+
+    def _get_next_invoice_number(self, business_id: int) -> str:
+        """Generate next invoice number using prefix + sequence."""
+        return self._next_number(business_id, "invoice")
 
     def _get_next_quotation_number(self, business_id: int) -> str:
         """Generate next quotation number."""
-        with self._get_conn() as conn:
-            pos = conn.execute(
-                "SELECT quotation_prefix, quotation_sequence FROM pos_setting WHERE business_id = ?",
-                (business_id,),
-            ).fetchone()
-
-        prefix = pos["quotation_prefix"] if pos else "QT"
-        seq = pos["quotation_sequence"] if pos else 1000
-
-        with self._get_conn() as conn:
-            conn.execute(
-                "UPDATE pos_setting SET quotation_sequence = quotation_sequence + 1 WHERE business_id = ?",
-                (business_id,),
-            )
-
-        return f"{prefix}-{business_id}-{seq:06d}"
+        return self._next_number(business_id, "quotation")
 
     # ------------------------------------------------------------------
     # Invoices
@@ -181,18 +231,21 @@ class InvoiceManager:
         notes: Optional[str] = None,
         created_by: Optional[str] = None,
         status: str = "active",
+        invoice_date: Optional[date] = None,
     ) -> Invoice:
-        """Create a new invoice with line items."""
+        """Create a new invoice with line items. invoice_date defaults to now;
+        the due date is due_days after it."""
         invoice_number = self._get_next_invoice_number(business_id)
-        now = datetime.now()
-        invoice_date = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-        due_date = (now + timedelta(days=due_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        issued = datetime.combine(invoice_date, datetime.min.time()) if invoice_date else datetime.now()
+        invoice_date = issued.strftime("%Y-%m-%dT%H:%M:%SZ")
+        due_date = (issued + timedelta(days=due_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         subtotal_minor = sum(li.line_subtotal_minor for li in line_items)
         vat_amount_minor = sum(li.vat_amount_minor for li in line_items)
         total_amount_minor = subtotal_minor + vat_amount_minor
 
         with self._get_conn() as conn:
+            customer_id = self._resolve_customer(conn, business_id, customer_id, customer_name_token)
             cur = conn.execute(
                 """INSERT INTO invoice
                     (business_id, invoice_number, invoice_date, due_date,
@@ -376,7 +429,7 @@ class InvoiceManager:
                          OR (due_date < date('now') AND payment_status NOT IN ('paid','cancelled'))
                          THEN balance_due_minor ELSE 0 END), 0) AS overdue_amount
                 FROM invoice
-                WHERE business_id = ? AND status = 'active'""",
+                WHERE business_id = ? AND status IN """ + _ISSUED_SQL,
                 (business_id,),
             ).fetchone()
 
@@ -384,7 +437,7 @@ class InvoiceManager:
                 """SELECT payment_status, COUNT(*) AS cnt,
                           COALESCE(SUM(balance_due_minor), 0) AS balance
                 FROM invoice
-                WHERE business_id = ? AND status = 'active'
+                WHERE business_id = ? AND status IN """ + _ISSUED_SQL + """
                 GROUP BY payment_status""",
                 (business_id,),
             ).fetchall()
@@ -416,15 +469,20 @@ class InvoiceManager:
         notes: Optional[str] = None,
         recorded_by: Optional[str] = None,
     ) -> bool:
-        """Record a payment against an invoice."""
+        """Record a payment against an issued, unpaid invoice of this business.
+        Returns False when the amount is not positive or the invoice is not
+        found, is a draft, or is already paid or cancelled."""
         now = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        if not isinstance(amount_minor, int) or amount_minor <= 0:
+            return False
 
         with self._get_conn() as conn:
             inv = conn.execute(
                 "SELECT * FROM invoice WHERE invoice_id = ? AND business_id = ?",
                 (invoice_id, business_id),
             ).fetchone()
-            if inv is None:
+            if (inv is None or inv["status"] not in ISSUED_STATUSES
+                    or inv["payment_status"] not in OPEN_PAYMENT_STATUSES):
                 return False
 
             new_paid = inv["amount_paid_minor"] + amount_minor
@@ -503,10 +561,12 @@ class InvoiceManager:
         notes: Optional[str] = None,
         terms: Optional[str] = None,
         created_by: Optional[str] = None,
+        quotation_date: Optional[date] = None,
     ) -> Quotation:
-        """Create a new quotation."""
+        """Create a new quotation. quotation_date defaults to now; it is
+        valid for valid_days after it."""
         quotation_number = self._get_next_quotation_number(business_id)
-        now = datetime.now()
+        now = datetime.combine(quotation_date, datetime.min.time()) if quotation_date else datetime.now()
         quotation_date = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         valid_until = (now + timedelta(days=valid_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -515,6 +575,7 @@ class InvoiceManager:
         total_minor = subtotal_minor + vat_amount_minor
 
         with self._get_conn() as conn:
+            customer_id = self._resolve_customer(conn, business_id, customer_id, customer_name_token)
             cur = conn.execute(
                 """INSERT INTO quotation
                     (business_id, quotation_number, quotation_date, valid_until_date,
@@ -565,10 +626,12 @@ class InvoiceManager:
     def convert_quotation_to_invoice(
         self, quotation_id: int, due_days: int = 30, created_by: Optional[str] = None
     ) -> Optional[Invoice]:
-        """Convert an accepted quotation to an invoice."""
+        """Convert a quotation the customer accepted into an invoice. Works
+        from draft, sent or accepted; returns None for one that was
+        rejected, expired or already converted."""
         with self._get_conn() as conn:
             qt = conn.execute(
-                "SELECT * FROM quotation WHERE quotation_id = ? AND status IN ('accepted','sent')",
+                "SELECT * FROM quotation WHERE quotation_id = ? AND status IN ('draft','sent','accepted')",
                 (quotation_id,),
             ).fetchone()
             if qt is None:
@@ -723,39 +786,33 @@ class InvoiceManager:
         }
 
     def get_outstanding_invoices(self, business_id: int) -> List[Invoice]:
-        """Get all outstading (unpaid/overdue) invoices."""
-        return self.list_invoices(
-            business_id, status="active", payment_status="unpaid", limit=500
-        )
+        """Issued invoices with money still owed (unpaid, partial or overdue)."""
+        with self._get_conn() as conn:
+            ids = [r["invoice_id"] for r in conn.execute(
+                "SELECT invoice_id FROM invoice WHERE business_id = ? AND status IN " + _ISSUED_SQL
+                + " AND payment_status IN " + _OPEN_SQL + " ORDER BY due_date LIMIT 500",
+                (business_id,),
+            )]
+        return [self.get_invoice(i) for i in ids]
 
     def get_recent_payments(
         self, business_id: int, days: int = 30, limit: int = 50
-    ) -> List[PaymentRecord]:
-        """Get recent payment records across all invoices."""
-        cut = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    ) -> List[Dict]:
+        """Payments recorded against this business's invoices in the last
+        `days` days, newest first, each with its invoice_number."""
+        cut = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
         with self._get_conn() as conn:
             rows = conn.execute(
-                """SELECT * FROM payment_record
-                WHERE invoice_id IN (
-                    SELECT invoice_id FROM invoice WHERE business_id = ?
-                )
-                AND payment_date >= ?
-                ORDER BY payment_date DESC LIMIT ?""",
-                (business_id, cut, limit),
+                """SELECT pr.payment_id, pr.invoice_id, pr.payment_date, pr.amount_minor,
+                          pr.payment_method, pr.reference_number, pr.mpesa_reference,
+                          pr.notes, i.invoice_number
+                FROM payment_record pr
+                JOIN invoice i ON i.invoice_id = pr.invoice_id
+                WHERE pr.business_id = ? AND i.business_id = ? AND pr.payment_date >= ?
+                ORDER BY pr.payment_date DESC LIMIT ?""",
+                (business_id, business_id, cut, limit),
             ).fetchall()
-
-        return [
-            PaymentRecord(
-                payment_id=r["payment_id"],
-                invoice_id=r["invoice_id"],
-                amount_minor=r["amount_minor"],
-                payment_method=r["payment_method"],
-                payment_reference=r["payment_reference"],
-                payment_date=r["payment_date"],
-                notes=r["notes"],
-            )
-            for r in rows
-        ]
+        return [dict(r) for r in rows]
 
     def update_quotation_status(self, quotation_id: int, status: str) -> bool:
         """Update a quotation's status (draft, sent, accepted, declined, converted)."""

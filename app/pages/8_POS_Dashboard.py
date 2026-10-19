@@ -3,18 +3,25 @@ import streamlit as st
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from app.auth_ui import require_auth
 
 from core.pos_engine import POSEngine, POSSetting
 from core.inventory_manager import InventoryManager
 from core.invoice_manager import InvoiceManager
 from core.ai_sales_assistant import AISalesAssistant
 from app.session_helpers import SessionManager
+from auth.middleware import get_business_id
 
 st.set_page_config(page_title="POS Dashboard — Duka", page_icon=":material/shopping_cart:", layout="wide")
+# ---- Authentication Gate ----
+require_auth()
 
 SessionManager.init_session()
 profile = SessionManager.get_profile()
-biz_id = profile.get("business_id", 1) if profile else 1
+biz_id = get_business_id()
+if not biz_id:
+    st.warning("Please register your business first in **Business Setup**.")
+    st.stop()
 
 pos = POSEngine()
 inv_mgr = InventoryManager()

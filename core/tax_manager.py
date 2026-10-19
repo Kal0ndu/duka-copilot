@@ -42,8 +42,9 @@ class VATReportLine:
 class TaxManager:
     """Compute VAT, generate tax summaries, prepare KRA reporting data."""
 
-    def __init__(self, db_path: str = "data/duka.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        from core.config import config
+        self.db_path = db_path or config.DB_PATH
 
     def _get_conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
