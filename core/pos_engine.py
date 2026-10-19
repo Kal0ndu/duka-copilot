@@ -354,6 +354,31 @@ class POSEngine:
             for r in rows
         ]
 
+    def get_recent_sales_table(self, business_id: int, limit: int = 50) -> List[Dict]:
+        """Recent completed sales with their item count, newest first (for tables)."""
+        with self._get_conn() as conn:
+            rows = conn.execute(
+                """SELECT s.sale_id, s.sale_number, s.sale_date, s.customer_name_token, s.payment_method,
+                          s.payment_status, s.subtotal_minor, s.vat_amount_minor, s.total_amount_minor,
+                          COALESCE(SUM(li.quantity), 0) AS items
+                   FROM sale s LEFT JOIN sale_line_item li ON li.sale_id = s.sale_id
+                   WHERE s.business_id = ? AND s.status = 'completed'
+                   GROUP BY s.sale_id
+                   ORDER BY s.sale_date DESC, s.sale_id DESC LIMIT ?""",
+                (business_id, limit),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_day_totals(self, business_id: int, day: str) -> Dict:
+        """Count and total of completed sales on one local date (YYYY-MM-DD)."""
+        with self._get_conn() as conn:
+            row = conn.execute(
+                """SELECT COUNT(*) AS n, COALESCE(SUM(total_amount_minor), 0) AS total
+                   FROM sale WHERE business_id = ? AND status = 'completed' AND substr(sale_date, 1, 10) = ?""",
+                (business_id, day),
+            ).fetchone()
+        return {"count": row["n"], "total_minor": row["total"]}
+
     def get_sales_summary(self, business_id: int, days: int = 30) -> Dict:
         """Get sales summary for a period."""
         with self._get_conn() as conn:
