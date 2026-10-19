@@ -216,8 +216,10 @@ TOOL_REGISTRY: Dict[str, ToolSpec] = {
     "get_payment_priorities": ToolSpec(
         name="get_payment_priorities", tier="T0",
         description=(
-            "List upcoming standing-order payments ranked by priority (score, band, reasons, status). "
-            "Read-only: use it to explain what to pay first. You cannot pay or authorize anything; "
+            "List the owner's bills: upcoming standing-order payments ranked by priority (score, band, "
+            "reasons, status), plus recurring expenses (rent, salaries, utilities...) that are overdue or due "
+            "within 30 days, with next_due, days_overdue, days_until_due and overdue totals. "
+            "Read-only: use it to answer 'any overdue bills?' and explain what to pay first. You cannot pay or authorize anything; "
             "the owner authorizes each payment on the Standing Orders page and confirms with their M-Pesa PIN."
         ),
         schema=GetPaymentPrioritiesArgs,

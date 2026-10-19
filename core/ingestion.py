@@ -341,6 +341,14 @@ class StatementIngestor:
                  party_id, party_token, description, channel, category_id, cat.source,
                  cat.confidence, 1 if needs_review else 0),
             )
+            if not cur.rowcount and rec.get("reference"):
+                # A row from a statement the owner removed: bring it back.
+                cur = conn.execute(
+                    """UPDATE transaction_ledger SET voided = 0, void_reason = NULL, file_id = ?
+                       WHERE account_id = ? AND reference = ? AND voided = 1
+                         AND void_reason = 'statement removed by owner'""",
+                    (file_id, account_id, rec.get("reference")),
+                )
             if cur.rowcount:
                 report.rows_loaded += 1
                 report.rows_needs_review += 1 if needs_review else 0

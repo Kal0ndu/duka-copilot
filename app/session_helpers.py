@@ -36,24 +36,75 @@ class SessionManager:
             st.session_state[cls.PROFILE_KEY] = profile
         st.session_state[cls.UPLOAD_TIMESTAMP_KEY] = st.session_state.get("_timestamp_now", "")
 
+    LEDGER_VERSION_KEY = "_ledger_version"
+
+    @classmethod
+    def _business_id(cls) -> Optional[int]:
+        session = st.session_state.get("auth_session")
+        return session.business_id if session and session.business_id else None
+
+    @classmethod
+    def load_from_ledger(cls, force: bool = False) -> bool:
+        """Load the business's saved statements (transaction_ledger) into the
+        session. Runs again whenever the ledger changes (upload, removal,
+        recategorisation), so pages never show a stale copy. A demo sample
+        loaded on purpose is left alone. Returns True if ledger data is loaded."""
+        from core.config import config
+        from core.statement_store import ledger_version, load_ledger_records
+        business_id = cls._business_id()
+        if not business_id:
+            return False
+        profile = st.session_state.get(cls.PROFILE_KEY) or {}
+        if st.session_state.get(cls.TRANSACTIONS_KEY) and profile.get("source") != "ledger" and not force:
+            return False  # a demo sample the owner chose
+        version = (business_id, *ledger_version(config.DB_PATH, business_id))
+        if not force and st.session_state.get(cls.LEDGER_VERSION_KEY) == version:
+            return bool(st.session_state.get(cls.TRANSACTIONS_KEY))
+        records = load_ledger_records(config.DB_PATH, business_id)
+        st.session_state[cls.LEDGER_VERSION_KEY] = version
+        if not records:
+            if profile.get("source") == "ledger":
+                st.session_state[cls.TRANSACTIONS_KEY] = None
+                st.session_state[cls.PROFILE_KEY] = None
+            return False
+        from core.business_setup import BusinessSetup
+        biz = BusinessSetup(config.DB_PATH).get_business_profile(business_id)
+        st.session_state[cls.TRANSACTIONS_KEY] = records
+        st.session_state[cls.PROFILE_KEY] = {
+            "name": biz.name_token if biz else "Your business",
+            "sector": (biz.sector.title() if biz else "SME"),
+            "icon": ":material/store:",
+            "source": "ledger",
+        }
+        return True
+
+    @classmethod
+    def use_ledger(cls) -> bool:
+        """Switch back from a demo sample to the business's saved statements."""
+        cls.clear_data()
+        return cls.load_from_ledger(force=True)
+
     @classmethod
     def get_transactions(cls) -> Optional[List[Dict[str, Any]]]:
-        """Retrieve stored transactions from session state.
-        
+        """Retrieve stored transactions: the demo sample if one was chosen,
+        otherwise the business's saved statements from the database.
+
         Returns:
             List of transactions or None if not loaded
         """
         cls.init_session()
+        cls.load_from_ledger()
         return st.session_state.get(cls.TRANSACTIONS_KEY)
 
     @classmethod
     def get_profile(cls) -> Optional[Dict[str, str]]:
         """Retrieve stored business profile from session state.
-        
+
         Returns:
             Profile dict or None if not loaded
         """
         cls.init_session()
+        cls.load_from_ledger()
         return st.session_state.get(cls.PROFILE_KEY)
 
     @classmethod
@@ -64,6 +115,7 @@ class SessionManager:
             True if transactions are loaded, False otherwise
         """
         cls.init_session()
+        cls.load_from_ledger()
         txns = st.session_state.get(cls.TRANSACTIONS_KEY)
         return txns is not None and len(txns) > 0
 
@@ -73,6 +125,7 @@ class SessionManager:
         st.session_state[cls.TRANSACTIONS_KEY] = None
         st.session_state[cls.PROFILE_KEY] = None
         st.session_state.pop(cls.UPLOAD_TIMESTAMP_KEY, None)
+        st.session_state.pop(cls.LEDGER_VERSION_KEY, None)
 
     @classmethod
     def require_data(cls, page_name: str = "this page") -> bool:

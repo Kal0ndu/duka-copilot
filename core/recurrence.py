@@ -106,7 +106,8 @@ def occurrences(next_due: DateLike, cadence: str, interval: int = 1,
     anchor = day_of_month or start.day
     k = 0
     while True:
-        d = step(start, cadence, interval, anchor, times=k)
+        # The first instalment is next_due itself; later ones keep the anchor day.
+        d = start if k == 0 else step(start, cadence, interval, anchor, times=k)
         if d > stop:
             return
         yield d

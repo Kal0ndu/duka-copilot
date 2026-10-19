@@ -2,6 +2,7 @@
 from typing import Dict, List, Optional
 from datetime import date, datetime, timedelta
 import sqlite3
+import statistics
 import pandas as pd
 
 from core import recurrence
@@ -11,59 +12,154 @@ from core.adapters.mpesa_pdf import MpesaPdfAdapter
 from core.adapters.mobile_money_ke import MobileMoneyKeAdapter
 
 
+# Median days between payments -> (cadence, interval).
+_CADENCE_BY_GAP = [
+    ((1, 1), "daily", 1),
+    ((6, 8), "weekly", 1),
+    ((13, 16), "weekly", 2),
+    ((26, 35), "monthly", 1),
+    ((56, 66), "monthly", 2),
+    ((84, 98), "monthly", 3),
+    ((350, 380), "annual", 1),
+]
+# Money movements that are not bills.
+_NOT_BILLS = {
+    "TXN_CHARGES", "OVERDRAFT_FEE", "INTEREST_FEES", "SALES_TILL", "SALES_TRANSFER", "OTHER_INCOME",
+    "LOAN_DISBURSEMENT", "OWN_TRANSFER", "PERSONAL_WITHDRAWAL",
+}
+_MIN_BILL_MINOR = 100_00  # KES 100
+_TYPE_BY_CATEGORY = {
+    "RENT": "rent", "UTILITIES": "utilities", "WAGES": "salary", "LOAN_REPAYMENT": "loan_repayment",
+    "TAX": "tax", "LICENSE_TAX": "tax", "STOCK_PURCHASES": "supplier_credit",
+    "AIRTIME_DATA": "service_subscription", "INSURANCE": "insurance", "REPAIRS": "maintenance",
+}
+
+
 class ExpenseTracker:
     """Automatically detect and categorize expenses from transaction history."""
 
     def __init__(self, db_path: Optional[str] = None):
         self.db_path = db_path or config.DB_PATH
 
-    def detect_recurring_expenses(self, business_id: int) -> List[Dict]:
-        """Analyze transaction history to detect recurring patterns.
+    def detect_recurring_expenses(self, business_id: int, file_id: Optional[int] = None) -> List[Dict]:
+        """Find repeating payments in the business's saved statements.
 
-        Returns a list of detected patterns with confidence scores.
+        Payments to the same payee are grouped (same-day payments merged);
+        the median gap between them gives the cadence (daily, weekly, every
+        2 weeks, monthly, every 2 or 3 months, yearly). Amounts within 2% of
+        their median are fixed; otherwise the pattern is variable and its
+        amount is the monthly average (planned at +/-10%, as entered by
+        hand). Payees whose amounts swing more than 50% are not regular bills.
+
+        The window is the 365 days up to the latest transaction, so an older
+        statement still works. file_id limits the scan to one statement.
+        Each pattern carries last_paid_date and next_due (core/recurrence.py)
+        and already_tracked when a recurring expense for that payee exists.
         """
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        try:
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(transaction_ledger)")}
+            tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+            where = ["t.business_id = ?", "t.direction = 'out'", "t.voided = 0", "t.party_id IS NOT NULL"]
+            params: List = [business_id]
+            if "channel" in cols:
+                where.append("t.channel NOT IN ('overdraft','fee','reversal','loan')")
+            if file_id is not None and "file_id" in cols:
+                where.append("t.file_id = ?")
+                params.append(file_id)
+            last = conn.execute(
+                f"SELECT MAX(t.local_date) FROM transaction_ledger t WHERE {' AND '.join(where)}", params
+            ).fetchone()[0]
+            if not last:
+                return []
+            name_sql = "p.display_token"
+            join_vault = ""
+            if "token_vault" in tables:
+                name_sql = "COALESCE(v.original_value, p.display_token)"
+                join_vault = ("LEFT JOIN token_vault v ON v.token = p.display_token "
+                              "AND v.business_id = p.business_id")
+            rows = conn.execute(
+                f"""SELECT t.party_id, t.local_date, t.amount_minor, c.code AS category_code,
+                           {name_sql} AS payee
+                    FROM transaction_ledger t
+                    LEFT JOIN category c ON c.category_id = t.category_id
+                    LEFT JOIN party p ON p.party_id = t.party_id
+                    {join_vault}
+                    WHERE {' AND '.join(where)} AND t.local_date >= date(?, '-365 days')
+                    ORDER BY t.party_id, t.local_date""",
+                (*params, last),
+            ).fetchall()
+            tracked = set()
+            if "recurring_expense" in tables:
+                tracked = {r[0] for r in conn.execute(
+                    "SELECT party_id FROM recurring_expense WHERE business_id = ? AND active = 1 "
+                    "AND party_id IS NOT NULL", (business_id,))}
+        finally:
+            conn.close()
 
-        cursor.execute("""
-            SELECT
-              party_id,
-              amount_minor,
-              CAST(strftime('%d', local_date) AS INTEGER) as day_of_month,
-              category_id,
-              COUNT(*) as frequency,
-              MAX(local_date) as last_seen
-            FROM transaction_ledger
-            WHERE business_id = ?
-              AND direction = 'out'
-              AND voided = 0
-              AND party_id IS NOT NULL
-              AND julianday('now') - julianday(local_date) <= 365
-            GROUP BY party_id, amount_minor, day_of_month, category_id
-            HAVING frequency >= 2
-            ORDER BY frequency DESC
-        """, (business_id,))
+        by_party: Dict[int, List[sqlite3.Row]] = {}
+        for r in rows:
+            by_party.setdefault(r["party_id"], []).append(r)
 
-        recurring = []
-        for row in cursor.fetchall():
-            freq = row["frequency"]
-            # Same payee, amount and day of the month: a monthly payment.
-            cadence = "monthly"
-
-            recurring.append({
-                "party_id": row["party_id"],
-                "amount_minor": row["amount_minor"],
-                "day_of_month": row["day_of_month"],
+        patterns = []
+        for party_id, txns in by_party.items():
+            category = (txns[-1]["category_code"] or "").upper()
+            if category in _NOT_BILLS:
+                continue
+            per_day: Dict[str, int] = {}
+            for t in txns:
+                per_day[t["local_date"][:10]] = per_day.get(t["local_date"][:10], 0) + t["amount_minor"]
+            days = sorted(per_day)
+            if len(days) < 2:
+                continue
+            dates = [date.fromisoformat(d) for d in days]
+            gap = statistics.median((b - a).days for a, b in zip(dates, dates[1:]))
+            match = next(((c, n) for (lo, hi), c, n in _CADENCE_BY_GAP if lo <= gap <= hi), None)
+            if match is None:
+                continue
+            cadence, interval = match
+            amounts = [per_day[d] for d in days]
+            median_amt = int(statistics.median(amounts))
+            if median_amt < _MIN_BILL_MINOR:
+                continue
+            spread = max(abs(a - median_amt) for a in amounts) / median_amt
+            if spread > 0.50:
+                continue
+            variable = spread > 0.02
+            if variable:
+                per_payment = statistics.mean(amounts)
+                amount = int(round(per_payment / recurrence.months_per_period(cadence, interval)))
+            else:
+                amount = median_amt
+            dom = None
+            if cadence in ("monthly", "annual"):
+                mode = statistics.mode(d.day for d in dates)
+                if all(abs(d.day - mode) <= 3 for d in dates):
+                    dom = mode
+            last_paid = dates[-1]
+            patterns.append({
+                "party_id": party_id,
+                "payee": txns[-1]["payee"],
+                "category_code": category,
+                "suggested_type": _TYPE_BY_CATEGORY.get(category, "other"),
+                "amount_minor": amount,
+                "is_variable": variable,
+                "amount_spread_pct": round(spread * 100, 1),
                 "cadence": cadence,
-                "frequency": freq,
-                "category_id": row["category_id"],
-                "confidence": min(100, freq * 10),
-                "last_seen": row["last_seen"],
+                "interval_count": interval,
+                "frequency_label": recurrence.describe(cadence, interval),
+                "day_of_month": dom if dom is not None else dates[-1].day,
+                "fixed_day": dom is not None,
+                "frequency": len(days),
+                "first_seen": days[0],
+                "last_paid_date": last_paid.isoformat(),
+                "last_seen": last_paid.isoformat(),
+                "next_due": recurrence.next_due_after_payment(last_paid, cadence, interval, dom).isoformat(),
+                "confidence": min(100, len(days) * 10),
+                "already_tracked": party_id in tracked,
             })
-
-        conn.close()
-        return recurring
+        return sorted(patterns, key=lambda p: (-p["confidence"], -p["amount_minor"]))
 
     def auto_categorize_expense(
         self,

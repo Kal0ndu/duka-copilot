@@ -88,6 +88,13 @@ Rules:
   (use recommend_loan). SACCO and bank rates are illustrative, not real quotes.
 - Reply in the owner's language. If they write in Swahili, reply in simple Swahili.
 
+- You DO have this owner's business data: it is in the CURRENT BUSINESS CONTEXT below and in your
+  tools. Never say you cannot access their account or records; answer from the context, and if
+  something is missing say what to add (e.g. upload a statement, add an expense in Business Setup).
+- Bills: "obligations" lists every bill due in the next 14 days and every unpaid overdue one, with
+  status, days_overdue and days_until_due. For more, call get_payment_priorities (it includes the
+  owner's recurring expenses with countdowns).
+
 CURRENT BUSINESS CONTEXT (pre-computed, use this instead of querying raw data):
 {business_context}
 """
@@ -278,9 +285,30 @@ class Orchestrator:
             payments = StandingOrderService(self.cfg.DB_PATH).priorities_for_agent(self._active_business_id)
         except Exception as e:
             return {"error": f"Could not load payments: {e}"}
-        result = {"payments": payments, "count": len(payments)}
+        result = {"payments": payments, "count": len(payments), **self._recurring_bills()}
         self.state.tool_results["get_payment_priorities"] = result
         return result
+
+    def _recurring_bills(self, days_ahead: int = 30) -> Dict[str, Any]:
+        """The owner's recurring expenses (Business Setup) that are overdue or
+        due within days_ahead, each with its live countdown."""
+        from core.business_setup import BusinessSetup
+        try:
+            expenses = BusinessSetup(self.cfg.DB_PATH).get_recurring_expenses(self._active_business_id)
+        except Exception:
+            return {"recurring_expenses": [], "overdue_count": 0, "overdue_total_kes": 0.0}
+        bills = [{
+            "label": e["description"], "type": e["expense_type"],
+            "amount_kes": e["instalment_minor"] / 100,
+            "amount_range_kes": ([e["instalment_low_minor"] / 100, e["instalment_high_minor"] / 100]
+                                 if e["is_variable"] else None),
+            "repeats": e["frequency_label"], "last_paid": e["last_paid_date"], "next_due": e["next_due"],
+            "status": e["due_state"], "days_until_due": e["days_until"], "days_overdue": e["days_overdue"],
+            "countdown": e["due_label"],
+        } for e in expenses if e["days_until"] is not None and e["days_until"] <= days_ahead]
+        overdue = [b for b in bills if b["status"] == "overdue"]
+        return {"recurring_expenses": bills, "overdue_count": len(overdue),
+                "overdue_total_kes": round(sum(b["amount_kes"] for b in overdue), 2)}
 
     def _tool_search_transactions_scoped(self, args: Dict) -> Dict[str, Any]:
         """Search recent transactions scoped to the current user/business."""

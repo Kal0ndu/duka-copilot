@@ -94,12 +94,15 @@ if uploaded:
                         )
                         r["category"] = res.category_code
 
-                profile = {
-                    "name": "Uploaded Statement",
-                    "sector": "Retail / Service SME",
-                    "icon": ":material/store:",
-                }
-                SessionManager.set_transactions(redacted, profile)
+                if report is not None:
+                    # Saved: every page now reads the business's whole ledger.
+                    SessionManager.use_ledger()
+                else:
+                    SessionManager.set_transactions(redacted, {
+                        "name": "Uploaded Statement (not saved)",
+                        "sector": "Retail / Service SME",
+                        "icon": ":material/store:",
+                    })
                 st.session_state["last_ingest_report"] = report
                 st.rerun()
         except StatementPasswordError as e:
@@ -130,6 +133,42 @@ elif uploaded is None and not get_business_id():
         ":material/info: Finish **Business Setup** first so uploads are saved to your ledger. "
         "Until then they are only kept for this session."
     )
+
+# ---- Saved statements: stored with the business, there after every login ----
+if get_business_id():
+    from core.config import config as _store_cfg
+    from core.statement_store import list_statements, remove_statement
+
+    saved = list_statements(_store_cfg.DB_PATH, get_business_id())
+    st.divider()
+    st.subheader("Your saved statements", anchor=False)
+    st.caption("Every statement you upload is kept with your business (as redacted ledger rows), so "
+               "you don't need to upload it again after logging out. The original file is not stored.")
+    _profile = SessionManager.get_profile() or {}
+    if SessionManager.get_transactions() and _profile.get("source") != "ledger":
+        st.info(f"You are viewing demo data ({_profile.get('name', 'sample')}).", icon=":material/science:")
+        if saved and st.button(":material/restore: Show my saved statements instead"):
+            SessionManager.use_ledger()
+            st.rerun()
+    if saved:
+        for f in saved:
+            c1, c2, c3, c4 = st.columns([4, 3, 2, 1], vertical_alignment="center")
+            c1.markdown(f"**{f['filename']}**  \nUploaded {f['uploaded_at'][:16].replace('T', ' ')} UTC")
+            c2.markdown(f"{f['period_start'] or '?'} → {f['period_end'] or '?'}")
+            if f["active_rows"]:
+                c3.markdown(f"{f['active_rows']:,} transactions"
+                            + ("  \n:material/gpp_maybe: flagged rows" if f["risk_flag"] else ""))
+                with c4.popover(":material/delete:", help="Remove this statement"):
+                    st.caption("Removes its transactions from your ledger, forecasts and assistant.")
+                    if st.button("Remove", key=f"rm_file_{f['file_id']}", type="primary"):
+                        remove_statement(_store_cfg.DB_PATH, get_business_id(), f["file_id"])
+                        invalidate_user_context_on_page()
+                        st.session_state.pop("last_ingest_report", None)
+                        st.rerun()
+            else:
+                c3.caption("Removed")
+    else:
+        st.caption("No statements saved yet.")
 
 # ---- Teach it once: the owner fixes a payee's category one time ----
 if get_business_id():

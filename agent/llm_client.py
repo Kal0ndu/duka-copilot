@@ -60,9 +60,13 @@ class LLMClient:
         
         try:
             genai.configure(api_key=self.cfg.LLM_API_KEY)
-            model = genai.GenerativeModel(self._model)
+            # Every system message (rules, the owner's business context, the
+            # tool list) goes to Gemini as its system instruction. Without it
+            # the model only sees the question and answers that it has no
+            # access to the owner's records.
+            system = "\n\n".join(m["content"] for m in messages if m["role"] == "system") or None
+            model = genai.GenerativeModel(self._model, system_instruction=system)
 
-            system = next((m["content"] for m in messages if m["role"] == "system"), None)
             user_msgs = [{"role": "user" if m["role"] != "assistant" else "model",
                            "parts": [m["content"]]}
                          for m in messages if m["role"] != "system"]

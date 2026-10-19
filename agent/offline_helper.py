@@ -38,7 +38,8 @@ _INTENTS = [
     ("forecast", [r"forecast", r"run short", r"shortfall", r"next (two|2) weeks", r"next \d+ days",
                   r"run out", r"cash ?flow", r"balance"],
      [r"utabiri", r"upungufu", r"wiki mbili", r"nitakosa", r"\bsalio\b", r"pesa zitatosha"]),
-    ("bills", [r"\bbills?\b", r"\brent\b.*due", r"what.*due"], [r"\bbili\b", r"\bkodi\b"]),
+    ("bills", [r"\bbills?\b", r"over ?due", r"\brent\b.*due", r"what.*due", r"\bexpenses?\b.*\bdue\b"],
+     [r"\bbili\b", r"\bkodi\b", r"\bimechelewa\b"]),
     ("spending", [r"spend", r"expens", r"categor", r"where.*money go", r"costs?\b", r"transactions?"],
      [r"matumizi", r"gharama", r"miamala"]),
     ("health", [r"how is my business", r"how('s| is) business", r"doing", r"profit", r"health", r"sales",
@@ -69,7 +70,11 @@ _TEXT = {
                     "at {sf} vs {sa} actual ({pct:+.1f}%). On the last day the balance was off by {err}; "
                     "{inside} of {days} days fell inside the low-high range.",
         "spending_head": "**Where the money went ({period}):**",
-        "bills_none": "You have no standing-order payments waiting.",
+        "bills_none": "You have no bills overdue or due in the next 30 days.",
+        "recurring_overdue": "**You have {n} overdue bill(s), {total} in total:**",
+        "recurring_none_overdue": "No bills are overdue. **Coming up:**",
+        "recurring_tail": "When you pay one, press **Mark paid** in **Business Setup → Recurring Expenses** "
+                          "so its next due date moves on.",
         "bills_head": "**What to pay first:**",
         "bills_tail": "Authorize each one on the **Standing Orders** page; you confirm with your own M-Pesa PIN.",
         "pay_need": "Tell me who to pay and how much, e.g. *Pay SOKO SUPPLIES 30,000*. I can only pay "
@@ -112,7 +117,11 @@ _TEXT = {
                     "yalitabiriwa {sf} dhidi ya {sa} halisi ({pct:+.1f}%). Siku ya mwisho salio lilitofautiana "
                     "kwa {err}; siku {inside} kati ya {days} zilikuwa ndani ya kiwango cha chini hadi juu.",
         "spending_head": "**Pesa zilikoenda ({period}):**",
-        "bills_none": "Huna malipo ya kudumu yanayosubiri.",
+        "bills_none": "Huna bili zilizochelewa wala zinazodaiwa ndani ya siku 30.",
+        "recurring_overdue": "**Una bili {n} zilizochelewa, jumla {total}:**",
+        "recurring_none_overdue": "Hakuna bili iliyochelewa. **Zinazokuja:**",
+        "recurring_tail": "Ukilipa moja, bonyeza **Mark paid** kwenye **Business Setup → Recurring Expenses** "
+                          "ili tarehe yake ijayo isonge.",
         "bills_head": "**Lipa haya kwanza:**",
         "bills_tail": "Idhinisha kila moja kwenye ukurasa wa **Standing Orders**; unathibitisha kwa PIN yako "
                       "ya M-Pesa.",
@@ -301,9 +310,17 @@ class OfflineHelper:
                 f"{_kes(r['total_kes'])} ({r['transaction_count']})" for r in top))
         p = results.get("get_payment_priorities")
         if p and "error" not in p:
-            if not p["payments"]:
+            recurring = p.get("recurring_expenses") or []
+            if not p["payments"] and not recurring:
                 out.append(t["bills_none"])
-            else:
+            if recurring:
+                overdue = [x for x in recurring if x["status"] == "overdue"]
+                out.append(t["recurring_overdue"].format(n=len(overdue), total=_kes(p["overdue_total_kes"]))
+                           if overdue else t["recurring_none_overdue"])
+                out.append("\n".join(f"- {x['label']}: {_kes(x['amount_kes'])} due {x['next_due']} "
+                                     f"({x['countdown']})" for x in recurring[:8]))
+                out.append(t["recurring_tail"])
+            if p["payments"]:
                 out.append(t["bills_head"])
                 out.append("\n".join(f"{i}. {x['label']}: {_kes(x['amount_kes'])} due {x['due_date']} "
                                      f"({x['priority_band']})" for i, x in enumerate(p["payments"][:5], 1)))

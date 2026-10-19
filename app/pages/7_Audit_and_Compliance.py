@@ -61,7 +61,7 @@ st.divider()
 
 # ---- SECTION 4: REGULATORY TRANSACTION LIMITS CHECK ----
 st.subheader("Central Bank of Kenya (CBK) Regulatory Limits Monitor")
-transactions = st.session_state.get("parsed_transactions")
+transactions = SessionManager.get_transactions()
 
 if transactions:
     max_txn_amt = max(abs(t.get("amount", 0)) for t in transactions)

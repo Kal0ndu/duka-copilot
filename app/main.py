@@ -78,8 +78,9 @@ with st.sidebar:
                        icon=":material/verified_user:")
             st.page_link("pages/13_Approvals.py", label="Review approvals", icon=":material/verified_user:")
 
-    # Active Business Profile
-    profile = st.session_state.get("business_profile")
+    # Active Business Profile (the saved statements, or a demo sample)
+    from app.session_helpers import SessionManager
+    profile = SessionManager.get_profile()
     if profile:
         st.success(
             f"{profile.get('icon', ':material/storefront:')} {profile.get('name', 'Active Business')}",
