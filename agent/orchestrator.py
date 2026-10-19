@@ -424,8 +424,11 @@ class Orchestrator:
                 res = self._execute_tool(tc["name"], tc.get("args", {}))
                 results.append({"tool": tc["name"], "result": res})
 
+            # The model's turn is over: echo its call, then send the results on the
+            # USER side, labelled as data (they can contain untrusted statement text).
+            messages.append({"role": "assistant", "content": json.dumps({"tool_calls": tool_calls}, default=str)})
             messages.append({
-                "role": "assistant",
+                "role": "user",
                 "content": f"Tool results: {json.dumps(results, default=str)}",
             })
 

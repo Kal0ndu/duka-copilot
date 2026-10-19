@@ -9,7 +9,7 @@ load_dotenv()
 class Config:
     """Singleton configuration. All money values in minor units (KES cents)."""
 
-    LLM_API_KEY: str = os.getenv("LLM_API_KEY", "")
+    LLM_API_KEY: str = os.getenv("LLM_API_KEY") or os.getenv("GEMINI_API_KEY", "")  # either name works
     LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "google")
     MODEL_NAME: str = os.getenv("MODEL_NAME", "gemini-3.8-flash")
 

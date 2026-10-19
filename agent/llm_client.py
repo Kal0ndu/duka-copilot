@@ -75,9 +75,12 @@ class LLMClient:
             if schema:
                 response = model.generate_content(
                     user_msgs,
+                    # JSON mode only. The reply format is described in the prompt:
+                    # Gemini's response_schema rejects {"type": "object"} with no
+                    # properties (the tool-call "args"), which made every live call
+                    # fail and silently fall back to the offline helper.
                     generation_config=genai.types.GenerationConfig(
                         response_mime_type="application/json",
-                        response_schema=schema,
                     ),
                     stream=stream,
                 )
