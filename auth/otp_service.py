@@ -39,6 +39,13 @@ def store_otp(db_path: str, phone_hash: str, code: str, purpose: str = 'login') 
     try:
         with sqlite3.connect(db_path) as conn:
             conn.execute("PRAGMA foreign_keys = ON")
+            # One live code per phone and purpose (the table is UNIQUE on both):
+            # a new code replaces the old one. A plain INSERT crashed the Login
+            # page the second time the same phone logged in, and on "Resend".
+            conn.execute(
+                "DELETE FROM phone_verification_code WHERE phone_hash = ? AND purpose = ?",
+                (phone_hash, purpose),
+            )
             conn.execute(
                 """INSERT INTO phone_verification_code
                    (phone_hash, code, purpose, expires_at)
@@ -58,10 +65,15 @@ def verify_otp(db_path: str, phone_hash: str, code: str, purpose: str = 'login')
         with sqlite3.connect(db_path) as conn:
             conn.execute("PRAGMA foreign_keys = ON")
             conn.row_factory = sqlite3.Row
+            # The table's "code already used" column is verified_at (migration
+            # 001); older databases may call it used_at. Use whichever exists,
+            # otherwise every verification failed with "Database error".
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(phone_verification_code)")}
+            used = "used_at" if "used_at" in cols else "verified_at"
             cursor = conn.execute(
-                """SELECT code, attempts, expires_at, used_at
+                f"""SELECT code, attempts, expires_at
                    FROM phone_verification_code
-                   WHERE phone_hash = ? AND purpose = ? AND used_at IS NULL
+                   WHERE phone_hash = ? AND purpose = ? AND {used} IS NULL
                    ORDER BY created_at DESC LIMIT 1""",
                 (phone_hash, purpose)
             )
@@ -89,9 +101,9 @@ def verify_otp(db_path: str, phone_hash: str, code: str, purpose: str = 'login')
             if not _constant_time_compare(row['code'], code):
                 # Increment attempts
                 conn.execute(
-                    """UPDATE phone_verification_code
+                    f"""UPDATE phone_verification_code
                        SET attempts = attempts + 1
-                       WHERE phone_hash = ? AND purpose = ? AND used_at IS NULL""",
+                       WHERE phone_hash = ? AND purpose = ? AND {used} IS NULL""",
                     (phone_hash, purpose)
                 )
                 conn.commit()
@@ -103,9 +115,9 @@ def verify_otp(db_path: str, phone_hash: str, code: str, purpose: str = 'login')
 
             # Mark as used
             conn.execute(
-                """UPDATE phone_verification_code
-                   SET used_at = ?, attempts = attempts + 1
-                   WHERE phone_hash = ? AND purpose = ? AND used_at IS NULL""",
+                f"""UPDATE phone_verification_code
+                   SET {used} = ?, attempts = attempts + 1
+                   WHERE phone_hash = ? AND purpose = ? AND {used} IS NULL""",
                 (datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'), phone_hash, purpose)
             )
             conn.commit()
