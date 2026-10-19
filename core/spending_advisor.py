@@ -414,18 +414,27 @@ class SpendingAdvisor:
         return float(row[0]) if row and row[0] else 0.0
 
     def _get_buffer_target(self, business_id: int) -> int:
-        """Get the safety buffer target for the business (default from config)."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT buffer_minor FROM business
-            WHERE business_id = ?
-        """, (business_id,))
-        row = cursor.fetchone()
-        conn.close()
+        """Get the safety buffer target for the business.
 
-        if row and row[0] is not None:
-            return row[0]
+        First match wins: the owner's own buffer (Business Setup), the buffer
+        of the latest forecast, a legacy business.buffer_minor column, then
+        the default from config. Missing tables are skipped."""
+        sources = [
+            "SELECT safety_buffer_minor FROM business_settings WHERE business_id = ?",
+            "SELECT buffer_minor FROM forecast_run WHERE business_id = ? ORDER BY run_id DESC LIMIT 1",
+            "SELECT buffer_minor FROM business WHERE business_id = ?",
+        ]
+        conn = sqlite3.connect(self.db_path)
+        try:
+            for sql in sources:
+                try:
+                    row = conn.execute(sql, (business_id,)).fetchone()
+                except sqlite3.OperationalError:
+                    continue
+                if row and row[0] is not None:
+                    return row[0]
+        finally:
+            conn.close()
         return config.SAFETY_BUFFER_MINOR
 
     def _get_upcoming_obligations_total(

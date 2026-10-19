@@ -15,6 +15,53 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from core.config import Config
 
 
+_006_READY = set()
+
+
+def ensure_006(db_path):
+    """Apply migration 006 (recurrence columns, account roles, session
+    revocation) on first use if migrate.py has not, column by column, and
+    record it so migrate.py will not re-run it. Tables that do not exist
+    yet (minimal test databases) are skipped."""
+    if db_path in _006_READY:
+        return
+    with sqlite3.connect(db_path) as conn:
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+
+        def cols(table):
+            return {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+
+        if "recurring_expense" in tables:
+            have = cols("recurring_expense")
+            if "last_paid_date" not in have:
+                conn.execute("ALTER TABLE recurring_expense ADD COLUMN last_paid_date TEXT")
+            if "interval_count" not in have:
+                conn.execute("""ALTER TABLE recurring_expense ADD COLUMN interval_count INTEGER
+                                NOT NULL DEFAULT 1 CHECK (interval_count BETWEEN 1 AND 365)""")
+        if "app_user" in tables:
+            if "account_role" not in cols("app_user"):
+                conn.execute("""ALTER TABLE app_user ADD COLUMN account_role TEXT NOT NULL
+                                DEFAULT 'user' CHECK (account_role IN ('admin','user'))""")
+            conn.executescript("""
+                CREATE UNIQUE INDEX IF NOT EXISTS ux_app_user_single_admin
+                  ON app_user(account_role) WHERE account_role = 'admin';
+                CREATE TRIGGER IF NOT EXISTS trg_app_user_no_admin_insert
+                BEFORE INSERT ON app_user WHEN NEW.account_role = 'admin'
+                BEGIN SELECT RAISE(ABORT, 'admin accounts cannot be created directly'); END;
+                CREATE TABLE IF NOT EXISTS revoked_session (
+                  jti TEXT PRIMARY KEY,
+                  user_id INTEGER REFERENCES app_user(user_id),
+                  reason TEXT NOT NULL DEFAULT 'logout',
+                  revoked_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+                );
+            """)
+            if "schema_migration" in tables:
+                conn.execute("""INSERT OR IGNORE INTO schema_migration (version, description)
+                                VALUES (6, '006_recurrence_and_rbac.sql')""")
+        conn.commit()
+    _006_READY.add(db_path)
+
+
 class MigrationRunner:
     """Run SQL migrations from db/migrations/ directory."""
 

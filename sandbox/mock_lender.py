@@ -148,3 +148,38 @@ class MockLender:
                 f"{o.total_repayable_minor:,} | {o.ear_pct:.1f} | {o.tcc_pct:.1f} |"
             )
         return "\n".join(lines)
+
+
+# ---- Tool wrapper function for agent dispatch ----
+
+def propose_loan_request(args, business_id: Optional[int] = None,
+                        db_path: Optional[str] = None) -> dict:
+    """Create a pending loan request proposal (requires owner approval).
+
+    The offer must be one compare_financing priced for THIS business and
+    within the owner's loan cap. Nothing is borrowed until the owner
+    approves with their PIN on the Approvals page.
+    
+    Args:
+        args: ProposeLoanRequestArgs with offer_id
+        business_id: Active business ID
+        db_path: Database path
+    
+    Returns:
+        dict with action_id with status PENDING_APPROVAL (or BLOCKED and why)
+    """
+    from core.approvals import ApprovalService
+    
+    if business_id is None:
+        return {"error": "business_id required"}
+    
+    try:
+        result = ApprovalService(db_path).propose_loan(business_id, args.offer_id)
+    except Exception as e:
+        return {"error": f"Loan proposal failed: {e}"}
+    if result["status"] == "PENDING_APPROVAL":
+        result["message"] = ("NOT requested yet. The owner must approve it with their PIN on the "
+                             "Approvals page.")
+    else:
+        result["message"] = f"Refused by the owner's rules: {result['reason']}"
+    return result

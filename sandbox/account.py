@@ -132,3 +132,44 @@ class SandboxAccount:
             "loan_exposure_minor": loan_total,
             "txn_count": len(self.transactions),
         }
+
+
+# ---- Tool wrapper function for agent dispatch ----
+
+def propose_supplier_payment(args, business_id: Optional[int] = None,
+                            db_path: Optional[str] = None) -> dict:
+    """Create a pending supplier payment proposal (requires owner approval).
+
+    Goes through core.approvals: verified payees only, look-alike names
+    refused, per-payment and daily caps enforced. Nothing is paid until the
+    owner approves with their PIN on the Approvals page.
+    
+    Args:
+        args: ProposeSupplierPaymentArgs with payee_id or payee_name, amount_minor, scheduled_for
+        business_id: Active business ID
+        db_path: Database path
+    
+    Returns:
+        dict with action_id with status PENDING_APPROVAL (or BLOCKED and why)
+    """
+    from core.approvals import ApprovalService
+    
+    if business_id is None:
+        return {"error": "business_id required"}
+    
+    try:
+        result = ApprovalService(db_path).propose_payment(
+            business_id,
+            amount_minor=args.amount_minor,
+            payee_id=args.payee_id,
+            payee_name=getattr(args, "payee_name", None),
+            scheduled_for=args.scheduled_for,
+        )
+    except Exception as e:
+        return {"error": f"Payment proposal failed: {e}"}
+    if result["status"] == "PENDING_APPROVAL":
+        result["message"] = ("NOT paid yet. The owner must approve it with their PIN on the "
+                             "Approvals page.")
+    else:
+        result["message"] = f"Refused by the owner's payment rules: {result['reason']}"
+    return result

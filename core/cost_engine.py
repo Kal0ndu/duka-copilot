@@ -389,21 +389,24 @@ def check_affordability(args, business_id: Optional[int] = None,
 
     try:
         offer = conn.execute(
-            """SELECT fo.*, fr.business_id FROM financing_offer fo
+            """SELECT fo.*, fr.business_id, cp.repayment_style FROM financing_offer fo
                JOIN financing_request fr ON fr.request_id = fo.request_id
+               JOIN credit_product cp ON cp.product_id = fo.product_id
                WHERE fo.offer_id = ?""",
             (args.offer_id,),
         ).fetchone()
-        if offer is None:
+        # Another business's offer is "not found", never shown.
+        if offer is None or (business_id is not None and offer["business_id"] != business_id):
             return {"error": f"No financing offer found with offer_id={args.offer_id}"}
 
         run = conn.execute(
             """SELECT * FROM forecast_run WHERE business_id = ?
-               ORDER BY created_at DESC LIMIT 1""",
+               ORDER BY run_id DESC LIMIT 1""",
             (offer["business_id"],),
         ).fetchone()
 
-        buffer_minor = Config.SAFETY_BUFFER_MINOR
+        from core.owner_settings import load_settings
+        buffer_minor = load_settings(db_path, offer["business_id"]).safety_buffer_minor
         if run is None:
             return {
                 "offer_id": args.offer_id,
@@ -422,8 +425,15 @@ def check_affordability(args, business_id: Optional[int] = None,
                 "reason": "Forecast run has no points yet.",
             }
 
-        min_p10 = min(p["p10_minor"] for p in points)
-        breach = next((p["date"] for p in points if p["p10_minor"] < buffer_minor), None)
+        # Low estimate WITH the loan: the money comes in on day 0 and each
+        # repayment leaves on its due day.
+        schedule = repayment_schedule(offer["repayment_style"], offer["term_days"],
+                                      offer["total_repayment_minor"])
+        def with_loan(p):
+            due = sum(amt for day, amt in schedule if day <= p["day_offset"])
+            return p["p10_minor"] + offer["net_received_minor"] - due
+        min_p10 = min(with_loan(p) for p in points)
+        breach = next((p["date"] for p in points if with_loan(p) < buffer_minor), None)
         passed = breach is None
 
         conn.execute(
@@ -444,6 +454,8 @@ def check_affordability(args, business_id: Optional[int] = None,
             "min_forecast_balance_minor": min_p10,
             "safety_buffer_minor": buffer_minor,
             "breach_date": breach,
+            "forecast_days_checked": len(points) - 1,
+            "repayments_beyond_forecast": sum(1 for day, _ in schedule if day > points[-1]["day_offset"]),
             "reason": (
                 "Repayments stay above the safety buffer." if passed else
                 f"Forecast balance would drop below the KES {buffer_minor/100:,.0f} "
@@ -480,7 +492,7 @@ def draft_application_pack(args, business_id: Optional[int] = None,
                WHERE fo.offer_id = ?""",
             (args.offer_id,),
         ).fetchone()
-        if offer is None:
+        if offer is None or (business_id is not None and offer["business_id"] != business_id):
             return {"error": f"No financing offer found with offer_id={args.offer_id}"}
 
         biz = conn.execute(
@@ -557,3 +569,223 @@ Repay KES {offer['total_repayment_minor']/100:,.0f} over {offer['term_days']} da
         return {"error": str(e)}
     finally:
         conn.close()
+
+
+# =====================================================================
+# Loan fit check: does a loan fit the forecast, and what weekly personal
+# spending would make it fit? (ported from duka-copilot main's credit.py)
+# =====================================================================
+
+RANGE_Z = 1.28          # ~80% band, like the forecast's p10..p90
+ERROR_GROWTH_DAYS = 14  # the band widens for two weeks, then we assume a re-forecast
+ROUND_TO_MINOR = 500_000  # recommend amounts in steps of KES 5,000
+
+
+def repayment_schedule(repayment_style: str, term_days: int, total_repayment_minor: int):
+    """[(day, amount_minor)] for a priced offer."""
+    if repayment_style == "equal_installments":
+        n = max(1, term_days // 30)
+        each = total_repayment_minor // n
+        days = [30 * (i + 1) for i in range(n)]
+        amounts = [each] * (n - 1) + [total_repayment_minor - each * (n - 1)]
+        return list(zip(days, amounts))
+    return [(term_days, total_repayment_minor)]
+
+
+def _cash_model(rows):
+    """Average business net per weekday (sales minus business costs, no
+    borrowing, no personal money), personal money per day, and the typical
+    daily error."""
+    import statistics
+    from datetime import datetime as _dt, timedelta as _td
+    from core.forecaster import _BORROWING_CATEGORIES
+
+    personal_codes = {"PERSONAL_WITHDRAWAL", "FAMILY_TRANSFER", "SCHOOL_FEES", "PERSONAL_OTHER"}
+    start = _dt.strptime(rows[0]["local_date"], "%Y-%m-%d")
+    end = _dt.strptime(rows[-1]["local_date"], "%Y-%m-%d")
+    days = [(start + _td(days=k)).strftime("%Y-%m-%d") for k in range((end - start).days + 1)]
+    business = {d: 0 for d in days}
+    personal = {d: 0 for d in days}
+    for r in rows:
+        if r["channel"] == "overdraft" or r["category"] in _BORROWING_CATEGORIES:
+            continue
+        signed = r["amount_minor"] if r["direction"] == "in" else -r["amount_minor"]
+        if r["direction"] == "out" and r["category"] in personal_codes:
+            personal[r["local_date"]] += r["amount_minor"]
+        else:
+            business[r["local_date"]] += signed
+    by_wd = {}
+    for d in days:
+        by_wd.setdefault(_dt.strptime(d, "%Y-%m-%d").weekday(), []).append(business[d])
+    wd_avg = {w: sum(v) / len(v) for w, v in by_wd.items()}
+    personal_per_day = sum(personal.values()) / len(days)
+    residuals = [business[d] - personal[d] - (wd_avg[_dt.strptime(d, "%Y-%m-%d").weekday()] - personal_per_day)
+                 for d in days]
+    return {"wd_avg": wd_avg, "personal_per_day": personal_per_day,
+            "daily_error": statistics.pstdev(residuals) if len(residuals) > 1 else 0.0,
+            "last_date": end}
+
+
+def _lowest_low(model, position, net_received, schedule, personal_scale=1.0, horizon=None):
+    """Lowest low estimate of cash over the loan's life (or `horizon` days)."""
+    from datetime import timedelta as _td
+    from math import sqrt
+    due = {}
+    for day, amt in schedule:
+        due[day] = due.get(day, 0) + amt
+    last_day = horizon or max(due) if due else (horizon or 14)
+    cash = position + net_received
+    lowest = None
+    for k in range(1, last_day + 1):
+        wd = (model["last_date"] + _td(days=k)).weekday()
+        cash += model["wd_avg"].get(wd, 0) - model["personal_per_day"] * personal_scale - due.get(k, 0)
+        low = cash - RANGE_Z * model["daily_error"] * sqrt(min(k, ERROR_GROWTH_DAYS))
+        lowest = low if lowest is None else min(lowest, low)
+    return lowest
+
+
+def _personal_cap_scale(model, position, offer, buffer):
+    """Largest share (0..1) of today's personal spending that still lets the
+    offer fit; None if it can't fit even with no personal spending."""
+    def ok(scale):
+        return _lowest_low(model, position, offer["net_received_minor"], offer["schedule"], scale) >= buffer
+    if ok(1.0):
+        return 1.0
+    if not ok(0.0):
+        return None
+    lo, hi = 0.0, 1.0
+    for _ in range(30):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if ok(mid) else (lo, mid)
+    return lo
+
+
+def plain_advice(h: dict, lang: str = "en") -> str:
+    """The recommendation in plain words (never 'raise your cap')."""
+    kes = lambda m: f"KES {m / 100:,.0f}"
+    best = h.get("best")
+    if h.get("no_need"):
+        if lang == "sw":
+            return (f"Huhitaji mkopo sasa: utabiri wa siku 14 unabaki juu ya akiba yako ya usalama ya "
+                    f"{kes(h['safety_buffer_minor'])}. Kukopa bila hitaji kungeongeza gharama tu.")
+        return (f"You don't need a loan right now: the 14-day forecast stays above your "
+                f"{kes(h['safety_buffer_minor'])} safety buffer. Borrowing without a need would only add cost.")
+    if lang == "sw":
+        if best is None:
+            return (f"Hakuna mkopo ndani ya kikomo chako cha {kes(h['loan_cap_minor'])} unaoweza kulipwa "
+                    f"kwa usalama, hata bila kutoa pesa za matumizi binafsi. Kukopa zaidi hakutasaidia.")
+        lines = []
+        if h["over_cap"]:
+            lines.append(f"Unahitaji takriban {kes(h['needed_minor'])}, zaidi ya kikomo chako cha mkopo cha "
+                         f"{kes(h['loan_cap_minor'])}. Mkopo mkubwa zaidi unaoweza kulipwa ndani ya kikomo ni "
+                         f"{kes(h['amount_minor'])}.")
+        if best["fits_now"]:
+            lines.append(f"Pendekezo: {best['product_name']} ya {kes(h['amount_minor'])} kwa siku "
+                         f"{h['term_days']}. Inafaa bila kubadilisha matumizi yako binafsi.")
+        else:
+            lines.append(f"Pendekezo: {best['product_name']} ya {kes(h['amount_minor'])} kwa siku "
+                         f"{h['term_days']}, ukiweka pesa za matumizi binafsi kuwa "
+                         f"{kes(best['max_weekly_personal_minor'])} kwa wiki (sasa "
+                         f"{kes(h['weekly_personal_now_minor'])}).")
+        lines.append("Viwango vya SACCO na benki ni mifano tu, si bei halisi.")
+        return " ".join(lines)
+    if best is None:
+        return (f"No loan within your {kes(h['loan_cap_minor'])} loan cap can be repaid safely, even with "
+                f"no personal money taken out. Borrowing more would not help.")
+    lines = []
+    if h["over_cap"]:
+        lines.append(f"You need about {kes(h['needed_minor'])}, which is more than your loan cap of "
+                     f"{kes(h['loan_cap_minor'])}. The largest affordable loan within your cap is "
+                     f"{kes(h['amount_minor'])}.")
+    if best["fits_now"]:
+        lines.append(f"Recommended: {best['product_name']} of {kes(h['amount_minor'])} over "
+                     f"{h['term_days']} days. It fits without changing your personal spending.")
+    else:
+        cut = h["weekly_personal_now_minor"] - best["max_weekly_personal_minor"]
+        lines.append(f"Recommended: {best['product_name']} of {kes(h['amount_minor'])} over "
+                     f"{h['term_days']} days, if you keep personal money to "
+                     f"{kes(best['max_weekly_personal_minor'])} a week (now "
+                     f"{kes(h['weekly_personal_now_minor'])}: down {kes(cut)}).")
+    lines.append("SACCO and bank rates are illustrative, not real quotes.")
+    return " ".join(lines)
+
+
+def recommend_loan(args, business_id: Optional[int] = None,
+                   db_path: Optional[str] = None) -> dict:
+    """Check each loan option against the cash-flow forecast.
+
+    For each option: does the low estimate stay above the owner's safety
+    buffer for the whole loan, and if not, what weekly personal spending
+    would make it fit. Recommends the cheapest option that can fit, never
+    above the owner's loan cap. With no amount given it uses what the
+    forecast says is needed to stay above the buffer."""
+    from types import SimpleNamespace
+    from core.config import Config
+    from core.forecaster import _ledger_rows, true_position
+    from core.owner_settings import load_settings
+
+    db_path = db_path or Config.DB_PATH
+    if business_id is None:
+        return {"error": "business_id required"}
+    lang = getattr(args, "language", None) or "en"
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = _ledger_rows(conn, business_id)
+        if len(rows) < 2:
+            return {"error": "Upload a statement first: the loan check needs your cash-flow history."}
+        position = true_position(conn, business_id)["true_position_minor"]
+    finally:
+        conn.close()
+    settings = load_settings(db_path, business_id)
+    buffer, loan_cap = settings.safety_buffer_minor, settings.loan_cap_minor
+    model = _cash_model(rows)
+
+    low14 = _lowest_low(model, position, 0, [], 1.0, horizon=14)
+    needed = max(0, int(buffer - low14))
+    if needed == 0 and not args.amount_minor:
+        h = {"amount_minor": 0, "term_days": args.term_days, "needed_minor": 0, "no_need": True,
+             "true_position_minor": position, "safety_buffer_minor": buffer, "loan_cap_minor": loan_cap,
+             "over_cap": False, "weekly_personal_now_minor": int(model["personal_per_day"] * 7),
+             "options": [], "best": None}
+        h["advice"] = plain_advice(h, lang)
+        return h
+    target = args.amount_minor or max(ROUND_TO_MINOR, -(-needed // ROUND_TO_MINOR) * ROUND_TO_MINOR)
+    top = min(target, loan_cap)
+    amounts = [top] + [a for a in range((top // ROUND_TO_MINOR) * ROUND_TO_MINOR, 0, -ROUND_TO_MINOR) if a < top]
+    if args.amount_minor:
+        amounts = [top]
+
+    products = {p.code: p for p in _load_products_from_db(db_path)}
+    weekly_now = model["personal_per_day"] * 7
+    chosen = None
+    for amount in amounts:
+        priced = compare_financing(
+            SimpleNamespace(amount_minor=amount, term_days=args.term_days, purpose="stock"),
+            business_id=business_id, db_path=db_path,
+        )
+        options = []
+        for o in priced.get("offers", []):
+            style = products[o["product_code"]].repayment_style if o["product_code"] in products else "single"
+            o = dict(o, schedule=repayment_schedule(style, o["term_days"], o["total_repayment_minor"]))
+            scale = _personal_cap_scale(model, position, o, buffer)
+            o["fits_now"] = scale == 1.0
+            o["max_weekly_personal_minor"] = None if scale is None else int(weekly_now * scale)
+            del o["schedule"]
+            options.append(o)
+        fitting = [o for o in options if o["max_weekly_personal_minor"] is not None]
+        chosen = (amount, options, min(fitting, key=lambda o: o["tcc_minor"]) if fitting else None)
+        if fitting:
+            break
+
+    amount, options, best = chosen if chosen else (top, [], None)
+    h = {
+        "amount_minor": amount, "term_days": args.term_days, "needed_minor": needed,
+        "true_position_minor": position, "safety_buffer_minor": buffer, "loan_cap_minor": loan_cap,
+        "over_cap": target > loan_cap, "weekly_personal_now_minor": int(weekly_now),
+        "options": options, "best": best,
+    }
+    h["advice"] = plain_advice(h, lang)
+    h["note"] = "SACCO and bank rates are ILLUSTRATIVE, not real quotes."
+    return h

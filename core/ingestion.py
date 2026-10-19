@@ -23,7 +23,7 @@ from typing import Dict, List, Optional
 from core.adapters.base import VALID_CHANNELS
 from core.adapters.mobile_money_ke import MobileMoneyKeAdapter
 from core.adapters.mpesa_pdf import MpesaPdfAdapter
-from core.categoriser import Categoriser
+from core.categoriser import Categoriser, CategoryResult, load_owner_rules
 from core.config import Config
 from core.redaction import Redactor
 
@@ -92,6 +92,17 @@ def _party_token(business_id: int, name: str) -> str:
     return f"PARTY_{digest}"
 
 
+def _is_payday_evening(rec: Dict, payday_weekday: int) -> bool:
+    """Sent on the owner's staff payday, in the evening?"""
+    from core.categoriser import PAYDAY_EVENING_HOUR
+    ts = str(rec.get("ts") or f"{rec.get('date', '')} {rec.get('time', '')}").strip()
+    try:
+        when = datetime.fromisoformat(ts.replace("T", " ")[:19])
+    except ValueError:
+        return False
+    return when.weekday() == payday_weekday and when.hour >= PAYDAY_EVENING_HOUR
+
+
 class StatementIngestor:
     """Persist an uploaded statement into the business's ledger."""
 
@@ -126,6 +137,9 @@ class StatementIngestor:
     ) -> IngestReport:
         sha = hashlib.sha256(file_bytes).hexdigest()
         records = self.parse(file_bytes, password=password)
+        # Read the owner's settings before this upload opens its write transaction.
+        from core.owner_settings import load_settings
+        self._payday = load_settings(self.db_path, business_id).payday_weekday
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
@@ -191,6 +205,15 @@ class StatementIngestor:
         finally:
             conn.close()
 
+        if report.rows_flagged:
+            from auth.rbac import log_security_event
+            log_security_event(
+                self.db_path, "INJECTION_DETECTED", user_id=user_id, business_id=business_id,
+                resource=f"source_file:{file_id}", outcome="blocked", severity="high",
+                detection=f"{report.rows_flagged} statement row(s) matched prompt-injection patterns",
+                handling="rows stored redacted and flagged; the AI treats them as data, never instructions",
+            )
+
         report.message = (
             f"Loaded {report.rows_loaded} of {report.rows_read} transactions"
             + (f" ({report.rows_duplicate} already on file)" if report.rows_duplicate else "")
@@ -243,6 +266,8 @@ class StatementIngestor:
     def _load_rows(self, conn, records, business_id, account_id, file_id, report: IngestReport) -> None:
         redactor = Redactor(business_id=business_id)
         cat_ids = self._category_ids(conn)
+        owner_rules = load_owner_rules(conn, business_id)
+        payday = getattr(self, "_payday", None)
         fallback_cat = cat_ids.get("UNCLASSIFIED")
 
         for row_no, rec in enumerate(records, start=1):
@@ -258,6 +283,9 @@ class StatementIngestor:
                 description=details, channel=channel, direction=direction,
                 amount_minor=amount_minor, counterparty=details,
             )
+            if cat.category_code == "FAMILY_TRANSFER" and payday is not None and _is_payday_evening(rec, payday):
+                # The owner said staff are paid on this weekday (Business Setup).
+                cat = CategoryResult("WAGES", 0.75, "rule")
             category_id = cat_ids.get(cat.category_code, fallback_cat)
             needs_review = cat.confidence < REVIEW_CONFIDENCE or category_id == fallback_cat
 
@@ -278,6 +306,11 @@ class StatementIngestor:
                 # counterparty part for its token before redacting the rest.
                 if party_token:
                     redacted = redactor.redact(f"{details.rsplit(' - ', 1)[0]} - {party_token}")
+                    if party_token in owner_rules:
+                        # The owner taught this payee's category once; it wins.
+                        cat = CategoryResult(owner_rules[party_token], 1.0, "owner")
+                        category_id = cat_ids.get(cat.category_code, fallback_cat)
+                        needs_review = False
                 description = redacted.redacted
 
             raw_id = conn.execute(

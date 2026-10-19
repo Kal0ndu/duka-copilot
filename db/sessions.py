@@ -51,11 +51,12 @@ def add_business_member(db_path: str, business_id: int, user_id: int,
     try:
         with sqlite3.connect(db_path) as conn:
             conn.execute("PRAGMA foreign_keys = ON")
+            # business_member.phone_hash is NOT NULL; take it from the user.
             cursor = conn.execute(
                 """INSERT OR IGNORE INTO business_member
-                   (business_id, user_id, role, is_active)
-                   VALUES (?, ?, ?, 1)""",
-                (business_id, user_id, role)
+                   (business_id, user_id, phone_hash, role, is_active)
+                   SELECT ?, user_id, phone_hash, ?, 1 FROM app_user WHERE user_id = ?""",
+                (business_id, role, user_id)
             )
             conn.commit()
             if cursor.lastrowid:

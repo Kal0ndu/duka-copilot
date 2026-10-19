@@ -251,3 +251,110 @@ def chart_loan_comparison(offers: List) -> alt.Chart:
     ).properties(width=100, height=280)
 
     return chart
+
+
+# ---- Tool wrapper function for agent dispatch ----
+
+def build_chart(args, business_id: Optional[int] = None,
+                db_path: Optional[str] = None) -> dict:
+    """Return a chart specification and underlying data.
+    
+    Args:
+        args: BuildChartArgs with chart_id and optional parameters
+        business_id: Active business ID
+        db_path: Database path
+    
+    Returns:
+        dict with chart specification (Altair JSON) and data frame
+    """
+    import sqlite3
+    import json
+    from core.config import Config
+    
+    if db_path is None:
+        db_path = Config.DB_PATH
+    if business_id is None:
+        return {"error": "business_id required"}
+    
+    try:
+        chart_id = args.chart_id
+        params = args.parameters or {}
+        
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Fetch transaction data
+        cursor.execute("""
+            SELECT 
+                local_date as date,
+                SUM(CASE WHEN direction = 'in' THEN amount_minor ELSE 0 END) as inflow,
+                SUM(CASE WHEN direction = 'out' THEN amount_minor ELSE 0 END) as outflow
+            FROM transaction_ledger
+            WHERE business_id = ? AND voided = 0
+            GROUP BY local_date
+            ORDER BY local_date DESC
+            LIMIT 365
+        """, (business_id,))
+        
+        rows = cursor.fetchall()
+        
+        # Convert to DataFrame
+        daily_df = pd.DataFrame([
+            {
+                "date": r["date"],
+                "inflow": (r["inflow"] or 0) / 100.0,
+                "outflow": (r["outflow"] or 0) / 100.0,
+                "net": ((r["inflow"] or 0) - (r["outflow"] or 0)) / 100.0,
+            }
+            for r in rows
+        ])
+        
+        conn.close()
+        
+        # Build chart based on chart_id
+        if chart_id == "cashflow_trend":
+            chart = chart_cashflow_trend(daily_df.sort_values("date"))
+        elif chart_id == "category_breakdown":
+            # Aggregate by category
+            conn = sqlite3.connect(db_path)
+            rows = conn.execute("""
+                SELECT c.code, SUM(t.amount_minor) as total
+                FROM transaction_ledger t
+                LEFT JOIN category c ON c.category_id = t.category_id
+                WHERE t.business_id = ? AND t.voided = 0 AND t.direction = 'out'
+                GROUP BY c.code
+            """, (business_id,)).fetchall()
+            conn.close()
+            cat_data = {row[0] or "UNCLASSIFIED": row[1] / 100.0 for row in rows}
+            chart = chart_category_breakdown(cat_data)
+        elif chart_id == "forecast_confidence":
+            # The business's latest saved forecast (run forecast_balance first)
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            run = conn.execute(
+                "SELECT run_id, buffer_minor FROM forecast_run WHERE business_id = ? ORDER BY run_id DESC LIMIT 1",
+                (business_id,),
+            ).fetchone()
+            points = [] if run is None else [
+                {"date": p["date"], "p10": p["p10_minor"], "p50": p["p50_minor"],
+                 "p90": p["p90_minor"], "expected": p["expected_minor"]}
+                for p in conn.execute(
+                    "SELECT * FROM forecast_point WHERE run_id = ? ORDER BY day_offset", (run["run_id"],))
+            ]
+            conn.close()
+            if not points:
+                return {"error": "No forecast yet. Run forecast_balance first."}
+            chart = chart_forecast_confidence(points, buffer_kes=run["buffer_minor"] / 100.0)
+        else:
+            return {"error": f"Unknown chart_id: {chart_id}"}
+        
+        return {
+            "chart_id": chart_id,
+            "chart_spec": chart.to_dict(),
+            "data_rows": len(daily_df),
+            "last_updated": daily_df["date"].max() if len(daily_df) > 0 else None,
+        }
+    
+    except Exception as e:
+        return {"error": f"Chart build failed: {e}"}

@@ -95,31 +95,37 @@ conn.close()
 
 # ---- Upcoming Obligations ----
 st.divider()
-st.subheader("Upcoming Obligations (Next 30 Days)")
+st.subheader("Overdue and upcoming payments (next 30 days)")
 
 schedule = manager.generate_schedule(business_id, months_ahead=1)
-upcoming = [s for s in schedule if s["due_date"] >= today.strftime("%Y-%m-%d")][:20]
 
-if upcoming:
-    obl_data = []
-    for obl in upcoming:
-        obl_data.append({
-            "Due Date": obl["due_date"],
-            "Description": obl["description"],
-            "Amount (KES)": obl["amount_minor"] / 100,
-            "Status": obl["status"],
-        })
+if schedule:
+    def _countdown(o):
+        if o["status"] == "overdue":
+            return f"Overdue by {o['days_overdue']} day{'s' if o['days_overdue'] != 1 else ''}"
+        return "Due today" if o["days_until"] == 0 else f"In {o['days_until']} day{'s' if o['days_until'] != 1 else ''}"
 
-    obl_df = pd.DataFrame(obl_data)
+    obl_df = pd.DataFrame([{
+        "Due Date": o["due_date"],
+        "Description": o["description"],
+        "Amount (KES)": o["amount_minor"] / 100,
+        "Countdown": _countdown(o),
+        "Status": o["status"],
+    } for o in schedule])
     st.dataframe(
         obl_df.style.format({"Amount (KES)": "KES {:,.0f}"}),
-        width="stretch",
+        width="stretch", hide_index=True,
     )
 
-    total_due = sum(o["amount_minor"] for o in upcoming)
-    st.metric("Total Due (Next 30 Days)", f"KES {total_due/100:,.0f}")
+    overdue_total = sum(o["amount_minor"] for o in schedule if o["status"] == "overdue")
+    total_due = sum(o["amount_minor"] for o in schedule)
+    m1, m2 = st.columns(2)
+    m1.metric("Total due (overdue + next 30 days)", f"KES {total_due/100:,.0f}")
+    m2.metric("Of which overdue", f"KES {overdue_total/100:,.0f}")
+    if overdue_total:
+        st.caption("Record a payment in **Business Setup → Recurring Expenses** to move its next due date.")
 else:
-    st.info("No upcoming obligations in the next 30 days.")
+    st.info("No payments overdue or due in the next 30 days.")
 
 # ---- Budget Tracking ----
 st.divider()

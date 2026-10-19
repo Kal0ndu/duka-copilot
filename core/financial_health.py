@@ -467,3 +467,119 @@ class FinancialHealthAnalyzer:
         weekly["net"] = weekly["revenue"] - weekly["expenses"]
         weekly["margin_pct"] = (weekly["net"] / weekly["revenue"].replace(0, 1.0)) * 100
         return weekly
+
+
+# ---- Tool wrapper function for agent dispatch ----
+
+from typing import Dict, Optional
+
+
+def compute_business_health(args, business_id: Optional[int] = None,
+                           db_path: Optional[str] = None) -> dict:
+    """Compute revenue, costs, margin, best/worst days, personal-mix ratio.
+    
+    Args:
+        args: ComputeBusinessHealthArgs with period (day/week/month/quarter)
+        business_id: Active business ID
+        db_path: Database path
+    
+    Returns:
+        dict with revenue, costs, margin, best/worst days, personal mix
+    """
+    import sqlite3
+    from datetime import datetime, timedelta
+    from core.config import config
+    
+    if db_path is None:
+        db_path = config.DB_PATH
+    if business_id is None:
+        return {"error": "business_id required"}
+    
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # The period counts back from the latest transaction, so an older
+        # statement still gives real figures. category.kind holds
+        # income/cogs/opex/personal/...; the ledger only stores category_id.
+        days = {"day": 1, "week": 7, "month": 30, "quarter": 91}.get(args.period or "month", 30)
+        cursor.execute("""
+            SELECT 
+                t.local_date, t.direction, c.kind AS category_kind, t.amount_minor, t.fee_minor
+            FROM transaction_ledger t
+            LEFT JOIN category c ON c.category_id = t.category_id
+            WHERE t.business_id = ? AND t.voided = 0
+              AND t.local_date > date(
+                  (SELECT MAX(local_date) FROM transaction_ledger WHERE business_id = ? AND voided = 0),
+                  ?)
+            ORDER BY t.local_date DESC
+            LIMIT 10000
+        """, (business_id, business_id, f"-{days} days"))
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        if not rows:
+            return {
+                "revenue_kes": 0,
+                "costs_kes": 0,
+                "margin_pct": 0,
+                "best_day": None,
+                "worst_day": None,
+                "personal_mix_pct": 0,
+                "transaction_count": 0,
+            }
+        
+        # Compute metrics
+        revenue = 0
+        costs = 0
+        personal_out = 0
+        total_out = 0
+        daily_cashflow = {}
+        
+        for row in rows:
+            amt = row["amount_minor"]
+            fee = row["fee_minor"] or 0
+            cat_kind = row["category_kind"]
+            direction = row["direction"]
+            date = row["local_date"]
+            
+            # Accumulate by category kind
+            if direction == "in" and cat_kind in ("income", "unknown", None):
+                revenue += amt
+            elif direction == "out":
+                total_out += amt + fee
+                if cat_kind in ("cogs", "opex"):
+                    costs += amt + fee
+                elif cat_kind == "personal":
+                    personal_out += amt + fee
+            
+            # Daily cashflow for best/worst day
+            if date not in daily_cashflow:
+                daily_cashflow[date] = 0
+            daily_cashflow[date] += (amt if direction == "in" else -amt)
+        
+        gross_margin = ((revenue - costs) / revenue * 100) if revenue > 0 else 0
+        personal_mix = (personal_out / total_out * 100) if total_out > 0 else 0
+        
+        best_day = max(daily_cashflow, key=daily_cashflow.get) if daily_cashflow else None
+        worst_day = min(daily_cashflow, key=daily_cashflow.get) if daily_cashflow else None
+        
+        return {
+            "period": args.period or "month",
+            "from_date": min(daily_cashflow),
+            "to_date": max(daily_cashflow),
+            "revenue_kes": revenue / 100.0,
+            "costs_kes": costs / 100.0,
+            "margin_pct": round(gross_margin, 1),
+            "best_day": best_day,
+            "worst_day": worst_day,
+            "best_day_cashflow_kes": daily_cashflow.get(best_day, 0) / 100.0 if best_day else 0,
+            "worst_day_cashflow_kes": daily_cashflow.get(worst_day, 0) / 100.0 if worst_day else 0,
+            "personal_mix_pct": round(personal_mix, 1),
+            "transaction_count": len(rows),
+        }
+    
+    except Exception as e:
+        return {"error": f"Health computation failed: {e}"}

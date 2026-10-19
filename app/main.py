@@ -66,6 +66,18 @@ with st.sidebar:
             )
             st.page_link("pages/12_Standing_Orders.py", label="Review payments", icon=":material/event_repeat:")
 
+    # Requests from the assistant waiting for the owner's PIN
+    if get_business_id():
+        try:
+            from core.approvals import ApprovalService
+            _waiting = ApprovalService().list_actions(get_business_id(), ["PENDING_APPROVAL"])
+        except Exception:
+            _waiting = []
+        if _waiting:
+            st.warning(f"{len(_waiting)} request(s) from your assistant need your PIN",
+                       icon=":material/verified_user:")
+            st.page_link("pages/13_Approvals.py", label="Review approvals", icon=":material/verified_user:")
+
     # Active Business Profile
     profile = st.session_state.get("business_profile")
     if profile:
@@ -105,7 +117,15 @@ with st.sidebar:
     st.divider()
 
     st.metric("Security sandbox", "Active (fail-closed)" if Config.SANDBOX_ONLY else "Live")
-    st.metric("AI core", Config.MODEL_NAME)
+    st.metric("AI core", Config.MODEL_NAME if Config.LLM_API_KEY else "Offline helper (no API key)")
+
+    swahili = st.toggle("Kiswahili", key="ui_swahili",
+                        help="Reply in Swahili. Without this, Duka replies in the language you write in.")
+    st.session_state.orch.force_language = "sw" if swahili else None
+    st.session_state.orch.offline = st.toggle(
+        "Offline demo mode", key="ui_offline",
+        help="Answer with the built-in helper from your own figures, without calling the AI service.",
+    )
 
     st.divider()
 
@@ -152,6 +172,49 @@ with f5:
         st.caption("Digital loans compared by true EAR% and cashfit.")
 
 st.divider()
+
+# ---- SMS-style shortfall alert: what the owner would get on their phone ----
+
+def _sms_alert(business_id: int, swahili: bool):
+    from types import SimpleNamespace
+    from core.forecaster import forecast_balance
+    import sqlite3
+    with sqlite3.connect(Config.DB_PATH) as conn:   # recompute after uploads / teach-once fixes
+        version = conn.execute(
+            "SELECT COUNT(*), COALESCE(MAX(txn_id), 0) FROM transaction_ledger WHERE business_id = ?",
+            (business_id,),
+        ).fetchone()
+    key = f"_sms_alert_{business_id}_{version[0]}_{version[1]}"
+    if key not in st.session_state:
+        st.session_state[key] = forecast_balance(SimpleNamespace(horizon_days=14), business_id, Config.DB_PATH)
+    f = st.session_state[key]
+    if "error" in f:
+        return None
+    below = [p for p in f["points"] if p["low_kes"] < f["buffer_kes"]]
+    if not below:
+        return None
+    from datetime import date
+    first = date.fromisoformat(below[0]["date"]).strftime("%a %d %b")
+    need = f["buffer_kes"] - f["lowest_low_kes"]
+    if swahili:
+        return (f"Duka: Tahadhari! Pesa zako zinaweza kushuka chini ya akiba ya KES {f['buffer_kes']:,.0f} "
+                f"kuanzia {first}. Unaweza kuhitaji takriban KES {need:,.0f}. Fungua Duka kuona njia za "
+                f"kujiandaa. Duka haitakuuliza PIN kwa SMS.")
+    return (f"Duka: Heads up! Your money may drop below your KES {f['buffer_kes']:,.0f} safety buffer from "
+            f"{first}. You may need about KES {need:,.0f}. Open Duka to see your options. "
+            f"Duka never asks for your PIN by SMS.")
+
+if get_business_id():
+    _msg = _sms_alert(get_business_id(), st.session_state.get("ui_swahili", False))
+    if _msg:
+        with st.container(border=True):
+            st.markdown("##### :material/sms: Shortfall alert (SMS preview)")
+            st.caption("This is how the forecast warning reads as a text message on your phone.")
+            st.markdown(
+                f"<div style='max-width:26rem;background:#e7f6e7;color:#102a12;border-radius:1rem 1rem 1rem 0.25rem;"
+                f"padding:0.75rem 1rem;font-size:0.95rem;line-height:1.4'>{_msg}</div>",
+                unsafe_allow_html=True,
+            )
 
 # render history
 for msg in st.session_state.messages:

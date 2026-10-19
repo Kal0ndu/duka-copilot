@@ -29,9 +29,31 @@ def _context_cache() -> Cache:
     return Cache(f"{CACHE_DIR}/user_context")
 
 
-def _cache_key(user_id: int, business_id: int) -> str:
-    """Deterministic cache key."""
-    return f"ctx:{user_id}:{business_id}"
+def _cache_key(user_id: int, business_id: int, db_path: Optional[str] = None) -> str:
+    """Deterministic cache key. The database is part of it, so two databases
+    that both have business 1 never share a cached context."""
+    db = db_path or config.DB_PATH
+    return f"ctx:{db}:{user_id}:{business_id}"
+
+
+class ContextAccessDenied(PermissionError):
+    """The user is not allowed to read this business's data."""
+
+
+def user_can_access_business(db_path: str, user_id: int, business_id: int) -> bool:
+    """True when user_id owns business_id or is an active member of it."""
+    try:
+        with sqlite3.connect(db_path) as conn:
+            row = conn.execute(
+                """SELECT 1 FROM business b
+                   WHERE b.business_id = ? AND (b.owner_user_id = ? OR EXISTS (
+                     SELECT 1 FROM business_member m WHERE m.business_id = b.business_id
+                       AND m.user_id = ? AND COALESCE(m.is_active, 1) = 1))""",
+                (business_id, user_id, user_id),
+            ).fetchone()
+    except sqlite3.OperationalError:
+        return False
+    return row is not None
 
 
 @dataclass
@@ -45,9 +67,13 @@ class UserContext:
     # ---- public API ----
 
     def get(self) -> Dict[str, Any]:
-        """Return cached context; compute + cache on miss."""
+        """Return cached context; compute + cache on miss.
+
+        Raises ContextAccessDenied unless user_id owns or is an active
+        member of business_id, so one user can never load another's data."""
+        self.check_access()
         cache = _context_cache()
-        key = _cache_key(self.user_id, self.business_id)
+        key = _cache_key(self.user_id, self.business_id, self.db_path)
 
         cached = cache.get(key)
         if cached is not None:
@@ -59,8 +85,9 @@ class UserContext:
 
     def refresh(self) -> Dict[str, Any]:
         """Force recompute and overwrite the cache entry."""
+        self.check_access()
         cache = _context_cache()
-        key = _cache_key(self.user_id, self.business_id)
+        key = _cache_key(self.user_id, self.business_id, self.db_path)
         ctx = self._compute()
         cache.set(key, ctx, expire=CONTEXT_TTL_SECONDS)
         return ctx
@@ -68,8 +95,19 @@ class UserContext:
     def invalidate(self) -> None:
         """Remove cached entry (e.g. on logout or data purge)."""
         cache = _context_cache()
-        key = _cache_key(self.user_id, self.business_id)
+        key = _cache_key(self.user_id, self.business_id, self.db_path)
         cache.delete(key)
+
+    def check_access(self) -> None:
+        if not user_can_access_business(self.db_path, self.user_id, self.business_id):
+            from auth.rbac import log_security_event
+            log_security_event(
+                self.db_path, "UNAUTHORIZED_ACCESS", user_id=self.user_id,
+                resource=f"business:{self.business_id}", outcome="denied",
+                detection="user is not the owner or an active member of the business",
+                handling="business context refused; nothing sent to the AI",
+            )
+            raise ContextAccessDenied("You don't have access to that business.")
 
     # ---- computation ----
 
@@ -83,7 +121,7 @@ class UserContext:
         sample = self._transaction_sample()
 
         return {
-            "business_summary": {"business_id": self.business_id, "name": self._business_name()},
+            "business_summary": self._business_profile(),
             "summary": summary,
             "top_expense_categories": self._top_expense_categories(),
             "health": health,
@@ -163,10 +201,6 @@ class UserContext:
             ("detected", """SELECT label, amount_minor, next_due, cadence FROM obligation
                             WHERE business_id = ? AND active = 1
                               AND next_due <= date('now', '+14 days')"""),
-            ("owner_entered", """SELECT description AS label, amount_minor, next_due, cadence
-                                 FROM recurring_expense
-                                 WHERE business_id = ? AND active = 1
-                                   AND next_due <= date('now', '+14 days')"""),
             ("standing_order", """SELECT label, amount_minor, next_due, cadence FROM standing_order
                                   WHERE business_id = ? AND status = 'active'
                                     AND next_due <= date('now', '+14 days')"""),
@@ -195,6 +229,29 @@ class UserContext:
                 for r in rows
             )
         conn.close()
+
+        # The owner's recurring expenses: every instalment due in the next
+        # 14 days, plus unpaid overdue ones, each with its live countdown.
+        from datetime import date as _date
+        from core.expense_tracker import RecurringExpenseManager
+        today = _date.today()
+        try:
+            recurring = RecurringExpenseManager(self.db_path).obligations_between(
+                self.business_id, today, today + timedelta(days=14))
+        except sqlite3.Error:
+            recurring = []
+        for o in recurring:
+            days_until = (_date.fromisoformat(o["original_due_date"]) - today).days
+            out.append({
+                "label": o["label"],
+                "amount_kes": round(o["amount_minor"] / 100.0, 2),
+                "due_date": o["original_due_date"],
+                "frequency": o["frequency"],
+                "source": "owner_entered",
+                "days_until_due": days_until,
+                "days_overdue": o["days_overdue"],
+                "status": "overdue" if days_until < 0 else ("due_today" if days_until == 0 else "upcoming"),
+            })
         return sorted(out, key=lambda o: o["due_date"] or "")
 
     def _forecast(
@@ -375,6 +432,39 @@ class UserContext:
             {"category": r["category"], "amount_kes": round(r["total_minor"] / 100.0, 2), "count": r["n"]}
             for r in rows
         ]
+
+    def _business_profile(self) -> Dict[str, Any]:
+        """Who the business is (from Business Setup) and the owner's goals."""
+        profile: Dict[str, Any] = {"business_id": self.business_id, "name": self._business_name()}
+        try:
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                """SELECT sector, sub_sector, country_code, currency_code, employee_count,
+                          registration_type FROM business WHERE business_id = ?""",
+                (self.business_id,),
+            ).fetchone()
+            if row:
+                profile.update(dict(row))
+            try:
+                goals = conn.execute(
+                    """SELECT goal_type, target_value_minor, metric FROM financial_goal
+                       WHERE business_id = ? AND is_active = 1 ORDER BY goal_id""",
+                    (self.business_id,),
+                ).fetchall()
+                # Latest value per goal type (goals are re-saved, not edited).
+                latest = {g["goal_type"]: g for g in goals}
+                profile["goals"] = {
+                    k: (round(g["target_value_minor"] / 100.0, 2) if g["metric"] == "minor"
+                        else g["target_value_minor"])
+                    for k, g in latest.items()
+                }
+            except sqlite3.OperationalError:
+                pass
+            conn.close()
+        except sqlite3.Error:
+            pass
+        return profile
 
     def _business_name(self) -> str:
         """Fetch the business name for the context header."""

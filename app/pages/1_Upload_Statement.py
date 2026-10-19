@@ -131,6 +131,54 @@ elif uploaded is None and not get_business_id():
         "Until then they are only kept for this session."
     )
 
+# ---- Teach it once: the owner fixes a payee's category one time ----
+if get_business_id():
+    import sqlite3
+    from core.categoriser import teach_category
+    from core.config import config as _cfg
+
+    with sqlite3.connect(_cfg.DB_PATH) as _conn:
+        _conn.row_factory = sqlite3.Row
+        review = _conn.execute(
+            """SELECT t.counterparty_token AS token, MIN(t.txn_id) AS txn_id, COUNT(*) AS n,
+                      SUM(t.amount_minor) AS total_minor, t.direction, c.code AS category,
+                      v.original_value AS name
+               FROM transaction_ledger t
+               LEFT JOIN category c ON c.category_id = t.category_id
+               LEFT JOIN token_vault v ON v.token = t.counterparty_token AND v.business_id = t.business_id
+               WHERE t.business_id = ? AND t.needs_review = 1 AND t.voided = 0
+                 AND t.counterparty_token IS NOT NULL
+               GROUP BY t.counterparty_token, t.direction
+               ORDER BY total_minor DESC LIMIT 15""",
+            (get_business_id(),),
+        ).fetchall()
+        codes = [r[0] for r in _conn.execute(
+            "SELECT code FROM category WHERE active = 1 ORDER BY kind, sort_order")]
+    if review:
+        st.divider()
+        st.subheader("Check these payees once", anchor=False)
+        st.caption(
+            "Duka wasn't sure about these. Pick the right category once and every past and future "
+            "payment to that payee will follow it."
+        )
+        for r in review:
+            col1, col2, col3 = st.columns([3, 2, 1], vertical_alignment="bottom")
+            col1.markdown(
+                f"**{r['name'] or r['token']}** · {r['n']} payment(s) {'in' if r['direction'] == 'in' else 'out'}, "
+                f"KES {r['total_minor'] / 100:,.0f}"
+            )
+            current = r["category"] if r["category"] in codes else codes[0]
+            choice = col2.selectbox(
+                "Category", codes, index=codes.index(current), key=f"teach_{r['token']}_{r['direction']}",
+                format_func=lambda c: c.replace("_", " ").title(), label_visibility="collapsed",
+            )
+            if col3.button("Save", key=f"teach_btn_{r['token']}_{r['direction']}"):
+                result = teach_category(_cfg.DB_PATH, get_business_id(), r["txn_id"], choice)
+                invalidate_user_context_on_page()
+                st.toast(f"Learned: {r['name'] or r['token']} → {choice.replace('_', ' ').title()} "
+                         f"({result['updated']} transaction(s) updated)")
+                st.rerun()
+
 # ---- Display Current Loaded Data Summary ----
 txns = SessionManager.get_transactions()
 profile = SessionManager.get_profile()

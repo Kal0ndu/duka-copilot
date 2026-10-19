@@ -1,64 +1,85 @@
 """Tool registry: definitions, schemas, and tier assignments."""
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 
 # ---- Pydantic argument schemas for each tool ----
 
-class IngestStatementArgs(BaseModel):
+class StrictArgs(BaseModel):
+    """Unknown fields are an error, not silently dropped: a model that adds
+    e.g. "approved": true to a call gets the call refused."""
+    model_config = ConfigDict(extra="forbid")
+
+
+class IngestStatementArgs(StrictArgs):
     file_id: int = Field(ge=1)
 
-class CategoriseTransactionsArgs(BaseModel):
+class CategoriseTransactionsArgs(StrictArgs):
     file_id: int = Field(ge=1)
 
-class GetLedgerSummaryArgs(BaseModel):
+class GetLedgerSummaryArgs(StrictArgs):
     period: str = Field(default="month", pattern=r"^(day|week|month|quarter)$")
 
-class ComputeBusinessHealthArgs(BaseModel):
+class ComputeBusinessHealthArgs(StrictArgs):
     period: str = Field(default="month", pattern=r"^(day|week|month|quarter)$")
 
-class ForecastBalanceArgs(BaseModel):
+class ForecastBalanceArgs(StrictArgs):
     horizon_days: int = Field(default=14, ge=1, le=90)
 
-class DetectShortfallsArgs(BaseModel):
+class DetectShortfallsArgs(StrictArgs):
     forecast_run_id: int = Field(ge=1)
 
-class CompareFinancingArgs(BaseModel):
+class CompareFinancingArgs(StrictArgs):
     amount_minor: int = Field(ge=1)
     term_days: int = Field(ge=1, le=365)
     purpose: str = Field(default="stock", pattern=r"^(stock|equipment|other)$")
 
-class CheckAffordabilityArgs(BaseModel):
+class CheckAffordabilityArgs(StrictArgs):
     offer_id: int = Field(ge=1)
 
-class SearchKnowledgeArgs(BaseModel):
+class SearchKnowledgeArgs(StrictArgs):
     query: str = Field(min_length=1, max_length=500)
 
-class DraftApplicationPackArgs(BaseModel):
+class DraftApplicationPackArgs(StrictArgs):
     offer_id: int = Field(ge=1)
 
-class BuildChartArgs(BaseModel):
+class BuildChartArgs(StrictArgs):
     chart_id: str = Field(min_length=1)
     parameters: dict = Field(default_factory=dict)
 
-class ProposeSupplierPaymentArgs(BaseModel):
-    payee_id: int = Field(ge=1)
+class ProposeSupplierPaymentArgs(StrictArgs):
+    payee_id: Optional[int] = Field(default=None, ge=1)
+    payee_name: Optional[str] = Field(default=None, min_length=1, max_length=60)
     amount_minor: int = Field(ge=1)
-    scheduled_for: Optional[str] = None
+    scheduled_for: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
 
-class ProposeLoanRequestArgs(BaseModel):
+    @model_validator(mode="after")
+    def _one_payee(self):
+        if self.payee_id is None and not self.payee_name:
+            raise ValueError("give payee_id or payee_name (a verified payee)")
+        return self
+
+class ProposeLoanRequestArgs(StrictArgs):
     offer_id: int = Field(ge=1)
 
+class RecommendLoanArgs(StrictArgs):
+    amount_minor: Optional[int] = Field(default=None, ge=100_000, le=100_000_000)
+    term_days: int = Field(default=180, ge=30, le=365)
+    language: str = Field(default="en", pattern=r"^(en|sw)$")
+
+class ForecastBacktestArgs(StrictArgs):
+    horizon_days: int = Field(default=14, ge=7, le=30)
 
 
-class GetCachedContextArgs(BaseModel):
+
+class GetCachedContextArgs(StrictArgs):
     pass  # no args needed — context is injected by the orchestrator
 
-class GetPaymentPrioritiesArgs(BaseModel):
+class GetPaymentPrioritiesArgs(StrictArgs):
     pass  # scoped to the active business by the orchestrator
 
-class SearchTransactionsScopedArgs(BaseModel):
+class SearchTransactionsScopedArgs(StrictArgs):
     query: str = Field(min_length=1, max_length=200)
     category: Optional[str] = Field(default=None, pattern=r"^(sales|expense|transfer|fee|other)?$")
     limit: int = Field(default=10, ge=1, le=100)
@@ -142,15 +163,38 @@ TOOL_REGISTRY: Dict[str, ToolSpec] = {
         schema=BuildChartArgs,
         returns="Chart specification and data frame",
     ),
+    "recommend_loan": ToolSpec(
+        name="recommend_loan", tier="T1",
+        description=(
+            "Loan fit check. Runs every loan option through the cash-flow forecast for the whole "
+            "loan, checks the low estimate stays above the owner's safety buffer, and finds the "
+            "weekly personal-spending limit that would make each option fit. Recommends the "
+            "cheapest option that fits, never above the owner's loan cap. Leave amount_minor out "
+            "to use the amount the forecast says is needed. Returns plain-language advice in "
+            "'en' or 'sw'."
+        ),
+        schema=RecommendLoanArgs,
+        returns="Options with fits_now and max weekly personal money, best option, advice text",
+    ),
+    "forecast_backtest": ToolSpec(
+        name="forecast_backtest", tier="T0",
+        description="How accurate is the forecast? Hides the last N days of history, forecasts them, "
+                    "and reports the error against what really happened.",
+        schema=ForecastBacktestArgs,
+        returns="Balance error, days inside the low-high range, sales error %",
+    ),
     "propose_supplier_payment": ToolSpec(
         name="propose_supplier_payment", tier="T2",
-        description="Create a pending supplier payment proposal (requires owner approval).",
+        description=("Create a payment REQUEST to one of the owner's verified payees (by payee_id or "
+                     "exact payee_name). It is NOT paid: the owner must approve it with their PIN on the "
+                     "Approvals page. Requests that break the owner's rules come back BLOCKED with a reason."),
         schema=ProposeSupplierPaymentArgs,
         returns="action_id with status PENDING_APPROVAL",
     ),
     "propose_loan_request": ToolSpec(
         name="propose_loan_request", tier="T2",
-        description="Create a pending loan request proposal (requires owner approval).",
+        description=("Create a loan REQUEST for an offer_id from compare_financing or recommend_loan. "
+                     "It is NOT taken: the owner must approve it with their PIN on the Approvals page."),
         schema=ProposeLoanRequestArgs,
         returns="action_id with status PENDING_APPROVAL",
     ),

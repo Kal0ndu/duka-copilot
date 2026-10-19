@@ -9,12 +9,42 @@ from core.config import config
 from auth.phone_utils import normalise_phone, hash_phone, is_valid_kenyan_phone
 from auth.password_utils import hash_password, verify_password
 from auth.otp_service import generate_otp, store_otp, verify_otp, send_otp
-from auth.session_manager import create_session, decode_session
+from auth.session_manager import create_session, decode_session, revoke_jti, is_jti_revoked
+from auth.rbac import get_account_role, log_security_event, login_locked, MAX_FAILED_LOGINS, LOGIN_LOCKOUT
 from db.users import (
     create_user, get_user_by_phone, get_user_by_id,
     get_user_password, update_last_login
 )
 from app.auth_theme import inject_auth_theme, render_illustration, render_brand_header, render_progress_indicator
+
+
+def _login_failed(db_path: str, user_id, method: str, reason: str, phone_hash: str = "") -> None:
+    log_security_event(
+        db_path, "LOGIN_FAILED", user_id=user_id, resource="login", outcome="denied",
+        severity="medium", detection=f"{method} check failed: {reason}",
+        handling="login refused", details={"method": method, "phone_hash_prefix": phone_hash[:12]},
+    )
+
+
+def _locked_out(db_path: str, user_id: int) -> bool:
+    """Refuse (and log) a login attempt while the account is locked."""
+    if not login_locked(db_path, user_id):
+        return False
+    log_security_event(
+        db_path, "LOGIN_LOCKED_OUT", user_id=user_id, resource="login", outcome="blocked",
+        severity="high",
+        detection=f"{MAX_FAILED_LOGINS}+ failed logins within {int(LOGIN_LOCKOUT.total_seconds() // 60)} minutes",
+        handling="attempt refused without checking the credential",
+    )
+    st.error(f"Too many failed attempts. Try again in {int(LOGIN_LOCKOUT.total_seconds() // 60)} minutes.")
+    return True
+
+
+def _reset_session_state() -> None:
+    """Forget everything from the previous user in this browser session:
+    chat history, the orchestrator, loaded statements and cached contexts."""
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
 
 
 def _open_glass_card():
@@ -206,6 +236,11 @@ def _signup_otp(db_path: str):
                     password_salt=password_salt
                 )
                 if user_id:
+                    log_security_event(
+                        db_path, "ACCOUNT_CREATED", user_id=user_id, resource="account",
+                        outcome="success", severity="low",
+                        detection="sign-up with verified phone OTP", handling="account created with role 'user'",
+                    )
                     # Fetch the created user record
                     user = get_user_by_id(db_path, user_id)
                     st.session_state.signup_step = "complete"
@@ -320,6 +355,7 @@ def _login_form(db_path: str):
 
             user = get_user_by_phone(db_path, ph)
             if not user:
+                _login_failed(db_path, None, "phone", "no account for this phone", ph)
                 st.error("No account found with this phone number.")
                 st.markdown("[Create an account instead →](Sign_Up)")
             else:
@@ -378,7 +414,7 @@ def _login_otp(db_path: str):
     if verify_btn:
         if not otp_input.strip():
             st.error("Please enter the verification code.")
-        else:
+        elif not _locked_out(db_path, user.user_id):
             result = verify_otp(
                 db_path,
                 st.session_state.login_phone_hash,
@@ -388,6 +424,7 @@ def _login_otp(db_path: str):
             if result.success:
                 _complete_login(db_path, user)
             else:
+                _login_failed(db_path, user.user_id, "otp", result.message, user.phone_hash)
                 st.error(result.message)
 
     if resend:
@@ -436,40 +473,100 @@ def _login_password(db_path: str):
     if submitted:
         if not pwd:
             st.error("Please enter your password.")
-        else:
+        elif not _locked_out(db_path, user.user_id):
             pw_hash, pw_salt = get_user_password(db_path, user.user_id)
             if verify_password(pwd, pw_hash, pw_salt):
                 _complete_login(db_path, user)
             else:
+                _login_failed(db_path, user.user_id, "password", "incorrect password", user.phone_hash)
                 st.error("Incorrect password.")
 
 
+def _clear_user_context_cache():
+    for key in list(st.session_state.keys()):
+        if key.startswith("_user_context_"):
+            del st.session_state[key]
+
+
+def activate_business(business_id: int) -> None:
+    """Re-issue the session token scoped to business_id.
+
+    The business lives in the signed token (not just st.session_state), so
+    every page's get_business_id() sees it and it survives page switches."""
+    token = st.session_state.get("auth_token")
+    session = decode_session(token) if token else None
+    if session is None:
+        return
+    new_token = create_session(
+        user_id=session.user_id,
+        business_id=business_id,
+        display_name=session.display_name,
+        role=session.role,
+        phone_hash=session.phone_hash,
+    )
+    st.session_state.auth_token = new_token
+    st.session_state.auth_session = decode_session(new_token)
+    st.session_state.business_id = business_id
+    revoke_jti(config.DB_PATH, session, reason="reissued")  # the old token must not stay usable
+    _clear_user_context_cache()
+
+
+def _resolve_business(session):
+    """Sessions issued before the user finished setup carry business_id=0.
+    Look the user's business up in the DB and switch the session to it."""
+    if session.business_id:
+        return session
+    from core.business_setup import BusinessSetup
+    business_id = BusinessSetup(config.DB_PATH).get_business_for_user(session.user_id)
+    if business_id:
+        activate_business(business_id)
+        return st.session_state.auth_session
+    return session
+
+
 def _complete_login(db_path: str, user):
-    """Finalize login: create session, update last login, set auth state."""
+    """Finalize login: create session, update last login, set auth state.
+
+    A returning user goes straight to the dashboard with their saved
+    business; only a user with no business yet is sent to Business Setup."""
+    from core.business_setup import BusinessSetup
+    business_id = BusinessSetup(db_path).get_business_for_user(user.user_id) or 0
+    # The account role comes from the database; the token only mirrors it
+    # for display. Permission checks re-read it (auth/rbac.py).
+    role = get_account_role(db_path, user.user_id) or "user"
+
     token = create_session(
         user_id=user.user_id,
-        business_id=0,
+        business_id=business_id,
         display_name=user.display_name,
-        role="owner",
+        role=role,
         phone_hash=user.phone_hash,
     )
     update_last_login(db_path, user.user_id)
+    log_security_event(
+        db_path, "LOGIN_SUCCESS", user_id=user.user_id, business_id=business_id or None,
+        resource="login", outcome="success", severity="low",
+        detection="credential verified", handling=f"session issued (role '{role}')",
+    )
 
+    # Nothing from a previous user of this browser session may carry over.
+    _reset_session_state()
     st.session_state.auth_token = token
     st.session_state.auth_user = {
         "user_id": user.user_id,
         "display_name": user.display_name,
         "phone_hash": user.phone_hash,
-        "role": "owner",
+        "role": role,
     }
 
-    for key in list(st.session_state.keys()):
-        if key.startswith("login_"):
-            del st.session_state[key]
+    st.session_state.auth_session = decode_session(token)
+    if business_id:
+        st.session_state.business_id = business_id
+    _clear_user_context_cache()
 
     st.success(f"Logged in as **{user.display_name}**!")
 
-    st.switch_page("pages/0_Business_Setup.py")
+    st.switch_page("main.py" if business_id else "pages/0_Business_Setup.py")
 
 
 # ──────────────────────────────────────────────────
@@ -495,6 +592,14 @@ def validate_and_refresh_session():
     if not token:
         return False
     session = decode_session(token)
+    if session and is_jti_revoked(config.DB_PATH, session):
+        log_security_event(
+            config.DB_PATH, "REVOKED_SESSION_USED", user_id=session.user_id, resource="session",
+            outcome="denied", severity="high", detection="token id is on the logged-out list",
+            handling="session refused and cleared",
+        )
+        _reset_session_state()
+        return False
     if not session:
         st.session_state.pop("auth_token", None)
         st.session_state.pop("auth_user", None)
@@ -504,6 +609,12 @@ def validate_and_refresh_session():
             if key.startswith("_user_context_"):
                 del st.session_state[key]
         return False
+    # get_business_id() and friends read auth_session, so keep it in step
+    # with the token on every page, not only pages using auth.middleware.
+    st.session_state.auth_session = session
+    session = _resolve_business(session)
+    if session.business_id:
+        st.session_state.business_id = session.business_id
     if "auth_user" not in st.session_state:
         st.session_state.auth_user = {
             "user_id": session.user_id,
@@ -522,14 +633,28 @@ def render_logout_button():
             user = st.session_state.get("auth_user", {})
             st.caption(f":material/person: {user.get("display_name", "User")}")
             if st.button(":material/logout: Log out", width="stretch"):
-                st.session_state.pop("auth_token", None)
-                st.session_state.pop("auth_user", None)
-                st.session_state.pop("auth_session", None)
-                st.session_state.pop("business_id", None)
-                for key in list(st.session_state.keys()):
-                    if key.startswith("_user_context_"):
-                        del st.session_state[key]
+                logout()
                 st.switch_page("pages/Login.py")
+
+
+def logout() -> None:
+    """Revoke the session token, log the event and forget all session state."""
+    token = st.session_state.get("auth_token")
+    session = decode_session(token) if token else None
+    if session:
+        revoke_jti(config.DB_PATH, session, reason="logout")
+        log_security_event(
+            config.DB_PATH, "LOGOUT", user_id=session.user_id, business_id=session.business_id or None,
+            resource="session", outcome="success", severity="low",
+            detection="user pressed Log out", handling="token revoked; session state cleared",
+        )
+        try:
+            from auth.user_context import invalidate_user_cache
+            if session.business_id:
+                invalidate_user_cache(session.user_id, session.business_id)
+        except Exception:
+            pass
+    _reset_session_state()
 
 
 def require_auth():
@@ -538,6 +663,21 @@ def require_auth():
         st.warning(":material/lock: Please log in to access Duka.")
         st.markdown("[Log In](Login)  |  [Sign Up](Sign_Up)")
         st.stop()
+
+
+def require_admin(resource: str):
+    """Gate for admin-only pages. The role is checked against the database
+    on every page load (auth/rbac.py); a regular user gets a generic refusal
+    and the attempt is logged as a security event."""
+    from auth.rbac import AccessDenied, require_admin as _require_admin
+    require_auth()
+    session = st.session_state.get("auth_session")
+    try:
+        _require_admin(config.DB_PATH, session.user_id if session else None, resource)
+    except AccessDenied as e:
+        st.error(str(e), icon=":material/block:")
+        st.stop()
+    return session
 
 
 def require_auth_with_redirect():

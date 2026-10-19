@@ -4,9 +4,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from app.auth_ui import require_auth
+from app.auth_ui import require_auth, activate_business
+from auth.middleware import get_business_id, get_user_id
 
 from core.business_setup import BusinessSetup
+from app.expense_ui import render_add_form, render_expense_list
 
 st.set_page_config(page_title="Business Setup — Duka", page_icon=":material/storefront:")
 # ---- Authentication Gate ----
@@ -18,76 +20,36 @@ st.caption("Register your business and customize financial tracking.")
 
 setup = BusinessSetup()
 
-# Check if business already set up
-business_id = st.session_state.get("business_id")
+SECTORS = ["grocery", "kiosk", "salon", "transport", "restaurant", "retail", "agri", "services", "other"]
+COUNTRIES = {"KE": "Kenya", "TZ": "Tanzania", "UG": "Uganda"}
+REGISTRATION_TYPES = ["informal", "sole_proprietor", "partnership", "company"]
+
+# The business comes from the signed session, which login fills from the
+# database, so a returning owner lands here already set up.
+business_id = get_business_id()
 
 if business_id:
     profile = setup.get_business_profile(business_id)
     if profile:
         st.success(f"✓ Registered: **{profile.name_token}** ({profile.sector})")
 
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Recurring Expenses",
         "Categories",
         ":material/flag: Financial goals",
         "Settings",
+        ":material/shield_lock: Owner rules & PIN",
     ])
 
     # Tab 1: Recurring Expenses
     with tab1:
         st.subheader("Recurring Expenses")
-        st.caption("Add rent, salary, utilities, and other regular payments.")
+        st.caption("Add rent, salary, utilities and other regular payments. Enter when you last paid "
+                   "and how often it repeats; Duka works out the next due date and counts down to it.")
 
-        with st.form("add_recurring"):
-            col1, col2 = st.columns(2)
-
-            with col1:
-                exp_type = st.selectbox("Type", [
-                    "rent", "salary", "utilities", "insurance",
-                    "supplier_credit", "loan_repayment", "tax",
-                    "maintenance", "service_subscription", "other",
-                ], format_func=lambda x: x.replace("_", " ").title())
-                description = st.text_input("Description", placeholder="e.g., Monthly shop rent")
-
-            with col2:
-                amount = st.number_input("Amount (KES)", value=50000, min_value=0, step=1000)
-                cadence = st.selectbox("Frequency", [
-                    "daily", "weekly", "biweekly", "monthly", "quarterly", "annual",
-                ], format_func=lambda x: x.title())
-
-            day = st.number_input("Day of month (if monthly/quarterly)", value=1, min_value=1, max_value=31)
-            is_variable = st.checkbox("Variable amount?")
-
-            if st.form_submit_button(":material/add: Add Expense"):
-                expense_id = setup.add_recurring_expense(
-                    business_id=business_id,
-                    expense_type=exp_type,
-                    description=description,
-                    amount_minor=int(amount * 100),
-                    cadence=cadence,
-                    day_of_month=day if cadence in ("monthly", "quarterly") else None,
-                    is_variable=is_variable,
-                )
-                st.success(f"✓ Added: {description} (KES {amount:,.0f})")
-                st.rerun()
-
+        render_add_form(setup, business_id, prefix="bs_add")
         st.divider()
-
-        expenses = setup.get_recurring_expenses(business_id)
-        if expenses:
-            st.write(f"**{len(expenses)} active recurring expenses**")
-            for exp in expenses:
-                col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-                with col1:
-                    st.write(f"**{exp['description']}**")
-                with col2:
-                    st.write(f"KES {exp['amount_minor']/100:,.0f}")
-                with col3:
-                    st.write(f"{exp['cadence']}")
-                with col4:
-                    st.write(f"Next: {exp['next_due'][:10] if exp['next_due'] else '—'}")
-        else:
-            st.info("No recurring expenses yet. Add your first one above.")
+        render_expense_list(setup, business_id, prefix="bs_list")
 
     # Tab 2: Categories
     with tab2:
@@ -186,14 +148,163 @@ if business_id:
     # Tab 4: Settings
     with tab4:
         st.subheader("Business Settings")
+        st.caption("Your setup is saved. Change any of these details whenever you need to.")
         if profile:
-            st.write(f"**Name:** {profile.name_token}")
-            st.write(f"**Sector:** {profile.sector}")
-            st.write(f"**Country:** {profile.country_code}")
-            st.write(f"**Currency:** {profile.currency_code}")
-            st.write(f"**Timezone:** {profile.timezone}")
-            st.write(f"**Employees:** {profile.employee_count}")
-            st.write(f"**Status:** {profile.status}")
+            with st.form("edit_business_profile"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    new_name = st.text_input("Business Name", value=profile.name_token)
+                    new_sector = st.selectbox(
+                        "Business Type", SECTORS,
+                        index=SECTORS.index(profile.sector) if profile.sector in SECTORS else len(SECTORS) - 1,
+                        format_func=lambda x: x.title(),
+                    )
+                    new_registration = st.selectbox(
+                        "Registration", REGISTRATION_TYPES,
+                        index=REGISTRATION_TYPES.index(profile.registration_type)
+                        if profile.registration_type in REGISTRATION_TYPES else 0,
+                        format_func=lambda x: x.replace("_", " ").title(),
+                    )
+                with col2:
+                    new_sub_sector = st.text_input("Sub-sector (optional)", value=profile.sub_sector or "")
+                    country_codes = list(COUNTRIES)
+                    new_country = st.selectbox(
+                        "Country", country_codes,
+                        index=country_codes.index(profile.country_code) if profile.country_code in COUNTRIES else 0,
+                        format_func=lambda x: COUNTRIES.get(x, x),
+                    )
+                    new_employees = st.number_input(
+                        "Number of employees", value=int(profile.employee_count), min_value=0, max_value=1000,
+                    )
+
+                st.caption(f"Currency: {profile.currency_code} · Timezone: {profile.timezone} · Status: {profile.status}")
+
+                if st.form_submit_button(":material/save: Save changes"):
+                    if not new_name.strip():
+                        st.error("Business name can't be empty.")
+                    else:
+                        setup.update_business_profile(
+                            business_id=business_id,
+                            name=new_name.strip(),
+                            sector=new_sector,
+                            sub_sector=new_sub_sector.strip() or None,
+                            country_code=new_country,
+                            employee_count=int(new_employees),
+                            registration_type=new_registration,
+                        )
+                        activate_business(business_id)  # refresh cached context with the new details
+                        st.success("✓ Business details updated")
+                        st.rerun()
+
+    # Tab 5: the owner's rules for the assistant (caps, payees, PIN, language)
+    with tab5:
+        from core.owner_settings import (
+            OwnerPin, PinError, WEEKDAYS, add_payee, list_payees, load_settings,
+            needs_pin, remove_payee, save_settings,
+        )
+        from auth.middleware import get_user_id as _uid
+
+        pins = OwnerPin()
+        rules = load_settings(pins.db_path, business_id)
+
+        st.subheader("Owner PIN")
+        st.caption(
+            "Your Duka PIN approves what the assistant proposes and protects your caps and payees. "
+            "It is stored only as a salted hash. Three wrong tries lock approvals for 15 minutes."
+        )
+        has_pin = pins.is_set(business_id)
+        with st.form("owner_pin_form"):
+            current_pin = st.text_input("Current PIN", type="password", max_chars=6) if has_pin else None
+            col1, col2 = st.columns(2)
+            new_pin = col1.text_input("New PIN (4-6 digits)", type="password", max_chars=6)
+            confirm_pin = col2.text_input("Repeat new PIN", type="password", max_chars=6)
+            if st.form_submit_button(":material/pin: " + ("Change PIN" if has_pin else "Set PIN")):
+                if new_pin != confirm_pin:
+                    st.error("The two PINs don't match.")
+                else:
+                    try:
+                        pins.set_pin(business_id, new_pin, current_pin)
+                        st.success("✓ PIN saved")
+                    except PinError as e:
+                        st.error(str(e))
+
+        st.divider()
+        st.subheader("Limits and preferences")
+        st.caption("The assistant reads these rules but can never change them. Changing a cap needs your PIN.")
+        with st.form("owner_rules_form"):
+            col1, col2, col3 = st.columns(3)
+            per_txn = col1.number_input("Per-payment cap (KES)", min_value=1,
+                                        value=rules.per_txn_cap_minor // 100, step=1000)
+            daily = col2.number_input("Daily cap (KES)", min_value=1,
+                                      value=rules.daily_cap_minor // 100, step=1000)
+            loan_cap = col3.number_input("Loan cap (KES)", min_value=1,
+                                         value=rules.loan_cap_minor // 100, step=5000)
+            col4, col5, col6 = st.columns(3)
+            buffer = col4.number_input("Safety buffer (KES)", min_value=0,
+                                       value=rules.safety_buffer_minor // 100, step=500,
+                                       help="Forecast alerts fire when the low estimate drops below this.")
+            payday_options = [None] + list(range(7))
+            payday = col5.selectbox(
+                "Staff payday", payday_options,
+                index=payday_options.index(rules.payday_weekday),
+                format_func=lambda d: "No fixed payday" if d is None else WEEKDAYS[d],
+                help="Evening transfers on this day are counted as wages, not family transfers.",
+            )
+            language = col6.selectbox("Assistant language", ["en", "sw"], index=["en", "sw"].index(rules.language),
+                                      format_func=lambda x: {"en": "English", "sw": "Kiswahili"}[x])
+            rules_pin = st.text_input("Your PIN (needed only when you change a cap)", type="password", max_chars=6)
+            if st.form_submit_button(":material/save: Save rules"):
+                from dataclasses import replace
+                new_rules = replace(
+                    rules, per_txn_cap_minor=int(per_txn) * 100, daily_cap_minor=int(daily) * 100,
+                    loan_cap_minor=int(loan_cap) * 100, safety_buffer_minor=int(buffer) * 100,
+                    payday_weekday=payday, language=language,
+                )
+                try:
+                    changed = save_settings(pins.db_path, new_rules, user_id=_uid(), pin=rules_pin or None)
+                    st.success("✓ Rules saved" if changed else "Nothing changed.")
+                    if changed:
+                        st.rerun()
+                except (ValueError, PinError) as e:
+                    st.error(str(e))
+
+        st.divider()
+        st.subheader("Verified payees")
+        st.caption(
+            "The assistant can only propose payments to these names, spelled exactly. Look-alike names are refused."
+        )
+        payees = list_payees(pins.db_path, business_id)
+        if payees:
+            for p in payees:
+                col1, col2 = st.columns([4, 1])
+                col1.markdown(f"**{p['name']}** · payee #{p['payee_id']}")
+                if col2.button("Remove", key=f"rm_payee_{p['payee_id']}"):
+                    st.session_state["_remove_payee"] = p["payee_id"]
+            if st.session_state.get("_remove_payee"):
+                with st.form("remove_payee_form"):
+                    rm_pin = st.text_input(f"PIN to remove payee #{st.session_state['_remove_payee']}",
+                                           type="password", max_chars=6)
+                    if st.form_submit_button("Confirm remove"):
+                        try:
+                            remove_payee(pins.db_path, business_id, st.session_state.pop("_remove_payee"), rm_pin)
+                            st.rerun()
+                        except PinError as e:
+                            st.error(str(e))
+        else:
+            st.info("No verified payees yet.")
+        with st.form("add_payee_form", clear_on_submit=True):
+            col1, col2, col3 = st.columns([3, 2, 2], vertical_alignment="bottom")
+            payee_name = col1.text_input("Payee name", placeholder="e.g. SOKO SUPPLIES")
+            payee_kind = col2.selectbox("Type", ["supplier", "landlord", "utility", "employee", "lender", "other_business"],
+                                        format_func=lambda x: x.replace("_", " ").title())
+            payee_pin = col3.text_input("Your PIN", type="password", max_chars=6)
+            if st.form_submit_button(":material/person_add: Add payee"):
+                try:
+                    add_payee(pins.db_path, business_id, payee_name, payee_pin, kind=payee_kind, user_id=_uid())
+                    st.success(f"✓ Added {payee_name.upper()}")
+                    st.rerun()
+                except (ValueError, PinError) as e:
+                    st.error(str(e))
 
 else:
     st.info("Let's set up your business profile to get started.")
@@ -203,16 +314,11 @@ else:
 
         with col1:
             business_name = st.text_input("Business Name", placeholder="e.g., Mama Jane's Grocery")
-            sector = st.selectbox("Business Type", [
-                "grocery", "kiosk", "salon", "transport",
-                "restaurant", "retail", "agri", "services", "other",
-            ], format_func=lambda x: x.title())
+            sector = st.selectbox("Business Type", SECTORS, format_func=lambda x: x.title())
 
         with col2:
             sub_sector = st.text_input("Sub-sector (optional)", placeholder="e.g., organic grocery")
-            country = st.selectbox("Country", ["KE", "TZ", "UG"], format_func=lambda x: {
-                "KE": "Kenya", "TZ": "Tanzania", "UG": "Uganda",
-            }.get(x, x))
+            country = st.selectbox("Country", list(COUNTRIES), format_func=lambda x: COUNTRIES.get(x, x))
 
         col3, col4 = st.columns(2)
         with col3:
@@ -223,16 +329,22 @@ else:
             employee_count = st.number_input("Number of employees", value=1, min_value=0, max_value=1000)
 
         if st.form_submit_button(":material/rocket_launch: Create business"):
+            if not business_name.strip():
+                st.error("Please enter your business name.")
+                st.stop()
             biz_id = setup.register_business(
-                name=business_name,
+                name=business_name.strip(),
                 sector=sector,
                 sub_sector=sub_sector if sub_sector else None,
                 country_code=country,
                 revenue_estimate_minor=int(revenue_estimate * 100),
                 employee_count=employee_count,
+                owner_user_id=get_user_id(),
             )
 
-            st.session_state.business_id = biz_id
+            # Saved to the database against this user, and the session now
+            # carries the business, so setup never has to be repeated.
+            activate_business(biz_id)
             st.session_state.business_name = business_name
             st.success(f"✓ Business created: **{business_name}**")
             st.rerun()

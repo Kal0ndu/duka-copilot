@@ -1,159 +1,125 @@
-"""Page 5: Working Capital, Customer Credit (Kitabu), and A/R / A/P Aging."""
+"""Page 5: Working capital from the business's own records.
+
+Current assets (cash, unpaid invoices, stock at cost) against current
+liabilities (overdraft, overdue bills, open standing-order payments), plus
+what falls due in the next weeks. Every figure comes from the database:
+core/working_capital.py:working_capital_position."""
 import streamlit as st
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from app.auth_ui import require_auth
+import pandas as pd
 
-from core.working_capital import WorkingCapitalAnalyzer
+from app.auth_ui import require_auth
+from auth.middleware import get_business_id
 from core.charts import chart_aging_buckets
-from app.sample_loader import load_sample_business, MOCK_PROFILES
-from app.session_helpers import SessionManager, render_data_info_banner
+from core.config import Config
+from core.working_capital import AGING_BUCKETS, open_invoices, working_capital_position
 
 st.set_page_config(page_title="Working Capital — Duka", page_icon=":material/credit_card:", layout="wide")
-# ---- Authentication Gate ----
 require_auth()
 
-
-# Initialize session and check for data
-SessionManager.init_session()
-transactions = SessionManager.get_transactions()
-profile = SessionManager.get_profile()
-
-if not transactions:
-    st.warning("No statement currently loaded.")
-    st.info("Load a sample business profile to inspect working capital cycles and customer credit aging:")
-    col1, col2, col3 = st.columns(3)
-    if col1.button(":material/storefront: Load Amina's Grocery", width="stretch"):
-        SessionManager.set_transactions(load_sample_business("amina_grocery"), MOCK_PROFILES["amina_grocery"])
-        st.rerun()
-    if col2.button(":material/directions_bike: Load Otieno Transport", width="stretch"):
-        SessionManager.set_transactions(load_sample_business("otieno_transport"), MOCK_PROFILES["otieno_transport"])
-        st.rerun()
-    if col3.button(":material/content_cut: Load Grace Salon", width="stretch"):
-        SessionManager.set_transactions(load_sample_business("grace_salon"), MOCK_PROFILES["grace_salon"])
-        st.rerun()
+business_id = get_business_id()
+if not business_id:
+    st.warning("Please register your business first in **Business Setup**.")
     st.stop()
 
-analyzer = WorkingCapitalAnalyzer(transactions)
-wc_metrics = analyzer.compute_working_capital_metrics()
-biz_name = profile.get("name", "Your Business") if profile else "Your Business"
 
-st.title("Working Capital & Aging Management")
-st.caption(f"Track customer store credit (*kitabu*), supplier payables, and cash conversion cycle for **{biz_name}**.")
+def kes(minor: int) -> str:
+    return f"KES {minor / 100:,.0f}"
 
-# ---- ROW 1: WORKING CAPITAL KPIS ----
+
+st.title("Working capital")
+st.caption("What your business owns and owes right now, and whether cash covers the bills coming up. "
+           "Figures come from your statements, invoices, stock and recurring expenses.")
+
+horizon = st.segmented_control("Look ahead", [7, 14, 30, 60], default=30,
+                               format_func=lambda d: f"{d} days") or 30
+wc = working_capital_position(Config.DB_PATH, business_id, horizon_days=horizon)
+
 w1, w2, w3, w4 = st.columns(4)
-w1.metric(
-    "Total Customer Credit (A/R)",
-    f"KES {wc_metrics['total_receivables_kes']:,.0f}",
-    help="Money owed to your business by customers."
-)
-w2.metric(
-    "Total Payables Owed (A/P)",
-    f"KES {wc_metrics['total_payables_kes']:,.0f}",
-    help="Money your business owes to suppliers and utilities."
-)
-net_wc = wc_metrics["net_working_capital_kes"]
-w3.metric(
-    "Net Working Capital",
-    f"KES {net_wc:,.0f}",
-    delta="Positive (Net Asset)" if net_wc >= 0 else "Negative (Net Liability)",
-    delta_color="normal" if net_wc >= 0 else "inverse"
-)
-ccc = wc_metrics["cash_conversion_cycle_days"]
-w4.metric(
-    "Cash Conversion Cycle",
-    f"{ccc} days",
-    help="Days between paying suppliers and receiving customer cash (DSO - DPO)."
-)
+w1.metric("Current assets", kes(wc["current_assets_minor"]))
+w2.metric("Current liabilities", kes(wc["current_liabilities_minor"]))
+nwc = wc["net_working_capital_minor"]
+w3.metric("Net working capital", kes(nwc), delta="Positive" if nwc >= 0 else "Negative",
+          delta_color="normal" if nwc >= 0 else "inverse")
+w4.metric("Current ratio", f"{wc['current_ratio']:.2f}" if wc["current_ratio"] is not None else "No liabilities",
+          help="Current assets ÷ current liabilities. Below 1 means you owe more right now than you hold.")
 
-# Operational efficiency row
-sub_c1, sub_c2, sub_c3 = st.columns(3)
-sub_c1.caption(f":material/timer: **Days sales outstanding (DSO):** {wc_metrics['dso_days']} days to collect cash")
-sub_c2.caption(f":material/hourglass_empty: **Days payable outstanding (DPO):** {wc_metrics['dpo_days']} days to settle supplier bills")
-overdue_ar = wc_metrics["overdue_receivables_kes"]
-sub_c3.caption(f"**Total Overdue Receivables:** KES {overdue_ar:,.0f}")
-
-st.divider()
-
-# ---- ROW 2: AGING BUCKETS VISUALIZATION ----
-col_ar_chart, col_ap_chart = st.columns(2)
-
-with col_ar_chart:
-    st.subheader("Customer Credit Aging (A/R)")
-    st.caption("Breakdown of customer debts by overdue age.")
-    ar_buckets = wc_metrics["ar_buckets"]
-    st.altair_chart(chart_aging_buckets(ar_buckets, title="Customer Aging"), width="stretch")
-
-with col_ap_chart:
-    st.subheader(":material/description: Supplier payables aging (A/P)")
-    st.caption("Upcoming and overdue payments to suppliers.")
-    ap_buckets = wc_metrics["ap_buckets"]
-    st.altair_chart(chart_aging_buckets(ap_buckets, title="Payables Aging"), width="stretch")
-
-st.divider()
-
-# ---- SECTION 3: CUSTOMER CREDIT BOOK (KITABU) & REMINDER GENERATOR ----
-st.subheader(":material/menu_book: Customer credit book (*Duka Kitabu*)")
-st.caption("Active store credit balances with one-click collection reminders.")
-
-receivables = wc_metrics["receivables_list"]
-
-if receivables:
-    rec_table = []
-    for r in receivables:
-        rec_table.append({
-            "ID": r.entry_id,
-            "Customer Name": r.counterparty,
-            "Contact Phone": r.phone_token,
-            "Balance (KES)": f"{r.amount_kes:,.2f}",
-            "Due Date": r.due_date,
-            "Days Overdue": f"{r.days_overdue} days" if r.days_overdue > 0 else "Current",
-            "Aging Bucket": r.bucket,
-        })
-    st.dataframe(rec_table, width="stretch")
-
-    # Friendly Reminder Generator
-    st.markdown("##### Automated Payment Reminder Generator")
-    st.caption("Select an overdue customer to generate a courteous SMS or WhatsApp payment reminder:")
-
-    overdue_customers = [r for r in receivables if r.days_overdue > 0]
-    if not overdue_customers:
-        overdue_customers = receivables
-
-    selected_cust = st.selectbox(
-        "Choose Customer to Remind",
-        options=overdue_customers,
-        format_func=lambda r: f"{r.counterparty} — KES {r.amount_kes:,.0f} ({r.bucket})"
-    )
-
-    if selected_cust:
-        st.markdown(f"**Draft SMS / WhatsApp for {selected_cust.counterparty} ({selected_cust.phone_token}):**")
-        st.code(selected_cust.reminder_msg, language="text")
-        st.button("Copy Message Text", key="btn_copy_sms", on_click=lambda: None)
+if wc["as_of_statement"]:
+    st.caption(f"Cash is the balance at the end of your latest statement ({wc['as_of_statement']}). "
+               "Upload a newer statement to update it.")
 else:
-    st.info("No active customer receivables.")
+    st.info("No statement uploaded yet, so cash is KES 0. Upload one on **Upload Statement**.")
+
+col_a, col_l = st.columns(2)
+with col_a:
+    st.subheader("Current assets")
+    st.dataframe(pd.DataFrame([
+        {"Item": "Cash (latest statement balance)", "KES": wc["cash_minor"] / 100},
+        {"Item": "Unpaid customer invoices", "KES": wc["receivables_minor"] / 100},
+        {"Item": "Stock on hand (at cost)", "KES": wc["inventory_minor"] / 100},
+    ]), hide_index=True, width="stretch", column_config={"KES": st.column_config.NumberColumn(format="%,.0f")})
+with col_l:
+    st.subheader("Current liabilities")
+    st.dataframe(pd.DataFrame([
+        {"Item": "Overdraft owed (incl. fees)", "KES": wc["overdraft_minor"] / 100},
+        {"Item": "Overdue recurring bills", "KES": wc["overdue_bills_minor"] / 100},
+        {"Item": "Standing-order payments awaiting payment", "KES": wc["open_payments_minor"] / 100},
+    ]), hide_index=True, width="stretch", column_config={"KES": st.column_config.NumberColumn(format="%,.0f")})
 
 st.divider()
+st.subheader(f"Next {horizon} days")
+gap = wc["liquidity_gap_minor"]
+c1, c2, c3 = st.columns(3)
+c1.metric("Bills falling due", kes(wc["bills_due_minor"]),
+          help=None if wc["bills_due_high_minor"] == wc["bills_due_minor"] else
+          f"Up to {kes(wc['bills_due_high_minor'])} if variable bills come in 10% higher.")
+c2.metric("Invoices you expect to collect", kes(wc["invoices_due_minor"]))
+c3.metric("Cash left after bills", kes(gap), delta="Covered" if gap >= 0 else "Shortfall",
+          delta_color="normal" if gap >= 0 else "inverse",
+          help="Cash + invoices due − what you owe now − bills falling due.")
+if gap >= 0 > wc["liquidity_gap_low_minor"]:
+    st.warning(f"Covered at average amounts, but if variable bills run 10% high you would be short by "
+               f"{kes(-wc['liquidity_gap_low_minor'])}.", icon=":material/warning:")
+if gap < 0:
+    st.error(f"Your cash and expected collections fall short of your bills by {kes(-gap)} within "
+             f"{horizon} days. Collect overdue invoices first, then see **Financing** for options.",
+             icon=":material/warning:")
 
-# ---- SECTION 4: UPCOMING PAYABLES & BILLS SCHEDULE ----
-st.subheader("Accounts Payable & Supplier Bills Schedule")
-st.caption("Obligations to settle to maintain good supplier credit terms and avoid service disruption.")
-
-payables = wc_metrics["payables_list"]
-if payables:
-    pay_table = []
-    for p in payables:
-        pay_table.append({
-            "Payable ID": p.entry_id,
-            "Supplier / Payee": p.counterparty,
-            "Category / Details": p.phone_token,
-            "Amount Due (KES)": f"{p.amount_kes:,.2f}",
-            "Due Date": p.due_date,
-            "Status": "Overdue" if p.days_overdue > 0 else ":material/check_circle: Upcoming",
-            "Aging Bucket": p.bucket,
-        })
-    st.dataframe(pay_table, width="stretch")
+if wc["bills"]:
+    st.dataframe(pd.DataFrame([{
+        "Due": b["original_due_date"], "Bill": b["label"], "Repeats": b["frequency"],
+        "KES": b["amount_minor"] / 100,
+        "Range": (f"{b['amount_low_minor'] / 100:,.0f}–{b['amount_high_minor'] / 100:,.0f}"
+                  if b["is_variable"] else "fixed"),
+        "Status": f"Overdue {b['days_overdue']} days" if b["days_overdue"] else "Upcoming",
+    } for b in wc["bills"]]), hide_index=True, width="stretch",
+        column_config={"KES": st.column_config.NumberColumn(format="%,.0f")})
 else:
-    st.info("No active supplier payables.")
+    st.caption("No recurring bills in this window. Add rent, salaries and utilities in **Business Setup**.")
+
+st.divider()
+st.subheader("Customer invoices (accounts receivable)")
+invoices = open_invoices(Config.DB_PATH, business_id)
+if invoices:
+    buckets = {b: sum(i["balance_due_minor"] for i in invoices if i["bucket"] == b) / 100 for b in AGING_BUCKETS}
+    left, right = st.columns([2, 3])
+    with left:
+        st.altair_chart(chart_aging_buckets(buckets, title="Receivables aging"), width="stretch")
+    with right:
+        st.dataframe(pd.DataFrame([{
+            "Invoice": i["invoice_number"], "Customer": i["customer_name_token"] or "-",
+            "Due": i["due_date"][:10], "Balance (KES)": i["balance_due_minor"] / 100,
+            "Age": i["bucket"],
+        } for i in invoices]), hide_index=True, width="stretch",
+            column_config={"Balance (KES)": st.column_config.NumberColumn(format="%,.0f")})
+    overdue = [i for i in invoices if i["days_overdue"] > 0]
+    if overdue:
+        pick = st.selectbox("Draft a reminder for", overdue,
+                            format_func=lambda i: f"{i['invoice_number']} — {kes(i['balance_due_minor'])}")
+        st.code(f"Habari {pick['customer_name_token'] or ''}, a friendly reminder that invoice "
+                f"{pick['invoice_number']} of {kes(pick['balance_due_minor'])} was due on {pick['due_date'][:10]}. "
+                "Kindly pay via Till or M-Pesa. Asante!", language="text")
+else:
+    st.info("No unpaid invoices. Create invoices on the **Invoicing** page to track money customers owe you.")

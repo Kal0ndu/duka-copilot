@@ -1,4 +1,5 @@
-"""Page 7: Audit Trail, Regulatory Compliance & Privacy Guard Verification."""
+"""Page 7: Regulatory compliance and privacy guard. (The audit trail and
+security events are admin-only: pages/14_Admin_Security.py.)"""
 import streamlit as st
 import sys
 from pathlib import Path
@@ -8,9 +9,8 @@ from app.auth_ui import require_auth
 from core.redaction import Redactor
 from core.config import Config
 from app.session_helpers import SessionManager
-from db.audit import get_recent_events, verify_audit
 
-st.set_page_config(page_title="Audit & Security — Duka", page_icon=":material/shield:", layout="wide")
+st.set_page_config(page_title="Privacy & Compliance — Duka", page_icon=":material/shield:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -18,15 +18,15 @@ require_auth()
 # Initialize session
 SessionManager.init_session()
 
-st.title("Audit Trail, Security & Regulatory Compliance")
-st.caption("Verify data privacy, tamper-evident cryptographic logs, and Central Bank of Kenya financial limits.")
+st.title("Privacy & Regulatory Compliance")
+st.caption("Check how your data is protected and how your statement compares with Central Bank of Kenya limits.")
 
 # ---- ROW 1: SECURITY KPIS ----
 s1, s2, s3, s4 = st.columns(4)
 s1.metric("Sandbox Security Mode", "Active (Fail-Closed)" if Config.SANDBOX_ONLY else "Live")
 s2.metric("Per-Transaction Cap", f"KES {Config.CAP_PER_TXN / 100:,.0f}", help="CBK single mobile-money transfer regulatory limit.")
 s3.metric("Daily Cumulative Cap", f"KES {Config.CAP_DAILY / 100:,.0f}", help="CBK 24-hour total account transfer limit.")
-s4.metric("PII Redaction Engine", "Zero-Leak Verified", delta="Active", delta_color="normal")
+s4.metric("PII redaction", "Test below", help="Try the tokeniser on your own text in the next section.")
 
 st.divider()
 
@@ -56,41 +56,6 @@ if test_text:
     if res.tokens:
         with st.expander(":material/key: Cryptographic token vault (Stored locally, never shared)", expanded=False):
             st.json(res.tokens)
-
-st.divider()
-
-# ---- SECTION 3: TAMPER-EVIDENT AUDIT TRAIL ----
-st.subheader(":material/receipt_long: Hash-chained audit trail (immutable)")
-st.caption("Every tool call, guard decision, and block is recorded in an append-only cryptographic chain.")
-
-business_id = st.session_state.get("business_id")
-verdict = verify_audit(Config.DB_PATH)
-recent = get_recent_events(Config.DB_PATH, business_id=business_id, limit=25)
-
-if recent:
-    events = [
-        {
-            "Seq": f"#{e.seq:03d}",
-            "Timestamp": e.ts,
-            "Actor": e.actor,
-            "Event Type": e.event_type,
-            "Tool": e.tool or "-",
-            "Decision": e.decision or "-",
-            "Prev Hash": e.prev_hash[:16] + "...",
-            "Hash": e.hash[:16] + "...",
-        }
-        for e in recent
-    ]
-    st.dataframe(events, width="stretch")
-else:
-    st.info("No audit events recorded yet for this business. Use the chat copilot or upload a statement to generate activity.")
-
-if verdict.get("valid") and verdict.get("checked", 0) > 0:
-    st.success(f"✓ Audit log chain integrity verified across {verdict['checked']} event(s). Zero modifications or tampered entries.")
-elif verdict.get("valid"):
-    st.info("Audit log is empty — nothing to verify yet.")
-else:
-    st.error(f"✗ Audit log chain integrity check FAILED at seq #{verdict.get('first_break_seq')}. Possible tampering.")
 
 st.divider()
 

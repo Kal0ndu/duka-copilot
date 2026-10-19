@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
+from auth.middleware import get_business_id
 
 from core.analytics import BusinessAnalytics
 from core.forecaster import BalanceForecaster
@@ -65,10 +66,14 @@ with st.expander("Forecast settings & stress-test simulation", icon=":material/t
         help="Current cash in your Till / M-Pesa account."
     )
 
+    default_buffer_minor = Config.SAFETY_BUFFER_MINOR
+    if get_business_id():
+        from core.owner_settings import load_settings
+        default_buffer_minor = load_settings(Config.DB_PATH, get_business_id()).safety_buffer_minor
     buffer_input = col_c2.number_input(
         "Safety buffer target (KES)",
         min_value=500.0,
-        value=float(Config.SAFETY_BUFFER_MINOR / 100.0),
+        value=max(500.0, float(default_buffer_minor / 100.0)),
         step=1000.0,
         help="Minimum liquid cash floor you want to protect at all times."
     )
@@ -98,9 +103,15 @@ daily_flows = daily_grouped.groupby(["local_date", "weekday"]).agg(
     outflow_minor=("amount_minor", lambda x: int(x[daily_grouped.loc[x.index, "direction"] == "out"].sum())),
 ).reset_index()
 
-# Setup scheduled obligation
+# Scheduled obligations: the owner's saved recurring expenses (overdue ones
+# land on day 1, since they are still unpaid) plus the stress-test expense.
 due_date_str = (datetime.now() + timedelta(days=obl_day)).strftime("%Y-%m-%d")
 obligations = []
+if get_business_id():
+    from core.expense_tracker import RecurringExpenseManager
+    _today = datetime.now().date()
+    obligations += RecurringExpenseManager().obligations_between(
+        get_business_id(), _today + timedelta(days=1), _today + timedelta(days=horizon_days))
 if obl_amount > 0:
     obligations.append({
         "due_date": due_date_str,
@@ -120,6 +131,16 @@ forecast_res = forecaster.forecast(
 )
 
 shortfalls = forecaster.detect_shortfalls(forecast_res)
+
+saved = [o for o in obligations if o.get("source") == "recurring_expense"]
+if saved:
+    with st.expander(f"Included: {len(saved)} recurring payment(s) from your expenses, "
+                     f"KES {sum(o['amount_minor'] for o in saved) / 100:,.0f}", icon=":material/event_repeat:"):
+        st.dataframe(pd.DataFrame([{
+            "Forecast date": o["due_date"], "Due date": o["original_due_date"], "Expense": o["label"],
+            "Amount (KES)": o["amount_minor"] / 100,
+            "Status": f"Overdue {o['days_overdue']}d" if o["days_overdue"] else "Scheduled",
+        } for o in saved]), hide_index=True, width="stretch")
 
 # ---- SUMMARY KPIS ----
 p50_end = forecast_res.points[-1]["p50"] / 100.0

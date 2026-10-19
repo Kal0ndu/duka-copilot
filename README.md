@@ -134,6 +134,18 @@ http://localhost:8501
 6. **Standing Orders** → Set up regular payments; Duka ranks and reminds, you authorize each one
 7. **Chat** → Ask the AI copilot questions about your business
 
+**Administrator.** Every account created by sign-up is a regular user. One account can be the
+administrator, the only one that can open **Admin Security** (audit trail, security events, accounts).
+Set it on the server after that person has signed up:
+
+```bash
+python scripts/set_admin.py 0712345678              # first admin
+python scripts/set_admin.py 0712345678 --transfer   # hand over to someone else
+python scripts/set_admin.py --show
+```
+
+The database allows only one admin, and no account can be created as admin.
+
 ### 8. Standing Orders: M-Pesa Daraja and Twilio
 
 Duka never pays on its own. For each due payment it sends an in-app and SMS
@@ -141,15 +153,70 @@ reminder ranked by priority. The owner taps **Authorize & pay**, which sends an
 M-Pesa STK prompt to their own phone, and the money only moves once they
 enter their PIN.
 
-1. Create a sandbox app at https://developer.safaricom.co.ke and fill in
-   `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET` and `DARAJA_PASSKEY` in `.env`
-   (`DARAJA_SHORTCODE=174379` is Safaricom's sandbox paybill). Use
-   `DARAJA_ENV=simulated` to demo without Daraja.
-2. For SMS set `SMS_PROVIDER=twilio` plus `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
-   and `TWILIO_PHONE_FROM`. Twilio trial accounts only text verified numbers.
-3. In the app, open **Standing Orders → Notification settings** and save your
+#### M-PESA Daraja Setup
+
+**Sandbox (Test) Mode — Use These Credentials:**
+
+1. Go to https://developer.safaricom.co.ke and register a new app
+2. In `.env`, use these test credentials:
+   ```env
+   DARAJA_ENV=sandbox
+   DARAJA_CONSUMER_KEY=testapi
+   DARAJA_CONSUMER_SECRET=testapi
+   DARAJA_INITIATOR_NAME=testapi
+   DARAJA_INITIATOR_PASSWORD=Safaricom123!!
+   DARAJA_PARTY_A=600988
+   DARAJA_PARTY_B=600000
+   DARAJA_PHONE_NUMBER=254708374149
+   DARAJA_SHORTCODE=174379
+   DARAJA_PASSKEY=bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919
+   ```
+
+3. To generate a **Security Credential** for API calls:
+   - Visit https://developer.safaricom.co.ke (Developer Portal)
+   - Navigate to **Security Credential** generator
+   - Enter your **Initiator Password** (e.g., `Safaricom123!!`)
+   - Select environment (**Sandbox** or **Production**)
+   - Copy the generated **Security Credential**
+   - Example output for sandbox:
+     ```
+     FRw7pQ2Y1an7ra66v/PrWVgCMGvSjgiyB5fj5o6K1epWRcbPZ0vxmcaQqXYHLP2HrS0ifeCMxueJKz09yzcPKtUhWZx/0zY5D6ybx5yy1ut/DJb9pQ1MJ7jJbWdzK947Gvyeqk3bPRQ+1VCiqpR5GdZlH641bXh54wAK6R7t7pGBnnPqQvHaVTsYO9AjYd8x1hOIkwbPnQ3EH2ziu35/PDmW3ud/2Ct462lPPoLTHlngqT5cueE9FIqJmNl7/SubAOFZqqpMziSqDa+1ZEppl7fvAX/A7srujdPLYDLfL8Qu90+R4MovLSV7V3cf8C5ErFE8LrcRQwzjEQiSwdHeeQ==
+     ```
+
+**Production Mode — Use Your Own Credentials:**
+
+1. Register your business at https://www.safaricom.co.ke/business/m-pesa/m-pesa-for-business
+2. Create a new app in the M-PESA portal (https://developer.safaricom.co.ke)
+3. Set `DARAJA_ENV=production` in `.env`
+4. Fill in your production credentials (keep them secret — never commit to git)
+5. Generate your production Security Credential using the same portal tool
+
+**Test User for Sandbox:**
+
+- **Name**: Musindi Kyule
+- **Party A** (Receiver): 600988
+- **Party B** (Payer/Shortcode): 600000
+- **Phone**: 254708374149
+- **Business ShortCode**: 174379
+
+#### SMS Notifications (Twilio)
+
+For SMS reminders, set `SMS_PROVIDER=twilio` plus your Twilio credentials in `.env`:
+
+```env
+SMS_PROVIDER=twilio
+TWILIO_ACCOUNT_SID=your_account_sid
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_PHONE_FROM=+1234567890
+```
+
+Note: Twilio trial accounts can only text verified phone numbers.
+
+#### Final Steps
+
+1. In the app, open **Standing Orders → Notification settings** and save your
    login phone number. Prompts can only go to that number.
-4. Schedule reminders so they go out even when nobody opens the app:
+2. Schedule reminders so they go out even when nobody opens the app:
    ```bash
    # crontab -e : every day at 07:00
    0 7 * * * cd /path/to/duka && .venv/bin/python -m core.standing_orders

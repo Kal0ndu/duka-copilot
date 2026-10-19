@@ -21,7 +21,10 @@ class CreditEntry:
 
 
 class WorkingCapitalAnalyzer:
-    """Computes working capital, aging schedules, and credit metrics."""
+    """ILLUSTRATIVE ONLY: estimates a credit book from transaction patterns
+    (receivables = 18% and payables = 22% of each top counterparty's volume).
+    These are not real debts; never show them as such or send reminders
+    from them. Real figures: working_capital_position() / open_invoices()."""
 
     def __init__(self, transactions=None):
         if isinstance(transactions, pd.DataFrame):
@@ -102,7 +105,7 @@ class WorkingCapitalAnalyzer:
             elif days_overdue <= 60:
                 bucket = "31-60 days overdue"
             else:
-                bucket = "90+ days overdue"
+                bucket = "61+ days overdue"
 
             phone_tok = f"07** *** {200 + i * 15:03d}"
             reminder = (
@@ -187,7 +190,7 @@ class WorkingCapitalAnalyzer:
             "Current (0-30d)": sum(r.amount_kes for r in receivables if r.bucket == "Current (0-30d)"),
             "1-30 days overdue": sum(r.amount_kes for r in receivables if r.bucket == "1-30 days overdue"),
             "31-60 days overdue": sum(r.amount_kes for r in receivables if r.bucket == "31-60 days overdue"),
-            "90+ days overdue": sum(r.amount_kes for r in receivables if r.bucket == "90+ days overdue"),
+            "61+ days overdue": sum(r.amount_kes for r in receivables if r.bucket == "61+ days overdue"),
         }
 
         ap_buckets = {
@@ -210,3 +213,145 @@ class WorkingCapitalAnalyzer:
             "receivables_list": receivables,
             "payables_list": payables,
         }
+
+
+# ---- working capital from the business's own records ----
+
+OPEN_PAYMENT_STATES = ("pending", "notified", "authorized", "stk_sent", "failed")
+
+
+def _scalar(conn, sql: str, params) -> int:
+    """One integer from the database; 0 when the table does not exist yet."""
+    import sqlite3
+    try:
+        return int(conn.execute(sql, params).fetchone()[0] or 0)
+    except sqlite3.OperationalError:
+        return 0
+
+
+def working_capital_position(db_path: str, business_id: int, today=None,
+                             horizon_days: int = 30) -> Dict:
+    """Working capital computed only from database records (amounts in minor units).
+
+    Current assets
+      cash          ledger balance at the end of the latest statement (if positive)
+      receivables   unpaid balances of open invoices
+      inventory     stock on hand at cost price
+    Current liabilities (owed now)
+      overdraft     overdraft owed, with fees (core.forecaster.true_position)
+      overdue bills recurring-expense instalments past their due date
+      open payments standing-order payments generated but not yet paid
+    Next horizon_days
+      bills due     recurring-expense instalments falling due
+      invoices due  open invoice balances falling due (money expected in)
+
+    net_working_capital = current assets - current liabilities
+    liquidity_gap       = cash + invoices due - liabilities - bills due
+                          (negative: cash will run short within the horizon)
+    """
+    import sqlite3
+    from datetime import date as _date
+    from core.expense_tracker import RecurringExpenseManager
+    from core.forecaster import true_position
+
+    today = today or _date.today()
+    end = today + timedelta(days=horizon_days)
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        pos = true_position(conn, business_id)
+        balance = pos["balance_minor"]
+        open_inv = ("FROM invoice WHERE business_id = ? AND payment_status NOT IN ('paid','cancelled') "
+                    "AND status NOT IN ('cancelled','draft')")
+        receivables = _scalar(conn, f"SELECT SUM(balance_due_minor) {open_inv}", (business_id,))
+        overdue_receivables = _scalar(conn, f"SELECT SUM(balance_due_minor) {open_inv} AND due_date < ?",
+                                      (business_id, today.isoformat()))
+        invoices_due = _scalar(conn, f"SELECT SUM(balance_due_minor) {open_inv} AND due_date <= ?",
+                               (business_id, end.isoformat()))
+        inventory = _scalar(conn, """SELECT SUM(current_stock_qty * cost_price_minor) FROM product
+                                     WHERE business_id = ? AND is_active = 1 AND current_stock_qty > 0""",
+                            (business_id,))
+        marks = ",".join("?" * len(OPEN_PAYMENT_STATES))
+        open_payments = _scalar(conn, f"""SELECT SUM(amount_minor) FROM scheduled_payment
+                                          WHERE business_id = ? AND status IN ({marks})""",
+                                (business_id, *OPEN_PAYMENT_STATES))
+    finally:
+        conn.close()
+
+    try:
+        bills = RecurringExpenseManager(db_path).obligations_between(business_id, today, end)
+    except sqlite3.Error:
+        bills = []
+    overdue_bills = sum(b["amount_minor"] for b in bills if b["days_overdue"] > 0)
+    bills_due = sum(b["amount_minor"] for b in bills if b["days_overdue"] == 0)
+    # Variable bills are planned at their average; the high case adds 10%.
+    bills_due_high = sum(b["amount_high_minor"] for b in bills if b["days_overdue"] == 0)
+
+    cash = max(0, balance)
+    overdraft = pos["overdraft_owed_minor"] + max(0, -balance)
+    current_assets = cash + receivables + inventory
+    current_liabilities = overdraft + overdue_bills + open_payments
+    return {
+        "as_of_statement": pos["as_of"],
+        "today": today.isoformat(),
+        "horizon_days": horizon_days,
+        "cash_minor": cash,
+        "receivables_minor": receivables,
+        "overdue_receivables_minor": overdue_receivables,
+        "inventory_minor": inventory,
+        "current_assets_minor": current_assets,
+        "overdraft_minor": overdraft,
+        "overdue_bills_minor": overdue_bills,
+        "open_payments_minor": open_payments,
+        "current_liabilities_minor": current_liabilities,
+        "net_working_capital_minor": current_assets - current_liabilities,
+        "current_ratio": round(current_assets / current_liabilities, 2) if current_liabilities else None,
+        "bills_due_minor": bills_due,
+        "bills_due_high_minor": bills_due_high,
+        "invoices_due_minor": invoices_due,
+        "liquidity_gap_minor": cash + invoices_due - current_liabilities - bills_due,
+        "liquidity_gap_low_minor": cash + invoices_due - current_liabilities - bills_due_high,
+        "bills": bills,
+    }
+
+
+AGING_BUCKETS = ("Not due", "1-30 days overdue", "31-60 days overdue", "61+ days overdue")
+
+
+def aging_bucket(days_overdue: int) -> str:
+    if days_overdue <= 0:
+        return AGING_BUCKETS[0]
+    if days_overdue <= 30:
+        return AGING_BUCKETS[1]
+    if days_overdue <= 60:
+        return AGING_BUCKETS[2]
+    return AGING_BUCKETS[3]
+
+
+def open_invoices(db_path: str, business_id: int, today=None) -> List[Dict]:
+    """Unpaid invoices of the business with their real age (from due_date)."""
+    import sqlite3
+    from datetime import date as _date
+    today = today or _date.today()
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """SELECT invoice_id, invoice_number, invoice_date, due_date, customer_name_token,
+                          total_amount_minor, amount_paid_minor, balance_due_minor, payment_status
+                   FROM invoice
+                   WHERE business_id = ? AND payment_status NOT IN ('paid','cancelled')
+                     AND status NOT IN ('cancelled','draft') AND balance_due_minor > 0
+                   ORDER BY due_date""",
+                (business_id,),
+            ).fetchall()
+    except sqlite3.OperationalError:
+        return []
+    out = []
+    for r in rows:
+        d = dict(r)
+        days = (today - _date.fromisoformat(d["due_date"][:10])).days
+        d["days_overdue"] = max(0, days)
+        d["bucket"] = aging_bucket(days)
+        out.append(d)
+    return out

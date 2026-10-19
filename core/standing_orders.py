@@ -447,7 +447,8 @@ class StandingOrderService:
         with self._conn() as conn:
             return conn.execute(
                 """SELECT COUNT(*) FROM notification
-                   WHERE business_id = ? AND user_id = ? AND channel = 'in_app' AND status = 'sent'""",
+                   WHERE business_id = ? AND user_id = ? AND channel = 'in_app' AND status = 'sent'
+                     AND payment_id IS NOT NULL""",
                 (business_id, user_id),
             ).fetchone()[0]
 
@@ -455,7 +456,8 @@ class StandingOrderService:
         with self._conn() as conn:
             conn.execute(
                 """UPDATE notification SET status = 'read', read_at = ?
-                   WHERE business_id = ? AND user_id = ? AND channel = 'in_app' AND status = 'sent'""",
+                   WHERE business_id = ? AND user_id = ? AND channel = 'in_app' AND status = 'sent'
+                     AND payment_id IS NOT NULL""",
                 (_now(), business_id, user_id),
             )
 
@@ -498,16 +500,20 @@ class StandingOrderService:
             ).fetchone()
             if payment is None:
                 raise PaymentNotAllowed("Payment not found.")
-            if payment["amount_minor"] > Config.CAP_PER_TXN:
-                raise PaymentNotAllowed("Amount exceeds the per-payment limit.")
-            spent_today = conn.execute(
-                """SELECT COALESCE(SUM(amount_minor), 0) FROM scheduled_payment
-                   WHERE business_id = ? AND status IN ('authorized','stk_sent','paid')
-                     AND substr(authorized_at, 1, 10) = ?""",
-                (business_id, datetime.utcnow().strftime("%Y-%m-%d")),
-            ).fetchone()[0]
-            if spent_today + payment["amount_minor"] > Config.CAP_DAILY:
-                raise PaymentNotAllowed("This would exceed today's payment limit.")
+            # The owner's own caps (Business Setup), and one daily total
+            # shared with payments the AI proposed and the owner approved.
+            from core.approvals import committed_today_minor
+            from core.owner_settings import load_settings
+            settings = load_settings(self.db_path, business_id)
+            if payment["amount_minor"] > settings.per_txn_cap_minor:
+                raise PaymentNotAllowed(
+                    f"Amount exceeds your per-payment limit of KES {settings.per_txn_cap_minor / 100:,.0f}.")
+            spent_today = committed_today_minor(
+                conn, business_id, datetime.utcnow().strftime("%Y-%m-%d"), exclude_payment=payment_id)
+            if spent_today + payment["amount_minor"] > settings.daily_cap_minor:
+                raise PaymentNotAllowed(
+                    f"This would bring today's payments to KES {(spent_today + payment['amount_minor']) / 100:,.0f}, "
+                    f"over your daily limit of KES {settings.daily_cap_minor / 100:,.0f}.")
 
             # Compare-and-set: a double tap or a second tab cannot push twice.
             previous = payment["status"]

@@ -3,10 +3,24 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass
 import sqlite3
 import uuid
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
+from core import recurrence
 from core.config import config
+
+EXPENSE_TYPES = (
+    "rent", "salary", "utilities", "insurance", "supplier_credit",
+    "loan_repayment", "tax", "maintenance", "service_subscription", "other",
+)
+
+
+class ExpenseError(ValueError):
+    """A recurring expense could not be saved (bad input)."""
+
+
+class ExpenseNotFound(LookupError):
+    """No such expense for this business (also returned for another business's expense)."""
 
 
 @dataclass
@@ -20,6 +34,7 @@ class BusinessProfile:
     timezone: str
     employee_count: int
     status: str
+    registration_type: str = "informal"
 
 
 class BusinessSetup:
@@ -91,7 +106,9 @@ class BusinessSetup:
               times_missed INTEGER NOT NULL DEFAULT 0,
               avg_actual_minor INTEGER,
               active INTEGER NOT NULL DEFAULT 1,
-              created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+              created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+              last_paid_date TEXT,
+              interval_count INTEGER NOT NULL DEFAULT 1 CHECK (interval_count BETWEEN 1 AND 365)
             );
 
             CREATE TABLE IF NOT EXISTS recurring_expense_instance (
@@ -137,6 +154,8 @@ class BusinessSetup:
         """)
         conn.commit()
         conn.close()
+        from db.migrate import ensure_006
+        ensure_006(self.db_path)
 
     def register_business(
         self,
@@ -149,8 +168,13 @@ class BusinessSetup:
         revenue_estimate_minor: int = 0,
         employee_count: int = 0,
         registration_type: str = "informal",
+        owner_user_id: Optional[int] = None,
     ) -> int:
-        """Register a new business and return its business_id."""
+        """Register a new business and return its business_id.
+
+        When owner_user_id is given the business is linked to that user
+        (business.owner_user_id + an 'owner' business_member row), so the
+        next login finds it instead of asking for setup again."""
         self.ensure_schema()
 
         public_ref = uuid.uuid4().hex[:12]
@@ -158,24 +182,98 @@ class BusinessSetup:
 
         conn = sqlite3.connect(self.db_path)
         conn.execute("PRAGMA foreign_keys = ON")
-        cursor = conn.cursor()
+        try:
+            phone_hash = None
+            if owner_user_id is not None:
+                row = conn.execute(
+                    "SELECT phone_hash FROM app_user WHERE user_id = ?", (owner_user_id,)
+                ).fetchone()
+                if row is None:
+                    raise ValueError(f"No user with user_id={owner_user_id}")
+                phone_hash = row[0]
 
-        cursor.execute("""
-            INSERT INTO business (
-              public_ref, name_token, sector, sub_sector,
-              country_code, currency_code, timezone,
-              registration_type, employee_count, start_date, is_synthetic
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, date('now'), 0)
-        """, (
-            public_ref, name_token, sector, sub_sector,
-            country_code, currency_code, timezone,
-            registration_type, employee_count,
-        ))
+            cursor = conn.execute("""
+                INSERT INTO business (
+                  public_ref, name_token, sector, sub_sector,
+                  country_code, currency_code, timezone,
+                  registration_type, employee_count, start_date, is_synthetic
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, date('now'), 0)
+            """, (
+                public_ref, name_token, sector, sub_sector,
+                country_code, currency_code, timezone,
+                registration_type, employee_count,
+            ))
+            business_id = cursor.lastrowid
 
-        conn.commit()
-        business_id = cursor.lastrowid
-        conn.close()
+            if owner_user_id is not None:
+                conn.execute(
+                    "UPDATE business SET owner_user_id = ?, owner_phone_hash = ? WHERE business_id = ?",
+                    (owner_user_id, phone_hash, business_id),
+                )
+                conn.execute(
+                    """INSERT OR IGNORE INTO business_member
+                       (business_id, user_id, phone_hash, role, is_active)
+                       VALUES (?, ?, ?, 'owner', 1)""",
+                    (business_id, owner_user_id, phone_hash),
+                )
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
         return business_id
+
+    def get_business_for_user(self, user_id: int) -> Optional[int]:
+        """The business this user last set up or joined, or None if they
+        have never completed Business Setup."""
+        conn = sqlite3.connect(self.db_path)
+        try:
+            row = conn.execute(
+                """SELECT bm.business_id FROM business_member bm
+                   JOIN business b ON b.business_id = bm.business_id
+                   WHERE bm.user_id = ? AND bm.is_active = 1 AND b.status = 'active'
+                   ORDER BY bm.added_at DESC, bm.business_id DESC LIMIT 1""",
+                (user_id,),
+            ).fetchone()
+            if row is None:
+                row = conn.execute(
+                    """SELECT business_id FROM business
+                       WHERE owner_user_id = ? AND status = 'active'
+                       ORDER BY business_id DESC LIMIT 1""",
+                    (user_id,),
+                ).fetchone()
+            return row[0] if row else None
+        except sqlite3.OperationalError:
+            return None
+        finally:
+            conn.close()
+
+    def update_business_profile(
+        self,
+        business_id: int,
+        name: str,
+        sector: str,
+        sub_sector: Optional[str] = None,
+        country_code: str = "KE",
+        employee_count: int = 0,
+        registration_type: str = "informal",
+    ) -> None:
+        """Edit the profile captured during setup."""
+        conn = sqlite3.connect(self.db_path)
+        conn.execute("PRAGMA foreign_keys = ON")
+        try:
+            conn.execute("""
+                UPDATE business
+                SET name_token = ?, sector = ?, sub_sector = ?, country_code = ?,
+                    employee_count = ?, registration_type = ?,
+                    updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+                WHERE business_id = ?
+            """, (name, sector, sub_sector, country_code, employee_count,
+                  registration_type, business_id))
+            conn.commit()
+        finally:
+            conn.close()
 
     def add_recurring_expense(
         self,
@@ -190,54 +288,236 @@ class BusinessSetup:
         end_date: Optional[str] = None,
         is_variable: bool = False,
         variable_formula: Optional[str] = None,
+        last_paid_date: Optional[str] = None,
+        interval_count: int = 1,
+        today: Optional[date] = None,
     ) -> int:
-        """Add a recurring expense and return expense_id."""
-        self.ensure_schema()
+        """Add a recurring expense and return expense_id.
 
-        if next_due is None:
-            next_due = datetime.now().strftime("%Y-%m-%d")
+        amount_minor is the amount of each payment, or, when is_variable, the
+        approximate monthly average (payments are planned within +/-10%).
+
+        When last_paid_date is given, next_due is calculated from it (see
+        core/recurrence.py) and any next_due passed in is ignored. Without
+        it, next_due is the owner's first payment date, or the first
+        day_of_month on or after today, or today."""
+        self.ensure_schema()
+        today = today or date.today()
+        description = self._validate_expense(expense_type, description, amount_minor,
+                                             cadence, interval_count, day_of_month)
+        last_paid = recurrence.to_date(last_paid_date)
+        if last_paid is not None:
+            if last_paid > today:
+                raise ExpenseError("The last payment date can't be in the future.")
+            next_due = recurrence.next_due_after_payment(
+                last_paid, cadence, interval_count, day_of_month).isoformat()
+        elif next_due is None:
+            first = today
+            if day_of_month and cadence in ("monthly", "quarterly", "annual"):
+                first = recurrence._add_months(today, 0, day_of_month)
+                if first < today:
+                    first = recurrence._add_months(today, 1, day_of_month)
+            next_due = first.isoformat()
+        else:
+            next_due = recurrence.to_date(next_due).isoformat()
+        if end_date and recurrence.to_date(end_date) < recurrence.to_date(next_due):
+            raise ExpenseError("The end date is before the next payment.")
 
         conn = sqlite3.connect(self.db_path)
         conn.execute("PRAGMA foreign_keys = ON")
-        cursor = conn.cursor()
+        try:
+            cursor = conn.execute("""
+                INSERT INTO recurring_expense (
+                  business_id, expense_type, description, amount_minor,
+                  cadence, interval_count, day_of_month, party_id, next_due, end_date,
+                  last_paid_date, is_variable, variable_formula, active
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+            """, (
+                business_id, expense_type, description, amount_minor,
+                cadence, interval_count, day_of_month, party_id, next_due, end_date,
+                last_paid.isoformat() if last_paid else None,
+                1 if is_variable else 0, variable_formula,
+            ))
+            conn.commit()
+            return cursor.lastrowid
+        except sqlite3.IntegrityError as e:
+            raise ExpenseError(f"Could not save the expense: {e}") from e
+        finally:
+            conn.close()
 
-        cursor.execute("""
-            INSERT INTO recurring_expense (
-              business_id, expense_type, description, amount_minor,
-              cadence, day_of_month, party_id, next_due, end_date,
-              is_variable, variable_formula, active
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-        """, (
-            business_id, expense_type, description, amount_minor,
-            cadence, day_of_month, party_id, next_due, end_date,
-            1 if is_variable else 0, variable_formula,
-        ))
+    @staticmethod
+    def _validate_expense(expense_type, description, amount_minor, cadence,
+                          interval_count, day_of_month) -> str:
+        if expense_type not in EXPENSE_TYPES:
+            raise ExpenseError(f"Unknown expense type {expense_type!r}.")
+        description = (description or "").strip()
+        if not description:
+            raise ExpenseError("Please describe the expense (e.g. 'Shop rent').")
+        if len(description) > 120:
+            raise ExpenseError("Keep the description under 120 characters.")
+        if not isinstance(amount_minor, int) or isinstance(amount_minor, bool) or amount_minor <= 0:
+            raise ExpenseError("The amount must be more than zero.")
+        try:
+            recurrence.validate(cadence, interval_count, day_of_month)
+        except recurrence.RecurrenceError as e:
+            raise ExpenseError(str(e)) from e
+        return description
 
-        conn.commit()
-        expense_id = cursor.lastrowid
-        conn.close()
-        return expense_id
+    def _get_expense_row(self, conn, business_id: int, expense_id: int) -> sqlite3.Row:
+        """The expense, only if it belongs to business_id."""
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT * FROM recurring_expense WHERE expense_id = ? AND business_id = ? AND active = 1",
+            (expense_id, business_id),
+        ).fetchone()
+        if row is None:
+            raise ExpenseNotFound("That expense was not found for this business.")
+        return row
 
-    def get_recurring_expenses(self, business_id: int) -> List[Dict]:
-        """Get all active recurring expenses for a business."""
+    def update_recurring_expense(self, business_id: int, expense_id: int,
+                                 today: Optional[date] = None, **changes) -> Dict:
+        """Edit an expense of this business. Changing the schedule (or the
+        last payment date) recalculates next_due from last_paid_date."""
+        self.ensure_schema()
+        allowed = {"expense_type", "description", "amount_minor", "cadence", "interval_count",
+                   "day_of_month", "last_paid_date", "next_due", "end_date", "is_variable"}
+        unknown = set(changes) - allowed
+        if unknown:
+            raise ExpenseError(f"Can't change: {', '.join(sorted(unknown))}.")
+        today = today or date.today()
+        conn = sqlite3.connect(self.db_path)
+        conn.execute("PRAGMA foreign_keys = ON")
+        try:
+            row = dict(self._get_expense_row(conn, business_id, expense_id))
+            new = {**row, **changes}
+            new["description"] = self._validate_expense(
+                new["expense_type"], new["description"], new["amount_minor"],
+                new["cadence"], new["interval_count"], new["day_of_month"])
+            last_paid = recurrence.to_date(new["last_paid_date"])
+            if last_paid is not None and last_paid > today:
+                raise ExpenseError("The last payment date can't be in the future.")
+            schedule_keys = ("cadence", "interval_count", "day_of_month", "last_paid_date")
+            schedule_changed = any(
+                (recurrence.to_date(new[k]) if k == "last_paid_date" else new[k])
+                != (recurrence.to_date(row[k]) if k == "last_paid_date" else row[k])
+                for k in schedule_keys)
+            if last_paid is not None and schedule_changed and "next_due" not in changes:
+                new["next_due"] = recurrence.next_due_after_payment(
+                    last_paid, new["cadence"], new["interval_count"], new["day_of_month"]).isoformat()
+            new["next_due"] = recurrence.to_date(new["next_due"]).isoformat()
+            if new["end_date"] and recurrence.to_date(new["end_date"]) < recurrence.to_date(new["next_due"]):
+                raise ExpenseError("The end date is before the next payment.")
+            conn.execute("""
+                UPDATE recurring_expense
+                SET expense_type = ?, description = ?, amount_minor = ?, cadence = ?,
+                    interval_count = ?, day_of_month = ?, last_paid_date = ?, next_due = ?,
+                    end_date = ?, is_variable = ?
+                WHERE expense_id = ? AND business_id = ?
+            """, (new["expense_type"], new["description"], new["amount_minor"], new["cadence"],
+                  new["interval_count"], new["day_of_month"],
+                  last_paid.isoformat() if last_paid else None, new["next_due"],
+                  new["end_date"], 1 if new["is_variable"] else 0, expense_id, business_id))
+            conn.commit()
+        finally:
+            conn.close()
+        return next(e for e in self.get_recurring_expenses(business_id, today=today)
+                    if e["expense_id"] == expense_id)
+
+    def delete_recurring_expense(self, business_id: int, expense_id: int) -> None:
+        """Stop tracking an expense of this business. The row is kept
+        (active = 0) so its payment history stays intact."""
+        self.ensure_schema()
+        conn = sqlite3.connect(self.db_path)
+        try:
+            self._get_expense_row(conn, business_id, expense_id)
+            conn.execute("UPDATE recurring_expense SET active = 0 WHERE expense_id = ? AND business_id = ?",
+                         (expense_id, business_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def record_expense_payment(self, business_id: int, expense_id: int,
+                               paid_date: Optional[str] = None,
+                               amount_minor: Optional[int] = None,
+                               today: Optional[date] = None) -> Dict:
+        """The owner paid the current instalment: log it, set last_paid_date
+        and move next_due to the next period after the payment."""
+        self.ensure_schema()
+        today = today or date.today()
+        paid = recurrence.to_date(paid_date) or today
+        if paid > today:
+            raise ExpenseError("The payment date can't be in the future.")
+        if amount_minor is not None and (not isinstance(amount_minor, int) or amount_minor <= 0):
+            raise ExpenseError("The amount paid must be more than zero.")
+        conn = sqlite3.connect(self.db_path)
+        conn.execute("PRAGMA foreign_keys = ON")
+        try:
+            row = self._get_expense_row(conn, business_id, expense_id)
+            due = recurrence.to_date(row["next_due"])
+            interval = row["interval_count"] or 1
+            nxt = recurrence.next_due_after_payment(paid, row["cadence"], interval, row["day_of_month"])
+            # Paying early must still move past the instalment just paid.
+            while nxt <= due:
+                nxt = recurrence.step(nxt, row["cadence"], interval, row["day_of_month"] or due.day)
+            expected = recurrence.instalment_amount(
+                row["amount_minor"], row["cadence"], interval, bool(row["is_variable"]))
+            amount = amount_minor or expected
+            conn.execute("""
+                INSERT INTO recurring_expense_instance
+                  (expense_id, due_date, expected_amount_minor, actual_amount_minor, status, paid_date)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(expense_id, due_date) DO UPDATE SET
+                  actual_amount_minor = excluded.actual_amount_minor,
+                  status = excluded.status, paid_date = excluded.paid_date
+            """, (expense_id, due.isoformat(), expected, amount,
+                  "late" if paid > due else "paid", paid.isoformat()))
+            conn.execute("""
+                UPDATE recurring_expense
+                SET last_paid_date = ?, next_due = ?, times_paid = times_paid + 1
+                WHERE expense_id = ? AND business_id = ?
+            """, (paid.isoformat(), nxt.isoformat(), expense_id, business_id))
+            conn.commit()
+        finally:
+            conn.close()
+        return next(e for e in self.get_recurring_expenses(business_id, today=today)
+                    if e["expense_id"] == expense_id)
+
+    def get_recurring_expenses(self, business_id: int, today: Optional[date] = None) -> List[Dict]:
+        """Active recurring expenses of a business, each with its live
+        countdown: days_until (negative when overdue), days_overdue,
+        due_state ('overdue' | 'due_today' | 'upcoming') and due_label."""
         self.ensure_schema()
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-
-        cursor.execute("""
+        rows = conn.execute("""
             SELECT expense_id, expense_type, description, amount_minor,
-                   cadence, day_of_month, next_due, end_date,
+                   cadence, interval_count, day_of_month, last_paid_date, next_due, end_date,
                    is_variable, variable_formula, times_paid, times_missed, active
             FROM recurring_expense
             WHERE business_id = ? AND active = 1
             ORDER BY next_due
-        """, (business_id,))
-
-        rows = cursor.fetchall()
+        """, (business_id,)).fetchall()
         conn.close()
-        return [dict(r) for r in rows]
+
+        out = []
+        for r in rows:
+            e = dict(r)
+            e["interval_count"] = e["interval_count"] or 1
+            e["frequency_label"] = recurrence.describe(e["cadence"], e["interval_count"])
+            # amount_minor is per payment, or the monthly average when variable.
+            e["instalment_minor"] = recurrence.instalment_amount(
+                e["amount_minor"], e["cadence"], e["interval_count"], bool(e["is_variable"]))
+            e["instalment_low_minor"], e["instalment_high_minor"] = recurrence.amount_range(
+                e["instalment_minor"], bool(e["is_variable"]))
+            try:
+                st = recurrence.due_status(e["next_due"], today)
+                e.update(days_until=st.days_until, days_overdue=st.days_overdue,
+                         due_state=st.state, due_label=st.label)
+            except recurrence.RecurrenceError:
+                e.update(days_until=None, days_overdue=0, due_state="unknown", due_label="No valid due date")
+            out.append(e)
+        return out
 
     def set_financial_goals(
         self,
@@ -307,7 +587,7 @@ class BusinessSetup:
         cursor.execute("""
             SELECT business_id, name_token, sector, sub_sector,
                    country_code, currency_code, timezone,
-                   employee_count, status
+                   employee_count, status, registration_type
             FROM business
             WHERE business_id = ?
         """, (business_id,))
@@ -328,6 +608,7 @@ class BusinessSetup:
             timezone=row["timezone"],
             employee_count=row["employee_count"],
             status=row["status"],
+            registration_type=row["registration_type"],
         )
 
     def configure_category(

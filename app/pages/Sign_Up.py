@@ -17,6 +17,6 @@ st.set_page_config(
 if check_auth():
     st.info("You're already logged in.")
     if st.button("Go to dashboard"):
-        st.switch_page("pages/0_Business_Setup.py")
+        st.switch_page("main.py" if st.session_state.get("business_id") else "pages/0_Business_Setup.py")
 else:
     render_sign_up()

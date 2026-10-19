@@ -1,13 +1,15 @@
-"""LLM client: retry, streaming, structured output, and caching."""
+"""LLM client: retry, streaming, structured output, and caching with smart rate limiting."""
 from typing import Dict, Any, Optional, Iterator, List
 from dataclasses import dataclass
 import json
 import hashlib
 import time
+import os
 from pathlib import Path
 import diskcache
 
 from core.config import Config
+from agent.rate_limiter import RateLimiter, PerMinuteRateLimitError, DailyRateLimitError
 
 
 @dataclass
@@ -19,13 +21,24 @@ class LLMResponse:
 
 
 class LLMClient:
-    """Unified LLM client with TTL cache, retry, and structured-output support."""
+    """Unified LLM client with TTL cache, smart rate limiting, and structured-output support.
+    
+    Features:
+    - Automatic per-minute rate limit spacing (Gemini free tier: ~1 req/sec)
+    - Per-minute vs daily limit detection
+    - Exponential backoff for per-minute limits
+    - Daily limit detection (unrecoverable for free tier)
+    - Disk caching to reduce API calls
+    """
+
+    MAX_RATE_LIMIT_WAIT = float(os.getenv("LLM_MAX_RATE_LIMIT_WAIT", "20"))
 
     def __init__(self, cfg: Optional[Config] = None):
         self.cfg = cfg or Config
         self._cache = diskcache.Cache(self.cfg.LLM_CACHE_DIR)
         self._provider = self.cfg.LLM_PROVIDER
         self._model = self.cfg.MODEL_NAME
+        self.rate_limiter = RateLimiter()  # Smart rate limiting
 
     # ---- cache helpers ----
 
@@ -44,42 +57,51 @@ class LLMClient:
     def _call_google(self, messages: List[Dict], schema: Optional[Dict] = None,
                      stream: bool = False) -> LLMResponse:
         import google.generativeai as genai
-        genai.configure(api_key=self.cfg.LLM_API_KEY)
-        model = genai.GenerativeModel(self._model)
+        
+        try:
+            genai.configure(api_key=self.cfg.LLM_API_KEY)
+            model = genai.GenerativeModel(self._model)
 
-        system = next((m["content"] for m in messages if m["role"] == "system"), None)
-        user_msgs = [{"role": "user" if m["role"] != "assistant" else "model",
-                       "parts": [m["content"]]}
-                     for m in messages if m["role"] != "system"]
+            system = next((m["content"] for m in messages if m["role"] == "system"), None)
+            user_msgs = [{"role": "user" if m["role"] != "assistant" else "model",
+                           "parts": [m["content"]]}
+                         for m in messages if m["role"] != "system"]
 
-        t0 = time.monotonic()
-        if schema:
-            response = model.generate_content(
-                user_msgs,
-                generation_config=genai.types.GenerationConfig(
-                    response_mime_type="application/json",
-                    response_schema=schema,
-                ),
-                stream=stream,
+            t0 = time.monotonic()
+            if schema:
+                response = model.generate_content(
+                    user_msgs,
+                    generation_config=genai.types.GenerationConfig(
+                        response_mime_type="application/json",
+                        response_schema=schema,
+                    ),
+                    stream=stream,
+                )
+            else:
+                response = model.generate_content(user_msgs, stream=stream)
+
+            if stream:
+                chunks = []
+                for chunk in response:
+                    chunks.append(chunk.text or "")
+                text = "".join(chunks)
+            else:
+                text = response.text or ""
+
+            latency = (time.monotonic() - t0) * 1000
+            return LLMResponse(
+                text=text,
+                usage={"total_tokens": response.usage_metadata.total_token_count if hasattr(response, "usage_metadata") else 0},
+                model=self._model,
+                latency_ms=latency,
             )
-        else:
-            response = model.generate_content(user_msgs, stream=stream)
-
-        if stream:
-            chunks = []
-            for chunk in response:
-                chunks.append(chunk.text or "")
-            text = "".join(chunks)
-        else:
-            text = response.text or ""
-
-        latency = (time.monotonic() - t0) * 1000
-        return LLMResponse(
-            text=text,
-            usage={"total_tokens": response.usage_metadata.total_token_count if hasattr(response, "usage_metadata") else 0},
-            model=self._model,
-            latency_ms=latency,
-        )
+        except Exception as e:
+            # Turn Gemini's 429 / RESOURCE_EXHAUSTED into our typed errors so
+            # chat() can tell a short per-minute wait from a used-up day.
+            classified = self.rate_limiter.classify(e)
+            if classified is not None:
+                raise classified from e
+            raise
 
     def _call_openai_compat(self, messages: List[Dict], schema: Optional[Dict] = None,
                             stream: bool = False) -> LLMResponse:
@@ -103,26 +125,83 @@ class LLMClient:
 
     def chat(self, messages: List[Dict], schema: Optional[Dict] = None,
              stream: bool = False, max_retries: int = 3) -> LLMResponse:
+        """Chat with intelligent rate limit handling.
+        
+        For per-minute limits: spaces requests and retries with exponential backoff.
+        For daily limits: raises immediately with helpful message.
+        
+        Args:
+            messages: Conversation messages
+            schema: Optional JSON schema for structured output
+            stream: Enable streaming
+            max_retries: Max attempts (per-minute limit retries don't count against this)
+        
+        Returns:
+            LLMResponse with text, usage, model, and latency
+        
+        Raises:
+            DailyRateLimitError: If daily quota exceeded
+            RuntimeError: If all retries exhausted
+        """
         key = self._cache_key(messages, schema)
         cached = self._cached(key)
         if cached:
             return cached
 
         last_err = None
-        for attempt in range(max_retries):
+        attempt = 0
+        rate_limit_waits = 0
+        
+        while attempt < max_retries:
             try:
+                # Space out requests to respect per-minute limits
+                self.rate_limiter.wait_before_request()
+                
+                # Make the API call
                 if self._provider == "google":
                     resp = self._call_google(messages, schema, stream)
                 else:
-                    import os
                     resp = self._call_openai_compat(messages, schema, stream)
+                
+                # Record success for quota tracking
+                self.rate_limiter.record_success()
                 self._store(key, resp)
                 return resp
+                
+            except (DailyRateLimitError, PerMinuteRateLimitError) as e:
+                # Rate limit error: classify and handle intelligently
+                if isinstance(e, DailyRateLimitError):
+                    # Daily limit: not recoverable, raise immediately
+                    raise
+                
+                # Per-minute limit: wait once if the server's wait is short;
+                # otherwise give up now so the chat can answer offline instead
+                # of freezing the page for a minute.
+                wait_time = self.rate_limiter.handle_rate_limit_error(e) or 0
+                if rate_limit_waits >= 1 or wait_time > self.MAX_RATE_LIMIT_WAIT:
+                    raise
+                rate_limit_waits += 1
+                print(f"Rate limited. Waiting {wait_time:.0f}s before retry...")
+                time.sleep(wait_time)
+                continue
+            
             except Exception as e:
+                # Other errors: use exponential backoff
                 last_err = e
-                if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)
-        raise RuntimeError(f"LLM call failed after {max_retries} attempts: {last_err}")
+                attempt += 1
+                if attempt < max_retries:
+                    backoff = 2 ** (attempt - 1)
+                    print(f"LLM call failed (attempt {attempt}/{max_retries}). Retrying in {backoff}s...")
+                    time.sleep(backoff)
+                else:
+                    break
+        
+        # All retries exhausted
+        raise RuntimeError(
+            f"LLM call failed after {max_retries} attempts. "
+            f"Last error: {last_err}\n\n"
+            f"Rate limit status: {self.rate_limiter.get_status()}"
+        )
 
     def structured(self, messages: List[Dict], schema: Dict,
                    max_retries: int = 3) -> Dict[str, Any]:

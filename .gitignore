@@ -26,3 +26,4 @@ env/
 .agents/
 .claude/
 .llm_cache/
+duka-copilot-main*/

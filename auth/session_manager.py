@@ -227,3 +227,34 @@ def _generate_jti(user_id: int, timestamp: int) -> str:
     """Generate a unique JWT ID."""
     raw = f"{user_id}:{timestamp}:{os.urandom(8).hex()}"
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+
+def revoke_jti(db_path: str, session: Session, reason: str = "logout") -> bool:
+    """Revoke a session by its JWT id, so the token is refused from now on
+    even if someone copied it before logout."""
+    from db.migrate import ensure_006
+    if not session.jti:
+        return False
+    try:
+        ensure_006(db_path)
+        with sqlite3.connect(db_path) as conn:
+            conn.execute(
+                "INSERT OR IGNORE INTO revoked_session (jti, user_id, reason) VALUES (?, ?, ?)",
+                (session.jti, session.user_id, reason),
+            )
+        return True
+    except sqlite3.Error:
+        return False
+
+
+def is_jti_revoked(db_path: str, session: Session) -> bool:
+    """True when this token's session was logged out."""
+    if not session.jti:
+        return False
+    try:
+        with sqlite3.connect(db_path) as conn:
+            return conn.execute(
+                "SELECT 1 FROM revoked_session WHERE jti = ?", (session.jti,)
+            ).fetchone() is not None
+    except sqlite3.OperationalError:
+        return False

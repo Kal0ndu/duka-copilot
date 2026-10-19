@@ -7,7 +7,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import require_auth
 
 from core.expense_tracker import ExpenseTracker, RecurringExpenseManager
-from core.business_setup import BusinessSetup
+from core.business_setup import BusinessSetup, ExpenseError
+from app.expense_ui import render_add_form, render_expense_list
+from auth.middleware import invalidate_user_context_on_page
 
 st.set_page_config(page_title="Expense Setup — Duka", page_icon=":material/description:")
 # ---- Authentication Gate ----
@@ -64,38 +66,28 @@ with tab1:
                         )
 
                     if st.button("Add as Recurring Expense", key=f"add_{i}"):
-                        setup.add_recurring_expense(
-                            business_id=business_id,
-                            expense_type=exp_type,
-                            description=description,
-                            amount_minor=p["amount_minor"],
-                            cadence="monthly" if p["cadence"] == "monthly" else p["cadence"],
-                            day_of_month=p["day_of_month"],
-                            party_id=p["party_id"],
-                        )
-                        st.success(f"✓ Added: {description}")
-                        st.rerun()
+                        try:
+                            setup.add_recurring_expense(
+                                business_id=business_id,
+                                expense_type=exp_type,
+                                description=description,
+                                amount_minor=p["amount_minor"],
+                                cadence=p["cadence"],
+                                day_of_month=p["day_of_month"],
+                                party_id=p["party_id"],
+                                last_paid_date=p.get("last_seen"),
+                            )
+                        except ExpenseError as e:
+                            st.error(str(e))
+                        else:
+                            invalidate_user_context_on_page()
+                            st.success(f"✓ Added: {description}")
+                            st.rerun()
         else:
             st.info("No recurring patterns detected. You need at least 2 months of transaction history with the same payee and amount.")
 
 with tab2:
     st.subheader("Your Recurring Expenses")
-
-    expenses = setup.get_recurring_expenses(business_id)
-
-    if expenses:
-        st.write(f"**{len(expenses)} active recurring expenses**")
-
-        for exp in expenses:
-            col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-            with col1:
-                st.write(f"**{exp['description']}** ({exp['expense_type']})")
-            with col2:
-                st.write(f"KES {exp['amount_minor']/100:,.0f}")
-            with col3:
-                st.write(f"{exp['cadence']}")
-            with col4:
-                var_label = "variable" if exp.get("is_variable") else ""
-                st.write(f"Next: {exp['next_due'][:10] if exp['next_due'] else '—'} {var_label}")
-    else:
-        st.info("No recurring expenses yet. Use Auto-Detect or add them in Business Setup.")
+    render_add_form(setup, business_id, prefix="es_add")
+    st.divider()
+    render_expense_list(setup, business_id, prefix="es_list")
