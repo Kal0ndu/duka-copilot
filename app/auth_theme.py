@@ -23,7 +23,7 @@ header[data-testid="stHeader"] { background: transparent; }
 footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
 
-.auth-glass-card {
+.st-key-auth_card {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -95,32 +95,27 @@ footer { visibility: hidden; }
 }
 
 /* Form fields */
-.auth-glass-card label {
+.st-key-auth_card label {
     color: #e2e8f0 !important;
     font-weight: 500 !important;
     margin-bottom: 0.5rem !important;
     font-size: 0.95rem !important;
 }
 
-.auth-glass-card input {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+/* Inputs: style Streamlit's own field wrapper (styling the inner <input>
+   as well draws a second, misaligned box) */
+.st-key-auth_card [data-baseweb="input"],
+.st-key-auth_card [data-baseweb="base-input"] {
+    background: rgba(255, 255, 255, 0.06) !important;
     border-radius: 12px !important;
-    color: #f1f5f9 !important;
-    padding: 0.85rem 1.25rem !important;
-    font-size: 0.95rem !important;
-    transition: all 0.2s ease !important;
+    transition: box-shadow 0.2s ease, background 0.2s ease !important;
 }
-
-.auth-glass-card input::placeholder {
-    color: #64748b !important;
+.st-key-auth_card [data-baseweb="input"]:focus-within {
+    background: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.25) !important;
 }
-
-.auth-glass-card input:focus {
-    border-color: #5eead4 !important;
-    background: rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.15) !important;
-}
+.st-key-auth_card input { background: transparent !important; color: #f1f5f9 !important; }
+.st-key-auth_card input::placeholder { color: #64748b !important; }
 
 /* Form section headers */
 .auth-form-section-title {
@@ -190,7 +185,7 @@ div[data-testid="stFormSubmitButton"] button:hover {
 }
 
 /* Regular buttons in forms */
-.auth-glass-card .stButton > button {
+.st-key-auth_card .stButton > button {
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 12px !important;
@@ -201,43 +196,43 @@ div[data-testid="stFormSubmitButton"] button:hover {
     font-size: 0.9rem !important;
 }
 
-.auth-glass-card .stButton > button:hover {
+.st-key-auth_card .stButton > button:hover {
     background: rgba(255, 255, 255, 0.12) !important;
     border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 /* Alerts and messages */
-.auth-glass-card div[data-testid="stAlert"] {
+.st-key-auth_card div[data-testid="stAlert"] {
     border-radius: 12px !important;
     padding: 1rem !important;
 }
 
-.auth-glass-card div[data-testid="stAlert"][kind="error"] {
+.st-key-auth_card div[data-testid="stAlert"][kind="error"] {
     background: rgba(239, 68, 68, 0.15) !important;
     border: 1px solid rgba(239, 68, 68, 0.3) !important;
     color: #fca5a5 !important;
 }
 
-.auth-glass-card div[data-testid="stAlert"][kind="success"] {
+.st-key-auth_card div[data-testid="stAlert"][kind="success"] {
     background: rgba(34, 197, 94, 0.15) !important;
     border: 1px solid rgba(34, 197, 94, 0.3) !important;
     color: #86efac !important;
 }
 
-.auth-glass-card div[data-testid="stAlert"][kind="info"] {
+.st-key-auth_card div[data-testid="stAlert"][kind="info"] {
     background: rgba(59, 130, 246, 0.15) !important;
     border: 1px solid rgba(59, 130, 246, 0.3) !important;
     color: #93c5fd !important;
 }
 
-.auth-glass-card div[data-testid="stAlert"][kind="warning"] {
+.st-key-auth_card div[data-testid="stAlert"][kind="warning"] {
     background: rgba(245, 158, 11, 0.15) !important;
     border: 1px solid rgba(245, 158, 11, 0.3) !important;
     color: #fcd34d !important;
 }
 
 /* Divider */
-.auth-glass-card hr {
+.st-key-auth_card hr {
     border-color: rgba(255, 255, 255, 0.1) !important;
     margin: 1.5rem 0 !important;
 }
@@ -250,13 +245,13 @@ div[data-testid="stFormSubmitButton"] button:hover {
 }
 
 /* Link styling */
-.auth-glass-card a {
+.st-key-auth_card a {
     color: #5eead4 !important;
     text-decoration: none;
     font-weight: 500;
 }
 
-.auth-glass-card a:hover {
+.st-key-auth_card a:hover {
     text-decoration: underline;
     color: #a78bfa !important;
 }
@@ -523,7 +518,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] p {
 /* Responsive design */
 @media (max-width: 768px) {
     .auth-illustration-col { display: none; }
-    .auth-glass-card {
+    .st-key-auth_card {
         padding: 2rem 1.5rem;
     }
     .auth-brand {
@@ -539,6 +534,146 @@ div[data-testid="stVerticalBlockBorderWrapper"] p {
         flex-direction: column;
     }
 }
+/* ================= Motion: login / sign-up / landing =================
+   Everything below is decoration; it is switched off for people whose
+   system asks for reduced motion (see the media query at the end). */
+
+/* Slowly shifting background with drifting light orbs */
+div[data-testid="stAppViewContainer"] {
+    background: linear-gradient(120deg, #0f172a, #1e3a5f, #0f766e, #312e81, #0f172a) !important;
+    background-size: 300% 300% !important;
+    animation: duka-bg-shift 24s ease-in-out infinite;
+}
+div[data-testid="stAppViewContainer"]::before,
+div[data-testid="stAppViewContainer"]::after {
+    content: "";
+    position: fixed;
+    width: 42vmax; height: 42vmax;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.28;
+    pointer-events: none;
+    z-index: 0;
+}
+div[data-testid="stAppViewContainer"]::before {
+    background: radial-gradient(circle, #5eead4 0%, transparent 65%);
+    top: -12vmax; left: -10vmax;
+    animation: duka-orb-a 26s ease-in-out infinite;
+}
+div[data-testid="stAppViewContainer"]::after {
+    background: radial-gradient(circle, #a78bfa 0%, transparent 65%);
+    bottom: -14vmax; right: -12vmax;
+    animation: duka-orb-b 30s ease-in-out infinite;
+}
+section[data-testid="stMain"] { position: relative; z-index: 1; }
+
+@keyframes duka-bg-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes duka-orb-a { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(14vw, 10vh) scale(1.15); } }
+@keyframes duka-orb-b { 0%, 100% { transform: translate(0, 0) scale(1.1); } 50% { transform: translate(-12vw, -8vh) scale(0.9); } }
+@keyframes duka-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes duka-slide-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes duka-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes duka-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+@keyframes duka-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(94, 234, 212, 0.45); } 70% { box-shadow: 0 0 0 10px rgba(94, 234, 212, 0); } }
+@keyframes duka-border-spin { to { --duka-angle: 360deg; } }
+@property --duka-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+/* The card: glass, rises in on load, with a slowly turning light edge */
+.st-key-auth_card {
+    position: relative;
+    animation: duka-rise 0.7s cubic-bezier(.2, .8, .2, 1) both;
+    box-shadow: 0 30px 60px -20px rgba(2, 6, 23, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.st-key-auth_card::before {
+    content: "";
+    position: absolute; inset: -1px;
+    border-radius: 24px;
+    padding: 1px;
+    background: conic-gradient(from var(--duka-angle), transparent 0deg, rgba(94, 234, 212, 0.75) 60deg,
+                transparent 120deg, transparent 240deg, rgba(167, 139, 250, 0.7) 300deg, transparent 360deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: duka-border-spin 8s linear infinite;
+    pointer-events: none;
+}
+/* Widgets inside the card appear one after another */
+.st-key-auth_card > div > div { animation: duka-rise 0.6s cubic-bezier(.2, .8, .2, 1) both; }
+.st-key-auth_card > div > div:nth-child(2) { animation-delay: .08s; }
+.st-key-auth_card > div > div:nth-child(3) { animation-delay: .16s; }
+.st-key-auth_card > div > div:nth-child(4) { animation-delay: .24s; }
+.st-key-auth_card > div > div:nth-child(n+5) { animation-delay: .32s; }
+
+/* Brand: floating logo, shimmering name */
+.duka-logo-wrap svg { animation: duka-float 5s ease-in-out infinite; filter: drop-shadow(0 12px 24px rgba(13, 148, 136, 0.45)); }
+.auth-brand {
+    background: linear-gradient(90deg, #5eead4, #a78bfa, #f9a8d4, #5eead4) !important;
+    background-size: 200% auto !important;
+    -webkit-background-clip: text !important; background-clip: text !important;
+    animation: duka-shimmer 6s linear infinite;
+}
+.auth-progress-step.active { animation: duka-pulse 2.2s ease-out infinite; }
+
+/* Primary actions: a light sweep on hover */
+.st-key-auth_card [data-testid="stFormSubmitButton"] button {
+    background: linear-gradient(110deg, #0d9488 0%, #6366f1 50%, #0d9488 100%) !important;
+    background-size: 200% auto !important;
+    border: none !important; color: #fff !important; font-weight: 600 !important;
+    transition: background-position .6s ease, transform .2s ease, box-shadow .2s ease !important;
+}
+.st-key-auth_card [data-testid="stFormSubmitButton"] button:hover {
+    background-position: 100% 0 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -10px rgba(99, 102, 241, 0.6);
+}
+.st-key-auth_card [data-testid="stForm"] { border-color: rgba(255, 255, 255, 0.12) !important; }
+
+/* Illustration panel */
+.st-key-auth_side { animation: duka-rise .8s .15s cubic-bezier(.2, .8, .2, 1) both; padding: 1rem 0.5rem; }
+.duka-side { text-align: center; }
+.duka-side .duka-art svg { max-width: 300px; width: 100%; height: auto; animation: duka-float 7s ease-in-out infinite; }
+.duka-side h2 { color: #f1f5f9; font-size: 1.6rem; font-weight: 800; margin: .5rem 0 .4rem; letter-spacing: -0.01em; }
+.duka-side .lede { color: #cbd5e1; font-size: .95rem; line-height: 1.6; margin: 0 auto 1.4rem; max-width: 30rem; }
+
+/* Activity feed: what Duka does while you run the shop */
+.duka-feed { display: flex; flex-direction: column; gap: .6rem; max-width: 26rem; margin: 0 auto 1.4rem; text-align: left; }
+.duka-note {
+    display: flex; gap: .75rem; align-items: center;
+    background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px; padding: .7rem .9rem;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    opacity: 0; animation: duka-slide-in .7s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.duka-note:nth-child(1) { animation-delay: .5s; }
+.duka-note:nth-child(2) { animation-delay: 1.3s; }
+.duka-note:nth-child(3) { animation-delay: 2.1s; }
+.duka-note:nth-child(4) { animation-delay: 2.9s; }
+.duka-note .dot { flex: 0 0 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; }
+.duka-note .dot svg { width: 18px; height: 18px; }
+.duka-note b { display: block; color: #f1f5f9; font-size: .9rem; font-weight: 600; }
+.duka-note span { color: #94a3b8; font-size: .8rem; }
+.duka-note .when { margin-left: auto; color: #64748b; font-size: .72rem; white-space: nowrap; }
+
+/* Trust badges */
+.duka-trust { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.duka-trust span {
+    color: #e2e8f0; font-size: .78rem; padding: .35rem .75rem; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.14);
+    opacity: 0; animation: duka-rise .6s forwards;
+}
+.duka-trust span:nth-child(1) { animation-delay: 3.4s; }
+.duka-trust span:nth-child(2) { animation-delay: 3.6s; }
+.duka-trust span:nth-child(3) { animation-delay: 3.8s; }
+
+@media (prefers-reduced-motion: reduce) {
+    div[data-testid="stAppViewContainer"], div[data-testid="stAppViewContainer"]::before,
+    div[data-testid="stAppViewContainer"]::after, .st-key-auth_card, .st-key-auth_card::before,
+    .st-key-auth_card > div > div, .duka-logo-wrap svg, .auth-brand, .auth-progress-step.active,
+    .st-key-auth_side, .duka-side .duka-art svg, .duka-note, .duka-trust span {
+        animation: none !important; opacity: 1 !important; transform: none !important;
+    }
+}
+@media (max-width: 768px) { .st-key-auth_side { display: none; } }
 </style>
 """
 
@@ -647,15 +782,51 @@ def inject_auth_theme():
     st.markdown(AUTH_CSS, unsafe_allow_html=True)
 
 
+def _icon(path: str, color: str) -> str:
+    """A small inline SVG glyph on a tinted tile (icon shortcodes don't render inside raw HTML)."""
+    return (f'<div class="dot" style="background:{color}22;border:1px solid {color}55">'
+            f'<svg viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" '
+            f'stroke-linejoin="round">{path}</svg></div>')
+
+
+# What Duka does for an owner, shown as notifications sliding in one by one.
+# These describe features (example notifications), not real account data.
+_FEED = [
+    ('<path d="M12 19V5M5 12l7-7 7 7"/>', "#5eead4", "M-Pesa payment received", "Recorded and categorised as a sale", "just now"),
+    ('<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M16 3v4M8 3v4M4 11h16"/>', "#fbbf24",
+     "Rent due in 3 days", "Reminder set; nothing is paid without your PIN", "2 min"),
+    ('<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>', "#a78bfa", "Cash forecast updated", "Next 14 days checked against your buffer", "5 min"),
+    ('<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/>', "#f9a8d4", "Stock running low", "Reorder suggested for 2 products", "12 min"),
+]
+
+
 def render_illustration():
-    """Render the right-side illustration panel with animated SVG."""
-    html_content = '<div class="auth-illustration">' + SHOP_ILLUSTRATION + '<h2>Your Business, Amplified</h2><p>Smart bookkeeping, cashflow insights, and inventory management — all in one place.</p></div>'
+    """Right-hand panel of the login / sign-up pages: animated shop, a live-looking
+    feed of what Duka does, and trust badges. All motion stops for users who
+    prefer reduced motion."""
+    notes = "".join(
+        f'<div class="duka-note">{_icon(path, color)}<div><b>{title}</b><span>{body}</span></div>'
+        f'<div class="when">{when}</div></div>'
+        for path, color, title, body, when in _FEED)
+    html_content = (
+        '<div class="duka-side">'
+        f'<div class="duka-art">{SHOP_ILLUSTRATION}</div>'
+        '<h2>Your business, amplified</h2>'
+        '<p class="lede">Duka reads your M-Pesa statement, keeps your books, warns you before cash runs short '
+        'and reminds you of bills — in English or Kiswahili.</p>'
+        f'<div class="duka-feed">{notes}</div>'
+        '<div class="duka-trust"><span>Names stored as tokens</span><span>Payments need your PIN</span>'
+        '<span>Works in Kiswahili</span></div>'
+        '</div>'
+    )
     st.markdown(html_content, unsafe_allow_html=True)
 
 
 def render_brand_header():
     """Render the Duka brand header inside the glass card."""
-    html_content = '<div style="text-align:center; margin-bottom:1rem;">' + DUKA_LOGO_SVG + '</div><div class="auth-brand">Duka</div><div class="auth-tagline">Smart books for African micro-businesses</div>'
+    html_content = ('<div class="duka-logo-wrap" style="text-align:center; margin-bottom:1rem;">' + DUKA_LOGO_SVG
+                    + '</div><div class="auth-brand">Duka</div>'
+                    '<div class="auth-tagline">Smart books for African micro-businesses</div>')
     st.markdown(html_content, unsafe_allow_html=True)
 
 

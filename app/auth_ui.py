@@ -47,14 +47,17 @@ def _reset_session_state() -> None:
         del st.session_state[key]
 
 
-def _open_glass_card():
-    """Open a styled glassmorphism container."""
-    st.markdown('<div class="auth-glass-card">', unsafe_allow_html=True)
+def _auth_card():
+    """The glass card the auth forms sit in. A keyed container (CSS class
+    st-key-auth_card) really wraps its widgets; an opening <div> written with
+    st.markdown would render as an empty box above them."""
+    return st.container(key="auth_card")
 
 
-def _close_glass_card():
-    """Close the glass container."""
-    st.markdown('</div>', unsafe_allow_html=True)
+def _auth_side():
+    """The animated illustration panel beside the form."""
+    with st.container(key="auth_side"):
+        render_illustration()
 
 
 # ──────────────────────────────────────────────────
@@ -79,8 +82,7 @@ def render_sign_up():
 
     col_form, col_illus = st.columns([5, 4])
 
-    with col_form:
-        _open_glass_card()
+    with col_form, _auth_card():
         render_brand_header()
 
         if st.session_state.signup_step == "form":
@@ -90,28 +92,24 @@ def render_sign_up():
         elif st.session_state.signup_step == "complete":
             _signup_complete()
 
-        _close_glass_card()
-
     with col_illus:
-        st.markdown('<div class="auth-illustration-col">', unsafe_allow_html=True)
-        render_illustration()
-        st.markdown('</div>', unsafe_allow_html=True)
+        _auth_side()
 
 
 def _signup_form(db_path: str):
     """Step 1: registration form."""
     render_progress_indicator(1, 3)
     
-    st.markdown('<div class="auth-form-section-title">Create Your Account</div>', unsafe_allow_html=True)
+    st.markdown('<div class="auth-form-section-title">Create your account</div>', unsafe_allow_html=True)
     
     with st.form("signup_form"):
         phone_raw = st.text_input(
-            "Phone Number",
+            "Phone number",
             placeholder="0712 345 678",
             help="Kenyan mobile number (Safaricom, Airtel, Telkom)"
         )
         display_name = st.text_input(
-            "Display Name",
+            "Display name",
             placeholder="Your name or business name",
             help="How you'll appear in Duka"
         )
@@ -122,13 +120,13 @@ def _signup_form(db_path: str):
             help="At least 8 characters with a mix of letters and numbers"
         )
         confirm_password = st.text_input(
-            "Confirm Password",
+            "Confirm password",
             type="password",
             placeholder="Re-enter password"
         )
 
         st.markdown("")  # Spacing
-        submitted = st.form_submit_button(":material/smartphone: Send Verification Code", width="stretch")
+        submitted = st.form_submit_button(":material/smartphone: Send verification code", width="stretch")
 
     if submitted:
         errors = []
@@ -187,13 +185,13 @@ def _signup_otp(db_path: str):
     """Step 2: OTP verification."""
     render_progress_indicator(2, 3)
     
-    st.markdown('<div class="auth-form-section-title">Verify Your Phone</div>', unsafe_allow_html=True)
+    st.markdown('<div class="auth-form-section-title">Verify your phone</div>', unsafe_allow_html=True)
     st.info(f":material/smartphone: A verification code was sent to **{st.session_state.signup_phone}**")
     st.caption("Check the console output for the OTP code (dev mode).")
 
     with st.form("signup_otp_form"):
         otp_input = st.text_input(
-            "Enter Verification Code",
+            "Enter Verification code",
             placeholder="6-digit code",
             max_chars=6
         )
@@ -311,8 +309,7 @@ def render_login():
 
     col_form, col_illus = st.columns([5, 4])
 
-    with col_form:
-        _open_glass_card()
+    with col_form, _auth_card():
         render_brand_header()
 
         if st.session_state.login_step == "form":
@@ -322,12 +319,8 @@ def render_login():
         elif st.session_state.login_step == "password":
             _login_password(db_path)
 
-        _close_glass_card()
-
     with col_illus:
-        st.markdown('<div class="auth-illustration-col">', unsafe_allow_html=True)
-        render_illustration()
-        st.markdown('</div>', unsafe_allow_html=True)
+        _auth_side()
 
 
 def _login_form(db_path: str):
@@ -338,12 +331,12 @@ def _login_form(db_path: str):
     
     with st.form("login_form"):
         phone_raw = st.text_input(
-            "Phone Number",
+            "Phone number",
             placeholder="0712 345 678",
             help="Your registered Kenyan mobile number"
         )
         st.markdown("")  # Spacing
-        submitted = st.form_submit_button(":material/search: Find Account", width="stretch")
+        submitted = st.form_submit_button(":material/search: Find account", width="stretch")
 
     if submitted:
         if not phone_raw.strip():
@@ -391,13 +384,13 @@ def _login_otp(db_path: str):
     
     user = get_user_by_id(db_path, st.session_state.login_user_id)
 
-    st.markdown('<div class="auth-form-section-title">Verify Your Phone</div>', unsafe_allow_html=True)
+    st.markdown('<div class="auth-form-section-title">Verify your phone</div>', unsafe_allow_html=True)
     st.info(f":material/smartphone: A verification code was sent to **{st.session_state.login_phone}**")
     st.caption("Check the console output for the OTP code (dev mode).")
 
     with st.form("login_otp_form"):
         otp_input = st.text_input(
-            "Enter Verification Code",
+            "Enter Verification code",
             placeholder="6-digit code",
             max_chars=6
         )
@@ -453,7 +446,7 @@ def _login_password(db_path: str):
     """Step 2b: password-based login."""
     user = get_user_by_id(db_path, st.session_state.login_user_id)
 
-    st.markdown('<div class="auth-form-section-title">Enter Your Password</div>', unsafe_allow_html=True)
+    st.markdown('<div class="auth-form-section-title">Enter your password</div>', unsafe_allow_html=True)
     st.caption(f"Logging in as: **{st.session_state.login_phone}**")
 
     with st.form("login_password_form"):

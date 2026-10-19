@@ -88,7 +88,11 @@ def _kpis(records: list) -> dict | None:
     if not records:
         return None
     df = pd.DataFrame(records)
-    df["day"] = pd.to_datetime(df["local_date"].astype(str).str.slice(0, 10), format="%Y-%m-%d", errors="coerce")
+    # Ledger rows carry local_date; demo and unsaved-upload rows carry date.
+    date_col = "local_date" if "local_date" in df.columns else "date"
+    if date_col not in df.columns or "amount_minor" not in df.columns or "direction" not in df.columns:
+        return None
+    df["day"] = pd.to_datetime(df[date_col].astype(str).str.slice(0, 10), format="%Y-%m-%d", errors="coerce")
     df = df.dropna(subset=["day"])
     if df.empty:
         return None
