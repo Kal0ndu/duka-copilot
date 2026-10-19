@@ -22,7 +22,6 @@ env/
 .omx/
 
 .vscode/
-*.db
 .agents/
 .claude/
 .llm_cache/
