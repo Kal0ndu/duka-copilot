@@ -1,1 +1,1 @@
-"""Duka authentication module — JWT sessions, password hashing, OTP, RBAC."""
+"""Duka Copilot authentication module — JWT sessions, password hashing, OTP, RBAC."""

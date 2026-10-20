@@ -1,0 +1,340 @@
+\documentclass[11pt,a4paper]{article}
+
+% -------------------------------------------------
+% PACKAGES
+% -------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{hyperref}
+
+% -------------------------------------------------
+% DOCUMENT FORMATTING
+% -------------------------------------------------
+\definecolor{dukablue}{RGB}{31,78,121}
+\definecolor{mutedgray}{RGB}{100,100,100}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=dukablue,
+    urlcolor=dukablue
+}
+
+\titleformat{\section}
+  {\large\bfseries\color{dukablue}}
+  {}{0pt}{}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {}{0pt}{}
+
+\titlespacing*{\section}{0pt}{1.2em}{0.5em}
+\titlespacing*{\subsection}{0pt}{0.8em}{0.3em}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist[itemize]{leftmargin=1.5em,itemsep=3pt,topsep=4pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Duka Copilot}
+\rhead{\small Demo Voice-Over Script}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% -------------------------------------------------
+% CUSTOM COMMANDS
+% -------------------------------------------------
+\newcommand{\timestamp}[1]{%
+  \textcolor{dukablue}{\textbf{#1}}%
+}
+
+\newcommand{\screen}[1]{%
+  \par\textit{\textcolor{mutedgray}{On screen: #1}}\par
+}
+
+\newcommand{\narration}[1]{%
+  \begin{quote}
+    \smallskip
+    ``#1''
+    \smallskip
+  \end{quote}
+}
+
+% -------------------------------------------------
+% TITLE
+% -------------------------------------------------
+\title{
+    \vspace{-1.5cm}
+    {\Huge\bfseries Duka Copilot}\\[0.4em]
+    {\Large Five-Minute Demo Voice-Over Script}
+}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+    \textcolor{mutedgray}{
+        \textbf{Video:} \texttt{duka\_demo\_5min.mp4}
+        \quad | \quad
+        \textbf{Duration:} 4:54
+        \quad | \quad
+        \textbf{Resolution:} 1080p
+    }
+
+    \textcolor{mutedgray}{
+        \textbf{Delivery:} Relaxed, clear, and conversational
+        \quad | \quad
+        \textbf{Target pace:} Approximately 140 words per minute
+    }
+\end{center}
+
+\vspace{0.5em}
+\hrule
+\vspace{0.5em}
+
+\textit{Recording instruction: Screen directions are provided for
+reference only and should not be read aloud.}
+
+% =================================================
+\section*{1. Landing Page \hfill
+\small \timestamp{0:00--0:09}}
+
+\screen{Duka Copilot landing page.}
+
+\narration{Meet Duka Copilot: smart books for African
+micro-businesses. It is built for the shop owner who runs
+everything from an M-Pesa till.}
+
+% =================================================
+\section*{2. Sign-Up and OTP Verification \hfill
+\small \timestamp{0:09--0:22}}
+
+\screen{Create-account form followed by phone verification.}
+
+\narration{Getting started takes a minute. Sign up with your
+phone number, verify with a one-time code sent by SMS, and
+you are in.}
+
+% =================================================
+\section*{3. Business Setup \hfill
+\small \timestamp{0:22--0:32}}
+
+\screen{Business profile form.}
+
+\narration{First, tell Duka about your business: its name,
+sector, and expected monthly revenue.}
+
+% =================================================
+\section*{4. Recurring Expenses \hfill
+\small \timestamp{0:32--0:48}}
+
+\screen{Adding rent and electricity, followed by the expense list.}
+
+\narration{Then add the bills you pay regularly, such as rent,
+electricity, and salaries. Duka tracks each due date and
+warns you before anything becomes overdue.}
+
+% =================================================
+\section*{5. Owner PIN and Payment Limits \hfill
+\small \timestamp{0:48--0:58}}
+
+\screen{Owner PIN, payment limits, and preferences.}
+
+\narration{You stay in control. Set an owner PIN, together
+with per-payment and daily spending caps, so no money moves
+without your approval.}
+
+% =================================================
+\section*{6. Statements and Dashboard \hfill
+\small \timestamp{0:58--1:14}}
+
+\screen{Uploading a statement or selecting a demo business,
+followed by the home dashboard and ledger.}
+
+\narration{Upload your M-Pesa or bank statement, or try a
+demo business. In seconds, Duka turns raw transactions into
+a clear picture: money in, money out, net cash flow, and
+anything that needs your attention.}
+
+% =================================================
+\section*{7. Analytics and Financial Health \hfill
+\small \timestamp{1:14--1:42}}
+
+\screen{Business health dashboard, charts, and financial
+health score of 20 out of 100.}
+
+\narration{Analytics shows monthly profit and loss, spending
+by category, and your top trading partners. The Financial
+Health dashboard gives you a score out of 100, alongside
+liquidity, margins, and growth. Here, it flags a risk and
+explains both why it matters and what to do about it.}
+
+% =================================================
+\section*{8. Customer Intelligence and Churn \hfill
+\small \timestamp{1:42--1:57}}
+
+\screen{Customer segments and the churn early-warning table.}
+
+\narration{Customer intelligence groups your buyers into
+segments and warns you when a loyal customer starts to
+slip away, while there is still time to win them back.}
+
+% =================================================
+\section*{9. Point of Sale \hfill
+\small \timestamp{1:57--2:15}}
+
+\screen{Point-of-sale dashboard, quick sale, and recent sales.}
+
+\narration{Duka also runs your counter. The point-of-sale
+screen records a sale in a few taps, whether by cash,
+M-Pesa, or credit. Every sale flows straight into your books.}
+
+% =================================================
+\section*{10. Invoicing and Inventory \hfill
+\small \timestamp{2:15--2:39}}
+
+\screen{Invoice and quotation forms, followed by inventory
+valuation.}
+
+\narration{Create professional invoices and quotations with
+VAT applied automatically. Inventory tracks stock movements,
+reorder alerts, and the value of everything on your shelves.}
+
+% =================================================
+\section*{11. Tax and KRA Reporting \hfill
+\small \timestamp{2:39--2:53}}
+
+\screen{VAT chart and October VAT report.}
+
+\narration{Tax season becomes less stressful. Duka prepares
+your VAT report from your sales, ready for your KRA filing.}
+
+% =================================================
+\section*{12. Auto-Detected Expenses and Budgets \hfill
+\small \timestamp{2:53--3:15}}
+
+\screen{Automatically detected recurring payments and
+budget-versus-actual spending.}
+
+\narration{Duka can even analyse your statement to identify
+recurring payments. Confirm them with one click, then compare
+your budget against actual spending, category by category.}
+
+% =================================================
+\section*{13. Standing Orders and Approvals \hfill
+\small \timestamp{3:15--3:30}}
+
+\screen{Standing-orders form and Approvals page.}
+
+\narration{Set up standing orders for regular payments.
+Anything above your limits waits in Approvals until you
+sign off.}
+
+% =================================================
+\section*{14. Cash-Flow Forecast \hfill
+\small \timestamp{3:30--3:50}}
+
+\screen{Liquidity runway chart and cash-shortfall warning.}
+
+\narration{This is where Duka really earns its keep.
+The cash-flow forecast simulates the weeks ahead and shows
+when cash may run short, along with practical steps to
+help you avoid it.}
+
+% =================================================
+\section*{15. Spending Advisor \hfill
+\small \timestamp{3:50--4:02}}
+
+\screen{Purchase decision screen showing the verdict
+\textbf{WAIT}.}
+
+\narration{Planning a big purchase? Ask the Spending Advisor.
+Here, it says wait. With bills due in the next two weeks,
+buying now would break your safety buffer.}
+
+% =================================================
+\section*{16. Financing Advisor \hfill
+\small \timestamp{4:02--4:16}}
+
+\screen{Loan comparison, effective annual rates, and
+top recommendation.}
+
+\narration{And if you need credit, Duka compares digital
+loans by their true annual cost, not just the headline fee,
+and recommends an option you can afford.}
+
+% =================================================
+\section*{17. Audit and Compliance \hfill
+\small \timestamp{4:16--4:27}}
+
+\screen{Payment-limit audit, privacy, and compliance screens.}
+
+\narration{Every limit and payment is audited, and you can
+see exactly what data Duka keeps about your customers.}
+
+% =================================================
+\section*{18. Ask Duka Copilot \hfill
+\small \timestamp{4:27--4:37}}
+
+\screen{Typing the question: ``Which bills are due this week?''}
+
+\narration{Finally, just ask. Type a question in plain English
+or Swahili. For example: which bills are due this week?}
+
+% =================================================
+\section*{19. AI Answer and Closing \hfill
+\small \timestamp{4:37--4:54}}
+
+\screen{Copilot lists the bills, loan repayments, amounts,
+and total due.}
+
+\narration{Duka Copilot reads your books and answers instantly,
+listing every bill, its amount, and its due date, with a
+total for the week.
+
+Duka Copilot: your business, amplified.}
+
+% =================================================
+\newpage
+\section*{Recording Notes}
+
+\begin{itemize}
+    \item \textbf{Pacing:} Aim for a relaxed, conversational
+    delivery. Let important figures and recommendations
+    register with the viewer.
+
+    \item \textbf{Timing:} Follow the timestamps as closely
+    as possible. If a section runs long, remove its second
+    sentence before accelerating the narration.
+
+    \item \textbf{Screen directions:} These are production
+    cues only; do not read them aloud.
+
+    \item \textbf{Audio alignment:} Record while watching
+    the video, or insert approximately 0.5 seconds of silence
+    before the first spoken word to prevent clipping.
+
+    \item \textbf{Closing:} Deliver the final tagline clearly,
+    then leave a brief pause at the end.
+\end{itemize}
+
+\vfill
+
+\begin{center}
+    \textcolor{dukablue}{\rule{0.6\textwidth}{0.6pt}}\\[0.5em]
+    \textbf{DUKA COPILOT}\\
+    \textit{Your business, amplified.}
+\end{center}
+
+\end{document}

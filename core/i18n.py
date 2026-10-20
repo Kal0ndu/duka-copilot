@@ -11,7 +11,7 @@ class Language(Enum):
 
 
 class I18n:
-    """Translation manager for Duka with automatic language detection."""
+    """Translation manager for Duka Copilot with automatic language detection."""
     
     # Swahili translations for common UI strings and advice
     TRANSLATIONS = {
@@ -86,7 +86,7 @@ class I18n:
             "offline_mode": "I'm temporarily running in offline mode (no API connection). I can still help with basic guidance:",
             "what_i_can_do": "What I can do:",
             "answer_questions": "Answer questions about cash flow, loans, inventory, and more",
-            "guide_features": "Guide you through using Duka features",
+            "guide_features": "Guide you through using Duka Copilot features",
             "explain_metrics": "Explain financial metrics and best practices",
             "to_unlock_ai": "To unlock full AI features:",
             "check_api_key": "1. Check your LLM_API_KEY configuration",
@@ -98,7 +98,7 @@ class I18n:
             "offline_mode": "Kwa sasa ninafanya kazi bila huduma ya AI (hakuna muunganisho). Bado ninaweza kusaidia kwa takwimu zako:",
             "what_i_can_do": "Ninachoweza kufanya:",
             "answer_questions": "Kujibu maswali kuhusu mzunguko wa pesa, mikopo, bidhaa na mengine",
-            "guide_features": "Kukuongoza kutumia sehemu za Duka",
+            "guide_features": "Kukuongoza kutumia sehemu za Duka Copilot",
             "explain_metrics": "Kueleza vipimo vya fedha na mbinu bora",
             "to_unlock_ai": "Kuwasha AI kamili:",
             "check_api_key": "1. Angalia LLM_API_KEY kwenye mipangilio",

@@ -15,7 +15,7 @@ import sqlite3
 
 from core.charts import chart_budget_vs_actual, chart_category_breakdown
 
-st.set_page_config(page_title="Expense Tracking — Duka", page_icon=":material/analytics:")
+st.set_page_config(page_title="Expense Tracking — Duka Copilot", page_icon=":material/analytics:")
 # ---- Authentication Gate ----
 require_auth()
 

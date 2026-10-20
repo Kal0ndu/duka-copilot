@@ -141,7 +141,7 @@ def send_otp(phone: str, code: str) -> bool:
         from integrations.sms import send_sms
         result = send_sms(
             phone,
-            f"Your Duka verification code is: {code}. Expires in {OTP_EXPIRY_MINUTES} min.",
+            f"Your Duka Copilot verification code is: {code}. Expires in {OTP_EXPIRY_MINUTES} min.",
         )
         if not result.ok:
             print(f"Twilio send failed: {result.error}")

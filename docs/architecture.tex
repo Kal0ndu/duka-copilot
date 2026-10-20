@@ -1,7 +1,8 @@
 % =====================================================================
-%  Duka Copilot: System Description, Architecture and Data Model
+%  Duka Copilot: Technical Documentation
+%  (system architecture, core algorithm description, security design)
 %  Shenzhen FinTechathon 2026, International Track, Topic E
-%  Compile with:  pdflatex duka_copilot_system_description.tex  (twice)
+%  Compile with:  pdflatex architecture.tex  (twice)
 % =====================================================================
 \documentclass[10pt,a4paper]{article}
 
@@ -48,7 +49,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\color{navy}Duka Copilot}
-\fancyhead[R]{\small\color{navy}System Description and Architecture}
+\fancyhead[R]{\small\color{navy}Technical Documentation}
 \fancyfoot[C]{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -102,16 +103,24 @@
 \vspace{0.4cm}
 {\Large An AI Finance Copilot for Small Businesses\\that Run on Mobile Money\par}
 \vspace{0.9cm}
-{\LARGE\bfseries System Description, Architecture\\and Data Model\par}
+{\LARGE\bfseries Technical Documentation\par}
+\vspace{0.3cm}
+{\large System Architecture $\cdot$ Core Algorithms $\cdot$ Security Design\par}
 \vspace{1.2cm}
 {\color{navy}\rule{\linewidth}{1.4pt}}\\[1.4cm]
 {\large Shenzhen FinTechathon 2026 --- International Track\\[2pt]
 Topic E: SME Finance Copilot\par}
 \vspace{2.2cm}
 \begin{tabular}{rl}
-\textbf{Prepared by:} & operation china\\
-\textbf{Date:} & 19 October 2026\\
-\textbf{Status:} & As-built description at the current build stage (v1.1)\\
+\textbf{Prepared by:} & DUKA COPILOT\\
+ & \textbf{Kyule Musindi} --- University of Nairobi\\
+ & \small BSc Electrical and Electronic Engineering, Year 3\\[3pt]
+ & \textbf{Faith Kalondu} --- Strathmore University\\
+ & \small BSc Electrical and Electronics Engineering, Year 3\\[3pt]
+ & \textbf{Rina Akumu} --- Strathmore University\\
+ & \small BSc Electrical and Electronics Engineering, Year 3\\[3pt]
+\textbf{Date:} & 20 October 2026\\
+\textbf{Status:} & Technical documentation for submission, as built (v1.2)\\
 \textbf{Audience:} & Team members, judges and any technical or non-technical reader\\
 \end{tabular}
 \vfill
@@ -127,10 +136,31 @@ All data used in this project is synthetic. No real customer statements are proc
 % =====================================================================
 
 \subsection{What this document is}
-This document is the single technical reference for \textbf{Duka Copilot}. It describes what the system does, how it is built, how data is modelled and processed, how the language model (LLM) and a small retrieval component (RAG) are used, how security is enforced, and which charts the interface must produce. It is written so that a team member can implement from it and a judge or non-specialist can follow it.
+This document is the \textbf{technical documentation} of \textbf{Duka Copilot}, submitted for the Shenzhen FinTechathon 2026. It describes what the system does, how it is built (system architecture), the core algorithms, how data is modelled and processed, how the language model (LLM) and a small retrieval component (RAG) are used, how security is enforced, and which charts the interface must produce. It is written so that a team member can implement from it and a judge or non-specialist can follow it.
 
-\callout{How to read this version (v1.1, 19 October 2026)}{%
-Version 1.0 was written before the build as a specification. This version describes \textbf{the system as it stands now}. Section~\ref{sec:status} lists every component with its status: \textbf{Built} (in the code and tested), \textbf{Partial} (works, but narrower than designed) or \textbf{Planned} (designed, not yet in the code). Where the design and the code differ, the text describes the code and says how it differs. Sections~\ref{sec:bi} and~\ref{sec:advanced} are still mostly design specifications and open with their own status table. Every figure quoted in this version comes from \code{docs/key\_numbers.md}, which \code{scripts/key\_numbers.py} generates from the code.}
+\callout{How to read this document}{%
+This document describes \textbf{the system as it stands now}. Section~\ref{sec:status} lists every component with its status: \textbf{Built} (in the code and tested), \textbf{Partial} (works, but narrower than designed) or \textbf{Planned} (designed, not yet in the code). Where the design and the code differ, the text describes the code and says how it differs. Sections~\ref{sec:bi} and~\ref{sec:advanced} are still mostly design specifications and open with their own status table. Every figure quoted in this version comes from \code{docs/key\_numbers.md}, which \code{scripts/key\_numbers.py} generates from the code.}
+
+\subsection{Submission checklist map}
+\label{sec:submission}
+This document is the team's \textbf{technical documentation} (checklist item 01). The three parts that item asks for are: the \emph{system architecture}, the \emph{core algorithm description} and the \emph{security design}. The table shows where each one is covered, and where the other checklist items are backed up in this document.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{0.6cm}p{3.6cm}Y@{}}
+\toprule
+\textbf{No.} & \textbf{Checklist item} & \textbf{Where it is covered}\\
+\midrule
+01 & Technical documentation & \textbf{System architecture:} Section~\ref{sec:arch} (layers, components, request lifecycle, trust boundaries, accounts and persistence, caching), Section~\ref{sec:stack} (technology stack), Section~\ref{sec:data} (data model) and Section~\ref{sec:llm} (agent and LLM interface).\newline
+\textbf{Core algorithms:} Section~\ref{sec:algorithms} (each algorithm with inputs, steps, pseudocode, complexity and parameters), with the formulas in Section~\ref{sec:pipeline}.\newline
+\textbf{Security design:} Section~\ref{sec:security} (threat model, defence in depth, permission tiers, guards, accounts and roles, audit chain) and Section~\ref{sec:sandbox} (sandbox and approval protocol).\\
+02 & Presentation deck & Built separately. Every figure in it comes from \code{docs/key\_numbers.md} (Section~\ref{sec:measured}).\\
+03 & Demo video & Built separately (under 5 minutes). It follows the request lifecycle in Section~\ref{sec:lifecycle}.\\
+04 & Source code & Repository layout, configuration, deployment steps and test cases: Sections~\ref{sec:repo} and~\ref{sec:tests}. The README has the same steps.\\
+05 & Security self-assessment & How the permission tiers are built (Section~\ref{sec:tiers}), the known-risk list (Section~\ref{sec:risks}), the attack scorecard (Section~\ref{sec:attacks}) and a self-assessment summary (Section~\ref{sec:selfassess}).\\
+06 & Execution evidence & This is not an on-chain topic, so the evidence is sandbox operation logs: the hash-chained audit log, sandbox receipts and the generated scorecards (Section~\ref{sec:evidence}), plus the demo video.\\
+\bottomrule
+\end{tabularx}
+\end{center}
 
 \subsection{The system in plain language}
 Many small businesses in Africa and other emerging markets (grocery shops, kiosks, salons, transport operators) receive and make almost all payments through mobile money. They therefore have a detailed digital transaction history but no bookkeeping. The owner cannot easily answer questions such as ``Am I making a profit?'', ``Will I run short before rent is due?'' or ``What is the cheapest way to fund more stock?''
@@ -154,22 +184,24 @@ Duka Copilot is an \emph{agent}: a program that uses a language model to underst
 \toprule
 \textbf{Section} & \textbf{Content}\\
 \midrule
+1 & Purpose, submission checklist map, the system in plain language\\
 2 & Build status: what is built, partial or planned, and the measured results\\
 3 & Problem, functional and non-functional requirements, design principles\\
-4 & System architecture: layers, components, request lifecycle, trust boundaries, accounts and business persistence, user-scoped caching\\
+4 & \textbf{System architecture:} layers, components, request lifecycle, trust boundaries, accounts and business persistence, user-scoped caching\\
 5 & Technology stack\\
 6 & Data modelling: adapter layer, entity-relationship model, physical schema\\
-7 & Data processing: redaction, categorisation, analytics, forecasting, cost engine\\
-8 & Retrieval-augmented generation (RAG)\\
-9 & LLM interface: orchestrator loop, offline helper, tool catalogue, prompts\\
-10 & Security and compliance architecture\\
-11 & Sandbox and approval workflow, notifications and standing orders\\
-12 & User interface and charting specification\\
-13 & Traceability matrix, testing and execution evidence\\
-14 & Repository layout, configuration and deployment\\
-15 & Business intelligence and financial health framework (design, with status)\\
-16 & Limitations, open decisions and extensions\\
-17 & Advanced features: inventory, spending advisor, tax, invoicing and quoting (design, with status)\\
+7 & Data processing pipeline: redaction, categorisation, analytics, forecasting, cost engine\\
+8 & \textbf{Core algorithm description:} the 14 algorithms with pseudocode, cost and parameters\\
+9 & Retrieval-augmented generation (RAG)\\
+10 & LLM interface: orchestrator loop, offline helper, tool catalogue, prompts\\
+11 & \textbf{Security design:} threat model, defence in depth, permission tiers, guards, accounts and roles, audit chain, known risks, attack scorecard, self-assessment\\
+12 & Sandbox and approval workflow, notifications and standing orders\\
+13 & User interface and charting specification\\
+14 & Traceability matrix, testing and execution evidence\\
+15 & Repository layout, configuration and deployment\\
+16 & Business intelligence and financial health framework (design, with status)\\
+17 & Limitations, open decisions and extensions\\
+18 & Advanced features: inventory, spending advisor, tax, invoicing and quoting (design, with status)\\
 A--C & Glossary, example tool schema, worked cost example\\
 \bottomrule
 \end{tabularx}
@@ -181,7 +213,7 @@ A--C & Glossary, example tool schema, worked cost example\\
 % =====================================================================
 
 \callout{Where the build stands}{%
-The core loop works end to end on the three synthetic businesses: a user signs up, sets up the business \emph{once} (it is saved and reused at every later login), uploads an M-Pesa statement, and the chat agent answers with figures from 18 tools that all run on the real database. The agent can only \emph{propose} a payment or a loan; the owner approves it with a PIN and it runs in a sandbox. When no AI service is available the same tools answer through a rule-based offline helper, in English or Swahili. Automated evidence: 265 tests pass (3 live-AI tests are skipped by default), 38 of 38 scripted attacks are blocked, and 23 of 23 scripted agent tasks succeed.}
+The core loop works end to end on the three synthetic businesses: a user signs up, sets up the business \emph{once} (it is saved and reused at every later login), uploads an M-Pesa statement, and the chat agent answers with figures from 18 tools that all run on the real database. The agent can only \emph{propose} a payment or a loan; the owner approves it with a PIN and it runs in a sandbox. When no AI service is available the same tools answer through a rule-based offline helper, in English or Swahili. Automated evidence: 379 tests pass (3 live-AI tests are skipped by default), 38 of 38 scripted attacks are blocked, and 23 of 23 scripted agent tasks succeed.}
 
 \subsection{Component status}
 \begingroup\footnotesize
@@ -217,6 +249,7 @@ Redis cache & Planned & --- & Context cache uses \code{diskcache} on local disk 
 \endgroup
 
 \subsection{Measured results}
+\label{sec:measured}
 All figures are generated by \code{scripts/key\_numbers.py} into \code{docs/key\_numbers.md} and \code{docs/test\_results.md} with the \textbf{default} owner settings (safety buffer KES 5{,}000; caps KES 25{,}000 per payment, KES 50{,}000 per day, KES 50{,}000 loan). All data is synthetic; SACCO and bank rates are illustrative.
 
 \begin{center}
@@ -224,7 +257,7 @@ All figures are generated by \code{scripts/key\_numbers.py} into \code{docs/key\
 \toprule
 \textbf{Measure} & \textbf{Result}\\
 \midrule
-Automated tests & 265 passed, 3 skipped (live Gemini, off by default)\\
+Automated tests & 379 passed, 3 skipped (live Gemini, off by default); 1 configuration test fails only when a real API key is set in the local \code{.env}\\
 Attack scorecard & 38 of 38 blocked (\code{tests/security/attack\_suite.py})\\
 Task success, scripted AI & 23 of 23 (100\%)\\
 Task success, offline planner (English and Swahili) & 24 of 24 (100\%); questions written alongside the planner, so real-world accuracy will be lower\\
@@ -236,16 +269,6 @@ Grace's Salon / Otieno's Boda: forecast & Stays above the buffer; backtest sales
 \bottomrule
 \end{tabularx}
 \end{center}
-
-\subsection{Changes in this build stage}
-\begin{itemize}
-  \item \textbf{Business set up once.} Previously every login created a new, ownerless business and the session carried \code{business\_id = 0}, so uploads never reached the ledger. Now the business is linked to its owner, login restores it, and the setup page edits it.
-  \item \textbf{All 13 designed chat tools run on the real schema}, plus five more (payment priorities, cached context, scoped search, loan fit, backtest).
-  \item \textbf{PIN approval flow, payee rules and per-business settings} replace the single global cap in the environment file.
-  \item \textbf{Approvals joined to notifications and standing orders}, with one daily cap across both payment paths.
-  \item \textbf{Offline helper, Swahili and rate-limit handling} so a demo does not depend on the AI service.
-  \item \textbf{Evidence generated from the code}: attack suite, task evaluation, live-AI test, key-numbers report.
-\end{itemize}
 
 % =====================================================================
 \section{Problem Statement and Requirements}
@@ -313,6 +336,7 @@ Currency is Kenyan shillings (KES) in the pilot; the model stores a currency cod
 
 % =====================================================================
 \section{System Architecture}
+\label{sec:arch}
 % =====================================================================
 
 \subsection{Layered view}
@@ -385,6 +409,7 @@ Sandbox & Simulated account and mock lender that execute approved actions and re
 \end{longtable}
 
 \subsection{Request lifecycle}
+\label{sec:lifecycle}
 Figure~\ref{fig:seq} follows a single request. Every step is written to the audit log.
 
 \begin{figure}[!htbp]
@@ -438,7 +463,7 @@ Owner's phone & M-Pesa STK prompt for standing orders; SMS notices & Owner confi
 \textbf{The business is set up once.} The owner's business is a persistent database record, not session state:
 \begin{enumerate}
   \item \textbf{First login, no business yet:} the owner is sent to Business Setup. \code{register\_business()}, given the owner's \code{user\_id}, creates the \code{business} row with \code{owner\_user\_id} and \code{owner\_phone\_hash}, and an \code{owner} row in \code{business\_member}. The session token is re-issued with the new \code{business\_id} (\code{activate\_business}).
-  \item \textbf{Every later login:} \code{get\_business\_for\_user(user\_id)} finds the business through \code{business\_member} (falling back to \code{business.owner\_user\_id}); the token is issued with that \code{business\_id} and the owner lands on the dashboard. Sessions issued before setup (carrying \code{business\_id = 0}) are upgraded automatically on the next page load.
+  \item \textbf{Every later login:} \code{get\_business\_for\_user(user\_id)} finds the business through \code{business\_member} (falling back to \code{business.owner\_user\_id}); the token is issued with that \code{business\_id} and the owner lands on the dashboard.
   \item \textbf{Updating later:} the Settings tab of Business Setup edits the profile (\code{update\_business\_profile}); the Owner rules \& PIN tab edits caps, payees, buffer, payday and language (Section~\ref{sec:sandbox}).
 \end{enumerate}
 Statement uploads, forecasts, approvals and settings all hang off this \code{business\_id}, so they persist across logins too. Tests: \code{tests/unit/test\_business\_persistence.py}.
@@ -447,7 +472,7 @@ Statement uploads, forecasts, approvals and settings all hang off this \code{bus
 \label{sec:caching}
 
 \callout{As built}{%
-The design in v1.0 had every tool receive a cached \code{UserContext} object and never touch the database, with Redis as the cache. The code takes a simpler route: \textbf{tools query SQLite directly, always filtered by the active \code{business\_id}}, and a cached business \emph{summary} is injected into the LLM's system prompt. Redis is not used.}
+\textbf{Tools query SQLite directly, always filtered by the active \code{business\_id}}, and a cached business \emph{summary} is injected into the LLM's system prompt.}
 
 \subsubsection{How scoping is enforced}
 Every tool implementation has the signature \code{fn(args, business\_id, db\_path)}. The orchestrator passes the \code{business\_id} from the signed session; the LLM never supplies it. Each query filters on it, and tools that take an identifier from the LLM (an \code{offer\_id}, a \code{forecast\_run\_id}, a \code{file\_id}) check that the record belongs to the active business and otherwise answer ``not found''. Cross-business access is covered by the attack suite (Section~\ref{sec:security}).
@@ -474,6 +499,7 @@ Moving the cache to Redis, and passing a read-only context snapshot into every t
 
 % =====================================================================
 \section{Technology Stack}
+\label{sec:stack}
 % =====================================================================
 The stack as installed (\code{requirements.txt}):
 
@@ -505,6 +531,7 @@ The provider in use is \textbf{Google Gemini} (free tier during development), se
 
 % =====================================================================
 \section{Data Modelling}
+\label{sec:data}
 % =====================================================================
 
 \subsection{The adapter layer and the canonical statement}
@@ -637,7 +664,7 @@ CREATE TRIGGER audit_no_delete BEFORE DELETE ON audit_log
 
 \subsection{Tables in the current database}
 \label{sec:tables}
-The database is \code{db/schema.sql} plus five migrations, applied with \code{python db/migrate.py} (new settings tables are also created on first use).
+The database is \code{db/schema.sql} plus six migrations, applied with \code{python db/migrate.py} (new settings tables are also created on first use).
 
 \begingroup\footnotesize
 \begin{longtable}{@{}p{3.4cm}p{6.0cm}p{5.6cm}@{}}
@@ -650,6 +677,7 @@ The database is \code{db/schema.sql} plus five migrations, applied with \code{py
 003 phone identifier & phone-hash columns and indexes & Phone hash as the universal user key\\
 004 standing orders & standing\_order, scheduled\_payment, mpesa\_stk\_request, notification, notification\_contact & Scheduled bills, STK prompts, reminders\\
 005 owner settings & business\_settings, owner\_pin; \code{notification.action\_id} & Per-business caps, buffer, payday, language; hashed PIN with lockout; approval notices\\
+006 recurrence and roles & \code{recurring\_expense.last\_paid\_date}, \code{interval\_count}; \code{app\_user.account\_role}; revoked\_session; single-admin index and trigger & Bill cadence; admin/user roles; logout revokes the token\\
 \bottomrule
 \end{longtable}
 \endgroup
@@ -687,6 +715,7 @@ A seeded generator produces three to six months of transactions for three person
 
 % =====================================================================
 \section{Data Processing Pipeline}
+\label{sec:pipeline}
 % =====================================================================
 
 \subsection{Overview}
@@ -782,10 +811,10 @@ for $M=1000$ seeded paths, where $S$ are the scheduled standing-order payments d
 
 \textbf{Backtest.} \code{forecast\_backtest} hides the last 14 days, forecasts them from the history before, and compares with the true position each day and with actual sales. On the sample data the sales error is $-$3.7\% (Amina), $+$0.5\% (Grace) and $-$0.7\% (Otieno).
 
-\textbf{Not built:} the exponentially weighted weekday-factor model and the Holt--Winters option described in v1.0.
+\textbf{Planned:} an exponentially weighted weekday-factor model and a Holt--Winters option.
 
 \subsection{Stage 6: shortfall detection and alerts}
-The safety buffer $B_{\text{safe}}$ is the \textbf{owner's own setting} (Business Setup, default KES 5{,}000). The ``three days of operating outflow'' rule in v1.0 is not used. The first shortfall day is
+The safety buffer $B_{\text{safe}}$ is the \textbf{owner's own setting} (Business Setup, default KES 5{,}000). The first shortfall day is
 \[
 t^{*}=\min\{\,t:\hat B^{p10}_{t}<B_{\text{safe}}\,\},
 \]
@@ -820,6 +849,172 @@ A template in \code{draft\_application\_pack} assembles the business profile (se
 
 \subsection{Stages 9--11: controlled action path}
 Described in Sections~\ref{sec:security} and~\ref{sec:sandbox}.
+
+% =====================================================================
+\section{Core Algorithm Description}
+\label{sec:algorithms}
+% =====================================================================
+
+This section describes the algorithms that do the real work. Each one is deterministic Python code that the LLM can call but cannot change. For each algorithm we give its purpose, its inputs and outputs, its steps as pseudocode, its cost and its fixed parameters. The formulas behind them are in Section~\ref{sec:pipeline}. All money is stored as whole integers in minor units (cents), so no step loses money to floating-point rounding.
+
+\subsection{Overview}
+\begingroup\footnotesize
+\begin{longtable}{@{}p{0.6cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+\textbf{No.} & \textbf{Algorithm} & \textbf{Code} & \textbf{Method} & \textbf{Cost}\\
+\midrule\endhead
+A1 & Ingestion, redaction and injection flagging & \code{core/\allowbreak ingestion.py}, \code{core/\allowbreak redaction.py} & Adapter parse, SHA-256 de-duplication, regex tokenisation, stable hashed party tokens & $O(n)$ in rows\\
+A2 & Categorisation & \code{core/\allowbreak categoriser.py} & Ordered rule cascade with owner-taught rules first; confidence threshold & $O(n\cdot r)$, $r$ rules\\
+A3 & True position & \code{core/\allowbreak forecaster.py} & Overdraft ledger replay with fees and daily interest & $O(n)$\\
+A4 & Cash-flow forecast & \code{core/\allowbreak forecaster.py} & Weekday-stratified Monte Carlo bootstrap, 1{,}000 seeded paths & $O(M\cdot H)$\\
+A5 & Shortfall detection & \code{core/\allowbreak forecaster.py} & Scan of the 10th percentile against the owner's buffer & $O(H)$\\
+A6 & Effective cost of credit & \code{core/\allowbreak cost\_\allowbreak engine.py} & Internal rate of return by Brent's method; EAR and TCC & $O(n_{\text{rep}}\log\frac1\epsilon)$\\
+A7 & Affordability and loan fit & \code{core/\allowbreak cost\_\allowbreak engine.py} & Forecast plus repayment schedule; bisection on personal spending; amount step-down & $O(K\cdot L\cdot 30)$\\
+A8 & Agent planning loop & \code{agent/\allowbreak orchestrator.py} & Bounded LLM tool loop with tier gate and offline fallback & $\le 5$ LLM calls\\
+A9 & Offline intent planner & \code{agent/\allowbreak offline\_\allowbreak helper.py} & English and Swahili keyword intent match, slot extraction & $O(\lvert\text{text}\rvert)$\\
+A10 & Number verification & \code{agent/\allowbreak verify\_\allowbreak numbers.py} & Regex extraction, 1\% tolerance match against tool outputs & $O(a\cdot v)$\\
+A11 & Payment guard and look-alike check & \code{core/\allowbreak approvals.py} & Rule cascade; similarity ratio $\ge 0.8$ is refused & $O(p)$ payees\\
+A12 & Approval code & \code{core/\allowbreak approvals.py} & HMAC-SHA256 over action, fingerprint and expiry; single use & $O(1)$\\
+A13 & Audit hash chain & \code{db/\allowbreak audit.py} & SHA-256 chain; full re-walk to verify & $O(N)$ entries\\
+A14 & Payment priority & \code{core/\allowbreak payment\_\allowbreak priority.py} & Additive 0--100 score (urgency, kind, essential, penalty, cash) and sort & $O(b\log b)$\\
+\bottomrule
+\end{longtable}
+\endgroup
+Symbols: $n$ statement rows, $M$ simulated paths, $H$ forecast days, $K$ candidate amounts, $L$ loan length in days, $a$ amounts in an answer, $v$ values in the tool results, $b$ bills due.
+
+\subsection{A1: ingestion, redaction and injection flagging}
+\textbf{Input:} an uploaded statement file (CSV or PDF) and the active business. \textbf{Output:} redacted rows in \code{transaction\_ledger}, a \code{source\_file} record and an ingestion report.
+\begin{lstlisting}[language=Python,caption={A1 ingestion (simplified)}]
+sha = sha256(file_bytes)
+if source_file(business, sha) exists: return "already loaded"      # idempotent
+adapter = first adapter whose detect(file) is true                 # CSV or M-Pesa PDF
+rows = adapter.parse(file); validate(rows)                         # dates, amounts, balances
+for row in rows:
+    if any(pattern matches row.description for pattern in INJECTION_PATTERNS):  # 6 patterns
+        row.description = "[flagged content removed]"; row.needs_review = True
+        record injection_finding(row, pattern)
+    row.description = replace phone and reference numbers with <REF_n>
+    name = counterparty after " - "
+    row.party = "PARTY_" + sha256(f"{business}:{name}")[:10].upper()   # stable token
+    token_vault[row.party] = name                                    # stays local
+    row.category, row.confidence = categorise(row)                   # A2
+insert rows; detect recurring obligations; write audit entry
+\end{lstlisting}
+\textbf{Properties.} Loading the same file twice changes nothing, because the file's hash is checked first. The same payee always gets the same token, so analytics still see repeat counterparties. Tokens differ between businesses, because the business id is part of the hash. The LLM only ever reads rows after this step.
+
+\subsection{A2: categorisation}
+\begin{lstlisting}[language=Python,caption={A2 categorisation cascade}]
+def categorise(row):
+    if owner_rule(row.party):                return owner_rule.category, 1.00, "owner"
+    for rule in BUILTIN_RULES:               # fixed priority order, first match wins
+        if rule.matches(row.original_text):
+            category, conf = rule.category, rule.confidence      # 0.60 .. 0.95
+            break
+    else:
+        category, conf = "UNCATEGORISED", 0.0
+    if category == "FAMILY_TRANSFER" and is_staff_payday(row.date) and row.hour >= 18:
+        category, conf = "WAGES", 0.75                           # owner's payday setting
+    row.needs_review = conf < 0.70
+    return category, conf, "rule"
+\end{lstlisting}
+\textbf{Teach once.} When the owner corrects one row, \code{teach\_category()} saves a rule keyed on that party token and relabels every row from that payee. Re-running the tool only touches rows still under review, so it never overwrites a confident category.
+
+\subsection{A3: true position}
+The overdraft balance is rebuilt by replaying the statement's overdraft drawdowns and repayments in date order. Each drawdown adds a 1\% access fee, and the amount owed grows by 0.5\% a day. The forecast then starts from $P_0 = \text{balance} - \text{overdraft owed}$, so money that is not really the owner's is never counted as cash.
+
+\subsection{A4: weekday bootstrap forecast}
+\textbf{Input:} the redacted ledger, scheduled bills (standing orders and recurring expenses), the opening position $P_0$ and the horizon $H$. \textbf{Output:} the 10th, 50th and 90th percentile and the mean balance for each day, saved as a \code{forecast\_run}.
+\begin{lstlisting}[language=Python,caption={A4 weekday bootstrap (core/forecaster.py, simplified)}]
+history = without_scheduled_bills(ledger, bills)       # avoid counting a bill twice
+days = one row per calendar day, quiet days = 0, borrowing excluded
+pool_in[w], pool_out[w] = inflows / outflows of every past day with weekday w
+rng = RandomState(42); paths[:, 0] = P0                # M = 1000 paths
+for day in 1..H:
+    w = weekday(as_of + day)
+    i = rng.choice(pool_in[w], M);  o = rng.choice(pool_out[w], M)
+    s = fixed bills due that day (overdue bills land on day 1)
+        + variable bills drawn uniformly within +/- their tolerance
+    paths[:, day] = paths[:, day-1] + i - o - s
+for day in 0..H: p10, p50, p90 = percentiles(paths[:, day]); mean = paths[:, day].mean()
+\end{lstlisting}
+\textbf{Why this method.} Small shops have strong weekday patterns (market days, weekends) and lumpy cash flows that are not normally distributed. Resampling real days of the same weekday keeps both patterns without fitting a model. The fixed seed makes every run repeatable, so a test or a judge gets the same numbers again. \textbf{Validation:} \code{forecast\_backtest} hides the last 14 days, forecasts them, and reports the sales error and how many days fell inside the band (Section~\ref{sec:forecast}).
+
+\subsection{A5: shortfall detection}
+For each forecast day where $\hat B^{p10}_t < B_{\text{safe}}$, the algorithm reports the gap $B_{\text{safe}}-\hat B^{p10}_t$. It gives a probability floor of 10\% (because the 10th percentile is below the buffer), or 50\% when the median is also below. It also lists suggested actions. The amount needed is the largest gap in the horizon.
+
+\subsection{A6: effective cost of credit}
+\begin{lstlisting}[language=Python,caption={A6 effective annual rate}]
+def ear(product, principal, term_days):
+    fees = upfront fee components (fixed + percentage)
+    c0 = principal - fees                               # cash actually received
+    schedule = repayments c1..cn every delta days      # single or instalments
+    if single payment R after d days:  return (R / principal) ** (365 / d) - 1
+    r = brentq(lambda r: sum(c_j / (1+r)**j) - c0, 0.0, 2.0, maxiter=100)
+    return (1 + r) ** (365 / delta) - 1, TCC = sum(c_j) - c0
+\end{lstlisting}
+Brent's method is guaranteed to converge on the bracket $[0,2]$, because the net present value falls as the rate rises. Offers are ranked by total cost of credit (TCC), and EAR is shown next to it. Appendix~\ref{app:example} works one example by hand.
+
+\subsection{A7: affordability and loan fit}
+\begin{lstlisting}[language=Python,caption={A7 loan fit (cost\_engine.recommend\_loan, simplified)}]
+model = average business net per weekday, personal spending per day, daily error sigma
+def lowest_low(offer, scale):            # lowest low estimate over the loan's life
+    cash = P0 + offer.net_received
+    for k in 1..offer.last_due_day:
+        cash += wd_avg[weekday(k)] - scale * personal_per_day - due[k]
+        low = cash - 1.28 * sigma * sqrt(min(k, 14))        # ~80% band
+        track minimum of low
+needed = max(0, buffer - lowest_low(no loan, 1.0, horizon=14))
+if needed == 0 and no amount asked: return "no loan needed"
+for amount in [min(needed rounded up to KES 5,000, loan_cap), stepping down by KES 5,000]:
+    for offer in compare_financing(amount, term):           # A6
+        if lowest_low(offer, 1.0) >= buffer: fits as is
+        elif lowest_low(offer, 0.0) < buffer: cannot fit
+        else: scale = bisection on [0,1], 30 steps, largest scale that fits
+              weekly personal limit = 7 * personal_per_day * scale
+    if any option fits: return cheapest fitting option by TCC
+\end{lstlisting}
+\textbf{Guarantees.} The amount never goes above the owner's loan cap. The advice never suggests raising a cap. Thirty bisection steps pin the spending limit to within $2^{-30}$ of the current spending level. \code{check\_affordability} is the simpler test: it adds one offer's cash-flows to the saved forecast's 10th percentile and passes only if every day stays at or above the buffer. It also reports any repayments that fall beyond the horizon and so were not tested.
+
+\subsection{A8: agent planning loop}
+The loop in Section~\ref{sec:llm} is bounded to five LLM steps. At every step the model returns JSON: either tool calls or a final answer. Each tool call passes the tier gate and strict schema validation, and is scoped to the session's business, before it runs. A missing key, rate limit, daily quota or outage hands the same question to A9. The answer then goes through the output guard and A10.
+
+\subsection{A9: offline intent planner}
+Without any AI service, the helper normalises the message and scores it against English and Swahili keyword lists for eight intents. It extracts amounts (``50,000'', ``50k''), terms (``6 months'', ``miezi 6'', ``90 siku'') and payee names, and then runs the same tools through the same \code{run\_tool} path as A8. It can propose but never approve. On 24 scripted questions it chooses the right first tool every time.
+
+\subsection{A10: number verification}
+\begin{lstlisting}[language=Python,caption={A10 number check}]
+amounts = regex matches of "KES x", "KSh x", "x shillings", "x%" in the answer
+known = every numeric value found anywhere in this turn's tool results
+for a in amounts:
+    ok = any(|a - k| / k < 0.01 for k in known if k > 0) or (a == 0 and 0 in known)
+    if not ok: violations.append(a)
+return passed = (violations == [])      # the chat shows a warning listing violations
+\end{lstlisting}
+
+\subsection{A11: payment guard and look-alike check}
+The guard is the listing in Section~\ref{sec:security}. Its checks run in a fixed order: the payee is on the list and active; it is verified; the amount is within $\min(\text{business cap},\text{payee cap})$; and today's committed total plus this amount is within the daily cap. The first failure blocks the request and records the reason. A payee named in free text must match a verified name exactly after normalisation. A name whose \code{difflib} similarity ratio is at least 0.8 but that is not an exact match (``S0KO SUPPLIES'') is refused as a look-alike.
+
+\subsection{A12: approval code}
+\begin{align*}
+\text{fp}&=\text{fingerprint}(\text{kind},\text{payee},\text{offer},\text{amount},\text{date}),\\
+\text{code}&=\operatorname{HMAC\text{-}SHA256}\bigl(k,\ \text{action\_id}\,|\,\text{fp}\,|\,\text{expires\_at}\bigr).
+\end{align*}
+Only a hash of the code is stored. At execution the fingerprint is recomputed from the stored request. Any change to the amount or payee after approval therefore makes the code invalid. A code is valid for 10 minutes and works once.
+
+\subsection{A13: audit hash chain}
+\begin{align*}
+h_i=\operatorname{SHA256}\bigl(&h_{i-1}\,|\,\text{ts}\,|\,\text{business}\,|\,\text{actor}\,|\,\text{event}\,|\,\text{tool}\,|\\
+&\text{tier}\,|\,\text{decision}\,|\,\text{entity}\,|\,\text{entity\_id}\,|\,\text{details\_json}\bigr),\qquad h_0=\text{GENESIS}.
+\end{align*}
+\code{verify\_audit()} walks the entries in sequence order. It checks that each \code{prev\_hash} equals the hash before it and recomputes each hash, then returns the first sequence number where the chain breaks. Editing, deleting or re-ordering any entry breaks the chain from that point on.
+
+\subsection{A14: payment priority}
+Each standing-order payment that is due gets a score from 0 to 100, built from fixed rules (the penalty term applies only when there is a late fee):
+\begin{align*}
+\text{score}={}&\underbrace{U(\text{days to due})}_{\text{overdue }40,\ \text{today }35,\ \dots,\ \text{later }5}+\underbrace{W(\text{kind})}_{\text{loan }25,\ \text{rent/tax }22,\ \text{wages }20,\ \dots}\\
+&+10\cdot[\text{essential}]+\min\Bigl(15,\ \max\bigl(1,\operatorname{round}(100\,\tfrac{\text{late fee}}{\text{amount}})\bigr)\Bigr).
+\end{align*}
+The list is then walked in score order against the current balance. A payment that would take the balance below the safety buffer gets $+5$ if it is essential (it needs attention) or $-10$ if it is not (it can wait). Ties go to the earlier due date. The ranking is advice only: the agent can read it but cannot authorise a payment.
 
 % =====================================================================
 \section{Knowledge Retrieval (RAG)}
@@ -878,7 +1073,7 @@ Explainer & Turns tool results into a plain-language answer in English or Swahil
 \bottomrule
 \end{tabularx}
 \end{center}
-The fallback-classifier and drafter roles in v1.0 are not used: categorisation is rule-based and the application pack is filled by code.
+The LLM does not classify transactions or draft documents: categorisation is rule-based and the application pack is filled by code.
 
 \subsection{Provider abstraction}
 \code{agent/llm\_client.LLMClient} exposes \code{chat(messages, schema)} and \code{structured(messages, schema)}. The Gemini path sends the conversation and asks for JSON matching a schema; an OpenAI-compatible path also exists. Every response is cached on disk (\code{diskcache}), keyed by a hash of the request.
@@ -963,7 +1158,73 @@ Every argument schema is a pydantic model that \textbf{rejects unknown fields}, 
 \label{sec:security}
 % =====================================================================
 
+\subsection{Security objectives and threat model}
+\label{sec:threat}
+The system handles a business's full payment history and can propose real-looking payments. Its security design therefore starts from what must be protected and from whom.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.4cm}Y@{}}
+\toprule
+\textbf{Asset} & \textbf{Security objective}\\
+\midrule
+Business money & No payment or loan runs without the owner's explicit, fresh approval of that exact request; no money ever moves beyond the owner's caps.\\
+Transaction data and identities & Phone numbers, names and references stay on the local machine; the external LLM sees tokens only; one business never sees another's data.\\
+Owner credentials & Passwords and PINs are stored only as salted, slow hashes; repeated guessing locks the account or the approvals.\\
+Integrity of records & Ledger rows, approvals, sandbox receipts and the audit log cannot be silently changed after the fact.\\
+Correctness of advice & Every figure shown comes from tested code, and invented figures are detected.\\
+Availability & The assistant keeps working, with the same safeguards, when the AI service is down or rate limited.\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{4.6cm}Y@{}}
+\toprule
+\textbf{Adversary} & \textbf{Capability assumed} & \textbf{Main defence}\\
+\midrule
+Malicious statement content & Text planted in an uploaded file (prompt injection, attacker phone numbers) & Flagged and removed at ingestion; statement text is data; attacker numbers are never verified payees\\
+Misbehaving or manipulated LLM & Any tool name, any arguments, invented numbers & Tier gate, strict schemas, no approve or execute tool, payment guard, number check\\
+Another user of the system & A valid account for a different business & Every query scoped to the session's business; foreign ids answer ``not found''\\
+Someone at the owner's screen & Knows the password but not the PIN & PIN on every approval; 3 tries then 15-minute lockout; caps and payees need the PIN\\
+Online password guesser & Repeated login attempts & Slow password hashing; 5 failures in 15 minutes lock the login\\
+Holder of the database file & Direct SQL access & Database triggers; HMAC-bound approval codes; hash-chained audit log\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{Out of scope for this build:} a compromised host operating system, an attacker who controls the Python code itself, and attacks on the M-Pesa network. Execution happens in a sandbox; only standing orders reach M-Pesa, and they go through the owner's own phone and M-Pesa PIN.
+
+\subsection{Defence in depth}
+\begin{figure}[!htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}
+\node[box=amber!20,minimum width=3.1cm,minimum height=1.3cm] (u) at (0,0) {Owner message\\[-1pt]\footnotesize or statement file};
+\node[box=blue!10,minimum width=3.1cm,minimum height=1.3cm] (l1) at (3.7,0) {1. Ingestion\\[-1pt]\footnotesize redact, flag injection};
+\node[box=blue!10,minimum width=3.1cm,minimum height=1.3cm] (l2) at (7.4,0) {2. Input guard\\[-1pt]\footnotesize jailbreak phrases};
+\node[box=blue!10,minimum width=3.1cm,minimum height=1.3cm] (l3) at (11.1,0) {3. Tier gate\\[-1pt]\footnotesize allowlist, schemas, scope};
+\node[box=blue!10,minimum width=3.1cm,minimum height=1.3cm] (l4) at (14.8,0) {4. Payment guard\\[-1pt]\footnotesize payee, caps, look-alike};
+\node[box=crimson!15,minimum width=3.1cm,minimum height=1.3cm] (l5) at (14.8,-2.4) {5. Owner PIN\\[-1pt]\footnotesize lockout};
+\node[box=crimson!15,minimum width=3.1cm,minimum height=1.3cm] (l6) at (11.1,-2.4) {6. HMAC code\\[-1pt]\footnotesize exact request, once};
+\node[box=blue!10,minimum width=3.1cm,minimum height=1.3cm] (l7) at (7.4,-2.4) {7. Guard again\\[-1pt]\footnotesize at execution};
+\node[box=teal!15,minimum width=3.1cm,minimum height=1.3cm] (l8) at (3.7,-2.4) {8. Sandbox\\[-1pt]\footnotesize simulated account};
+\node[box=softgrey,minimum width=3.1cm,minimum height=1.3cm] (l9) at (0,-2.4) {9. Triggers +\\[-1pt]hash-chained audit};
+\draw[flow] (u)--(l1); \draw[flow] (l1)--(l2); \draw[flow] (l2)--(l3); \draw[flow] (l3)--(l4);
+\draw[flow] (l4)--(l5); \draw[flow] (l5)--(l6); \draw[flow] (l6)--(l7); \draw[flow] (l7)--(l8); \draw[flow] (l8)--(l9);
+\end{tikzpicture}}
+\caption{The layers a money-moving request passes through. Each layer is code that works without the LLM and fails closed: if it cannot decide, the request is blocked. An attacker must defeat every layer, and the audit log records each decision.}
+\label{fig:depth}
+\end{figure}
+
+The design rests on four principles:
+\begin{enumerate}
+  \item \textbf{The LLM is untrusted.} Nothing it says is a security decision. The prompt states the rules only to help the model; code enforces them again.
+  \item \textbf{Least privilege by construction.} The LLM can reach only Tier~0--2 tools. No tool exists that approves, executes or changes settings, so no prompt can call one.
+  \item \textbf{Human approval bound to the exact request.} Approval is a PIN plus a signed code tied to the request's fingerprint. Changing the request after approval voids the code.
+  \item \textbf{Tamper evidence below the application.} Database triggers and the audit hash chain protect records even from code that bypasses the service layer.
+\end{enumerate}
+
 \subsection{Permission tiers}
+\label{sec:tiers}
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}p{1cm}p{3.1cm}p{5cm}Y@{}}
 \toprule
@@ -978,7 +1239,7 @@ T3 & Forbidden & Change caps or payees, approve, execute, authorise standing ord
 \end{center}
 
 \subsection{Guards as built}
-v1.0 described one guard function. The code splits the checks into four layers, each of which fails closed and works without the LLM:
+The checks are split into four layers, each of which fails closed and works without the LLM:
 
 \begin{enumerate}
   \item \textbf{Input and output guard} (\code{agent/policy\_guard.py}): blocks jailbreak phrases in the owner's message (``ignore previous instructions'', ``jailbreak'', \ldots) and warns on card-number or ID patterns and on amounts above the caps in the answer.
@@ -1009,6 +1270,26 @@ def resolve_payee(business_id, name):      # payments requested by name
 
 \textbf{Caps are per business.} Defaults come from \code{.env} (KES 25{,}000 per payment, KES 50{,}000 per day; loan cap KES 50{,}000), and each owner can change their own in Business Setup with their PIN. The agent can read them (they are in its prompt) but has no way to change them.
 
+\subsection{Accounts, roles and sessions}
+\label{sec:rbac}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.4cm}Y@{}}
+\toprule
+\textbf{Control} & \textbf{Implementation}\\
+\midrule
+Passwords & PBKDF2-HMAC-SHA256 with a random salt and 600{,}000 iterations (\code{auth/password\_utils.py}); compared in constant time.\\
+Login lockout & 5 failed logins within 15 minutes lock that account's login (\code{auth/rbac.login\_locked}); each failure is a security event.\\
+Sessions & HS256-signed token with a 24-hour expiry (\code{JWT\_EXPIRY\_HOURS}); the server stores only the token's hash. On logout the token id goes into \code{revoked\_session}, so a copied token stops working.\\
+Business scope & The token carries the active \code{business\_id}; every tool and page reads it from the session, never from the LLM or the URL.\\
+Roles & Every account is \code{user}. One \code{admin} can be set, only from the server with \code{scripts/set\_admin.py}. A partial unique index allows at most one admin, and a trigger refuses any account created as admin, so sign-up can never create one.\\
+Admin reads & Only the admin sees the Security page (audit trail, chain verdict, security events, accounts). \code{AdminAuditService} re-reads the role from the database on every call, so a forged or stale session cannot grant admin rights. Blocked attempts are logged as privilege-escalation events.\\
+Duka PIN & PBKDF2-HMAC-SHA256, salted, 100{,}000 iterations, one per business; 3 wrong tries lock approvals for 15 minutes; needed to approve, and to change caps or payees.\\
+Secrets & \code{JWT\_SECRET} (the approval signing key is derived from it), \code{LLM\_API\_KEY} and the Daraja keys are read from environment variables (\code{.env}, never committed). The development default for \code{JWT\_SECRET} must be replaced in any real deployment.\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Security events (failed logins, denied access, blocked escalation, rejected PINs, blocked inputs, forbidden tool calls) are written to the same hash-chained \code{audit\_log} with \code{entity\_type = 'security'}. Each records what happened, how it was detected and how it was handled.
+
 \subsection{Key controls}
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}p{3.6cm}Y@{}}
@@ -1030,11 +1311,12 @@ Compliance framing & Visible guidance notice; credit comparisons always show TCC
 \subsection{Audit log and hash chain}
 Each entry stores the hash of the previous entry:
 \[
-h_i=\operatorname{SHA256}\bigl(h_{i-1}\,\Vert\,\operatorname{canonical\_json}(e_i)\bigr).
+h_i=\operatorname{SHA256}\bigl(h_{i-1}\,|\,\text{fields of }e_i\bigr),\qquad h_0=\text{GENESIS},
 \]
-A \code{verify\_audit()} function recomputes the chain; the Audit page shows ``chain valid'' or the first broken sequence number. This provides tamper evidence for the execution-evidence submission.
+where the fields are the time, business, actor, event, tool, tier, decision, entity and details (Section~\ref{sec:algorithms}, A13). A \code{verify\_audit()} function recomputes the chain; the Audit page shows ``chain valid'' or the first broken sequence number. This provides tamper evidence for the execution-evidence submission.
 
 \subsection{Known-risk list}
+\label{sec:risks}
 \begin{longtable}{@{}p{3.2cm}p{4.2cm}p{5.6cm}p{1.6cm}@{}}
 \toprule
 \textbf{Risk} & \textbf{Example} & \textbf{Mitigation} & \textbf{Residual}\\
@@ -1051,10 +1333,15 @@ Forecast error & Unexpected expense causes shortfall & Bands; conservative buffe
 Over-reliance on advice & Owner takes a costly loan & Approval step; TCC shown; guidance notice & Medium\\
 RAG poisoning & Malicious text in a KB chunk & Curated KB; chunks treated as data; guard unaffected & Low\\
 Audit tampering & Log edited after the fact & Triggers and hash chain & Low\\
+Password guessing & Repeated logins on one account & PBKDF2 (600{,}000 iterations); 5 failures in 15 minutes lock the login; security event & Low\\
+Privilege escalation & User tries to read the audit trail or become admin & Role read from the database on every call; single-admin index; trigger refuses admin sign-up; blocked attempts logged & Low\\
+Stolen session token & Token copied from a browser & 24-hour expiry; logout revokes the token id; approvals still need the PIN & Low\\
+Default secrets & Deployment keeps the development \code{JWT\_SECRET} & Read from \code{.env}; documented deployment step; must be changed before real use & Medium\\
 \bottomrule
 \end{longtable}
 
 \subsection{Security tests: attack scorecard}
+\label{sec:attacks}
 \code{tests/security/attack\_suite.py} runs 38 attacks against the real code (only the AI is scripted), each on its own copy of a database built from the sample statements. All 38 are blocked; the full list with each block reason is in \code{docs/test\_results.md}. Where a database trigger already refuses a write, a second variant drops the trigger first, as someone with the raw file could, to show the signed approval code or the hash chain still catches it.
 
 \begin{center}
@@ -1070,6 +1357,37 @@ Audit log & 3 & Edit an entry; edit with the trigger removed (hash chain detects
 \end{tabularx}
 \end{center}
 
+\subsection{Security self-assessment summary}
+\label{sec:selfassess}
+This is the team's own assessment of the security design against the competition's requirement: the permission tiers as built, and the known-risk list.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}p{1.5cm}Y@{}}
+\toprule
+\textbf{Requirement} & \textbf{Status} & \textbf{Evidence}\\
+\midrule
+T0 read-only by default & Met & 12 of the 18 LLM tools are T0; all are scoped to the session's business (attack group ``The AI'')\\
+T1 suggestions are labelled advice & Met & Alerts, loan advice and the application pack carry the guidance notice and the figures behind them\\
+T2 needs explicit owner approval & Met & Agent can only propose; PIN, HMAC code bound to the request, single use, 10-minute expiry; 13 approval attacks blocked\\
+T3 unreachable & Met & No tool exists; named, unknown and hidden tools refused and logged as \code{FORBIDDEN\_TOOL\_CALL}\\
+Caps enforced in code & Met & Per-payment, daily (shared with standing orders) and loan caps; 11 payment-rule attacks blocked\\
+Data minimisation towards the LLM & Partly met & Redaction at ingestion; outbound payload scan written but not yet called\\
+Tamper evidence & Met & Triggers and hash chain; 3 audit attacks blocked, including one with the trigger removed\\
+Account security & Met & Slow password hashing, login lockout, token revocation, single admin with database-checked role\\
+Behaviour with a real LLM & Not yet measured & Live Gemini tests exist but have not been run; scripted-AI results only\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Highest residual risks}, in order:
+\begin{enumerate}
+  \item \textbf{Over-reliance on advice} (Medium): a cheap-looking loan can still be a poor decision. The approval step, TCC and EAR on every offer, and the guidance notice reduce it, but cannot remove it.
+  \item \textbf{Miscategorisation and forecast error} (Medium): rule-based categories and a 14-day bootstrap can be wrong for unusual months. Review flags, owner corrections, the 80\% band and the backtest make this visible.
+  \item \textbf{Privacy leakage to the LLM provider} (Low--Medium): until the outbound scan is wired in, a personal detail that slips past the ingestion redaction could reach the provider. All data in this project is synthetic.
+  \item \textbf{Deployment secrets} (Low--Medium): the development defaults for \code{JWT\_SECRET} and the signing key must be replaced before any real deployment.
+\end{enumerate}
+\textbf{Planned next:} wire \code{outbound\_scan()} into every LLM call, run the live-model test suite, regenerate an answer when the number check fails instead of only warning, and move from the sandbox to a licensed payment partner only after an external review.
+
 % =====================================================================
 \section{Sandbox and Approval Workflow}
 \label{sec:sandbox}
@@ -1083,14 +1401,14 @@ The sandbox is a \textbf{simulated account per business} (\code{sandbox\_account
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}
-\node[state=amber!20] (w) at (3.7,0) {PENDING\_APPROVAL};
-\node[state=teal!15] (a) at (7.4,0) {APPROVED};
-\node[state=teal!30] (e) at (11.1,0) {EXECUTED};
+\node[state=amber!20] (w) at (4.4,0) {PENDING\_APPROVAL};
+\node[state=teal!15] (a) at (9.6,0) {APPROVED};
+\node[state=teal!30] (e) at (14.8,0) {EXECUTED};
 \node[state=crimson!15] (b1) at (0,0) {BLOCKED\\(at proposal)};
-\node[state=crimson!15] (r) at (3.7,-2.3) {REJECTED};
+\node[state=crimson!15] (r) at (4.4,-2.3) {REJECTED};
 \node[state=gray!20] (x) at (0,-2.3) {EXPIRED};
-\node[state=crimson!15] (b2) at (11.1,-2.3) {BLOCKED\\(not carried out)};
-\node[font=\scriptsize,align=center] (start) at (1.85,1.5) {agent or offline helper\\proposes; guard decides};
+\node[state=crimson!15] (b2) at (14.8,-2.3) {BLOCKED\\(not carried out)};
+\node[font=\scriptsize,align=center] (start) at (2.1,1.5) {agent or offline helper\\proposes; guard decides};
 \draw[flow] (start) -- (w);
 \draw[flow] (start) -- (b1);
 \draw[flow] (w) -- node[above,font=\scriptsize]{owner PIN ok} (a);
@@ -1105,7 +1423,7 @@ The sandbox is a \textbf{simulated account per business} (\code{sandbox\_account
 \subsection{Approval protocol}
 \begin{enumerate}
   \item \textbf{Propose.} The agent (or offline helper) calls \code{propose\_supplier\_payment} or \code{propose\_loan\_request}. The payment guard runs; the request is stored as \code{PENDING\_APPROVAL} (valid 24 hours) or \code{BLOCKED} with the reason, together with a fingerprint of the exact request (kind, payee or offer, amount, date). No money moves. The owner is notified.
-  \item \textbf{Review.} The Approvals page (\code{app/pages/13\_Approvals.py}) shows each waiting request, today's used and remaining limits, standing-order bills still to authorise, and the history with receipts and block reasons.
+  \item \textbf{Review.} The Approvals page (\code{app/app\_pages/13\_Approvals.py}) shows each waiting request, today's used and remaining limits, standing-order bills still to authorise, and the history with receipts and block reasons.
   \item \textbf{Approve.} The owner types their Duka PIN. \code{ApprovalService.approve} checks it (three wrong tries lock approvals for 15 minutes) and issues an approval code, valid for 10 minutes:
 \[ \text{code}=\operatorname{HMAC\text{-}SHA256}\bigl(k,\ \text{action\_id}\,\Vert\,\text{fingerprint}\,\Vert\,\text{expiry}\bigr). \] Only the code's hash is stored, in \code{approval.nonce}. The LLM never sees the PIN or the code. Declining needs no PIN.
   \item \textbf{Execute.} \code{execute} recomputes the fingerprint from the request \emph{as it is stored now}, so a changed amount or payee no longer matches the code. It also checks that the code is unused and unexpired, re-runs the payment guard (caps may have changed), and runs the action in the sandbox. A request that cannot run is closed as BLOCKED with the reason, and its code is spent.
@@ -1126,7 +1444,7 @@ Both payment paths obey the \textbf{same per-business rules}. Standing orders us
 % =====================================================================
 
 \subsection{Interface pages}
-The pages that exist now (\code{app/main.py} and \code{app/pages/}):
+The pages that exist now (\code{app/main.py} and \code{app/app\_pages/}):
 \begingroup\footnotesize
 \begin{longtable}{@{}p{3.6cm}p{11.4cm}@{}}
 \toprule
@@ -1145,6 +1463,7 @@ Dashboard and chat (\code{main.py}) & Chat with the agent (English or Swahili; K
 8 POS; 9 Invoicing; 10 Inventory; 11 Tax Reports & Sales, invoices and quotations, stock, VAT summaries (Section~\ref{sec:advanced}).\\
 12 Standing Orders & Scheduled bills ranked by priority; authorise with M-Pesa STK prompt.\\
 13 Approvals & Requests from the assistant: approve with PIN or decline; today's limits; history with receipts.\\
+14 Security (admin) & Shown only to the single administrator account: audit trail, hash-chain verdict, security events (failed logins, denied access, blocked escalation, rejected PINs) and accounts. Every read re-checks the role in the database.\\
 \bottomrule
 \end{longtable}
 \endgroup
@@ -1257,21 +1576,25 @@ FR11 Persistence & Accounts, business setup & --- & app\_user, business, busines
 \endgroup
 
 \subsection{Test strategy and results}
-Run with \code{PYTEST\_DISABLE\_PLUGIN\_AUTOLOAD=1 .venv/bin/python -m pytest} (the flag keeps unrelated globally installed pytest plugins out). Current result: \textbf{265 passed, 3 skipped}.
+\label{sec:tests}
+Run with \code{PYTEST\_DISABLE\_PLUGIN\_AUTOLOAD=1 .venv/bin/python -m pytest} (the flag keeps unrelated globally installed pytest plugins out). Current result (20 October 2026): \textbf{379 passed, 3 skipped}. One configuration test (\code{test\_gemini\_api\_key\_name\_is\_accepted}) fails on a machine whose \code{.env} already holds a real API key, because that key overrides the value the test sets; it passes on a clean checkout.
 \begin{itemize}
-  \item \textbf{Unit tests} (\code{tests/unit/}, 22 files): adapters, ingestion, redaction, categoriser, analytics, financial health, cost engine, policy guard, audit chain, business setup and persistence, standing orders, payment priority, SMS, spending advisor, working capital and others.
+  \item \textbf{Unit tests} (\code{tests/unit/}, 28 files): adapters, ingestion, redaction, categoriser, analytics, financial health, cost engine, policy guard, audit chain, business setup and persistence, standing orders, payment priority, SMS, spending advisor, working capital and others.
   \item \textbf{Security tests} (\code{tests/security/}): the 38-attack suite plus redaction, injection and ``agent cannot pay'' tests.
   \item \textbf{Task evaluation} (\code{tests/eval/}): 23 scripted agent tasks with a mock LLM that replays tool calls and checks outcomes in the database (23/23), and 24 English and Swahili questions for the offline planner (24/24).
-  \item \textbf{End-to-end} (\code{tests/e2e/}): sandbox flow.
+  \item \textbf{End-to-end} (\code{tests/e2e/}): sandbox flow, and a full run of the Msafiri test dataset against its answer keys (\code{tests/test\_data/msafiri/}).
+  \item \textbf{Roles and isolation} (\code{tests/unit/test\_rbac\_and\_isolation.py}): single admin, admin-only reads, login lockout, cross-business isolation.
   \item \textbf{Live AI} (\code{tests/test\_live\_gemini.py}): three tests against real Gemini (injection resistance, verified numbers, Swahili reply), skipped unless \code{RUN\_LIVE\_GEMINI=1}. \textbf{Not yet run.}
 \end{itemize}
 Shared test fixtures (\code{tests/fixtures\_duka.py}) build a real database from the schema and migrations, register two businesses with their owners, ingest the sample statements, and set a PIN and a verified payee. Only the AI is replaced by a script.
 
 \subsection{Execution evidence}
+\label{sec:evidence}
 \code{scripts/key\_numbers.py} regenerates \code{docs/key\_numbers.md} (every headline figure for the three businesses, with its source function) and \code{docs/test\_results.md} (the attack, task and offline scorecards) from the code, so the deck cannot drift from it. The audit log (with \code{verify\_audit}), sandbox receipts on the Approvals page and the generated scorecards are the operation logs for the submission.
 
 % =====================================================================
 \section{Repository Layout, Configuration and Deployment}
+\label{sec:repo}
 % =====================================================================
 
 \begin{lstlisting}[caption={Repository structure as built (main items)}]
@@ -1280,8 +1603,9 @@ duka/
   app/
     main.py                    # dashboard + chat
     auth_ui.py, auth_theme.py  # login, sign-up, session, business activation
-    pages/                     # 0 Business Setup ... 13 Approvals, Login, Sign_Up
+    app_pages/                 # 0 Business Setup ... 14 Admin Security, Login, Sign_Up
   auth/                        # session tokens, OTP, middleware, UserContext cache
+    rbac.py                    # admin/user roles, login lockout, security events
   agent/
     orchestrator.py            # agent loop, tier gate, offline fallback
     tools.py                   # 18-tool registry, strict schemas, tiers
@@ -1303,10 +1627,11 @@ duka/
   integrations/                # mpesa_daraja.py (STK), sms.py
   sandbox/                     # account.py, mock_lender.py (+ propose tools)
   db/
-    schema.sql  migrate.py  migrations/001..005  audit.py  users.py  sessions.py  kyc.py
+    schema.sql  migrate.py  migrations/001..006  audit.py  users.py  sessions.py  kyc.py
   data/
     generate_synthetic.py  mock_data/  (sample statements incl. malicious_statement.csv)
   scripts/key_numbers.py       # writes docs/key_numbers.md, docs/test_results.md
+  scripts/set_admin.py         # promotes the single admin account (server side only)
   tests/  unit/  security/  eval/  e2e/  fixtures_duka.py  test_live_gemini.py
   docs/   architecture.tex  key_numbers.md  test_results.md  MPESA_DARAJA_SETUP.md
 \end{lstlisting}
@@ -1317,6 +1642,7 @@ duka/
   \item Copy \code{.env.example} to \code{.env}; set \code{LLM\_API\_KEY} (optional: without it the offline helper answers), \code{JWT\_SECRET}, and if needed the Daraja keys (\code{DARAJA\_ENV=simulated} needs none). Never commit \code{.env}.
   \item Run \code{python db/migrate.py} to create or upgrade \code{data/duka.db}.
   \item Run \code{streamlit run app/main.py}, sign up, set up the business once, set the owner PIN, and upload a statement (sample files in \code{data/mock\_data/}).
+  \item Optionally promote one account to administrator on the server: \code{python scripts/set\_admin.py <phone>}. No page can do this.
   \item Run the tests and \code{scripts/key\_numbers.py} to regenerate the evidence.
 \end{enumerate}
 
@@ -1944,11 +2270,12 @@ CREATE TABLE stock_alert (
 The system computes inventory turnover and aging:
 
 \begin{align*}
-\text{Turnover Ratio} &= \frac{\text{COGS}}{{\text{Avg Inventory Value}}}, &\quad
-\text{Days Inventory Outstanding (DIO)} &= \frac{90}{\text{Turnover Ratio}},\\
-\text{Carrying Cost} &= \text{Avg Inventory Value} \times \text{Carrying Cost\%}, &\quad
-\text{Obsolescence Risk} &= \text{items with no sales for $>60$ days}.
+\text{Turnover ratio} &= \frac{\text{COGS}}{\text{Avg inventory value}}, &
+\text{DIO} &= \frac{90}{\text{Turnover ratio}},\\
+\text{Carrying cost} &= \text{Avg inventory value} \times \text{carrying cost \%}, &
+\text{Obsolescence risk} &= \text{items with no sales for $>60$ days},
 \end{align*}
+where DIO is days inventory outstanding.
 
 Slow-moving items are flagged for:
 - Markdown or promotion
@@ -2328,21 +2655,7 @@ Sales Orders & Open orders, fulfillment status, customer order history\\
 \end{tabularx}
 \end{center}
 
-\subsection{Build priority for new features}
-
-If time is limited, prioritize in this order:
-\begin{enumerate}
-  \item \textbf{Inventory alerts} (low-stock, out-of-stock) — most urgent for daily operations
-  \item \textbf{Spending advisor} (budget vs. actual) — immediate visibility to cost control
-  \item \textbf{Invoice drafting} (sales and tax) — core for regulated compliance
-  \item \textbf{Quoting tool} (draft and send) — sales enablement
-  \item \textbf{Advanced analytics} (quote win-rate, price elasticity) — optimization extensions
-\end{enumerate}
-
-\subsection{Build priority under time pressure}
-If time runs short, cut in this order: application pack (FR6), RAG embeddings, PDF parsing, second adapter, then charts C8--C9, advanced analytics (quote pricing, tax forecasting), then quote/invoice features. \textbf{Never cut} the policy guard, redaction, audit log, approval flow or security tests, which together carry the security score and underpin task-completion evidence.
-
-\subsection{Extensions beyond the competition}
+\subsection{Future extensions}
 Additional adapters for other mobile-money platforms; owner-specific seasonality (school terms, harvest cycles); integration with real credit providers through regulated, consent-based APIs; multilingual interface (Swahili and others); and on-device models to remove external data sharing entirely.
 
 % =====================================================================

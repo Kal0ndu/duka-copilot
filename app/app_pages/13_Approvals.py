@@ -1,7 +1,7 @@
 """Approvals — the owner approves what the assistant proposed, with their PIN.
 
 The assistant can only PROPOSE a supplier payment or a loan. Nothing happens
-until the owner approves it here with their Duka PIN; it then runs in the
+until the owner approves it here with their Duka Copilot PIN; it then runs in the
 sandbox account (no real money). Standing-order bills are authorized on the
 Standing Orders page with the owner's M-Pesa PIN; both share one daily cap.
 """
@@ -16,14 +16,14 @@ from auth.middleware import get_business_id, get_user_id, invalidate_user_contex
 from core.approvals import ApprovalService, committed_today_minor
 from core.owner_settings import OwnerPin, load_settings
 
-st.set_page_config(page_title="Approvals — Duka", page_icon=":material/verified_user:", layout="wide")
+st.set_page_config(page_title="Approvals — Duka Copilot", page_icon=":material/verified_user:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
 st.title("Approvals", icon=":material/verified_user:")
 st.caption(
     "Your assistant can only **propose** payments and loans. Nothing happens until you approve it here "
-    "with your Duka PIN. Approved requests run in the **sandbox** account; no real money moves."
+    "with your Duka Copilot PIN. Approved requests run in the **sandbox** account; no real money moves."
 )
 
 business_id = get_business_id() or st.session_state.get("business_id")
@@ -75,7 +75,7 @@ for a in pending:
                    f"{a['created_at'].replace('T', ' ')[:16]} UTC · expires {a['expires_at'].replace('T', ' ')[:16]} UTC")
         with st.form(f"approve_{a['action_id']}", border=False):
             col_pin, col_ok, col_no = st.columns([2, 1, 1], vertical_alignment="bottom")
-            pin = col_pin.text_input("Your Duka PIN", type="password", max_chars=6,
+            pin = col_pin.text_input("Your Duka Copilot PIN", type="password", max_chars=6,
                                      key=f"pin_{a['action_id']}", placeholder="4-6 digits")
             approve = col_ok.form_submit_button(":material/check: Approve", type="primary", width="stretch")
             decline = col_no.form_submit_button(":material/close: Decline", width="stretch")

@@ -12,7 +12,7 @@ from core.charts import (
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Party Intelligence — Duka", page_icon=":material/handshake:", layout="wide")
+st.set_page_config(page_title="Party Intelligence — Duka Copilot", page_icon=":material/handshake:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 

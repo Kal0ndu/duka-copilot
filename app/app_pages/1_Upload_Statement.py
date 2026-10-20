@@ -13,7 +13,7 @@ from auth.middleware import get_business_id, get_user_id, invalidate_user_contex
 from core.adapters.mpesa_pdf import StatementPasswordError
 from core.ingestion import StatementIngestor
 
-st.set_page_config(page_title="Upload Statement — Duka", page_icon=":material/upload_file:", layout="wide")
+st.set_page_config(page_title="Upload Statement — Duka Copilot", page_icon=":material/upload_file:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -21,7 +21,7 @@ require_auth()
 SessionManager.init_session()
 
 st.title("Statements", icon=":material/upload_file:", anchor=False)
-st.caption("Upload your M-Pesa statement (PDF or CSV), or explore Duka with a sample Kenyan small business.")
+st.caption("Upload your M-Pesa statement (PDF or CSV), or explore Duka Copilot with a sample Kenyan small business.")
 
 # ---- Status strip: where uploads go and what is loaded now ----
 _profile = SessionManager.get_profile() or {}
@@ -44,7 +44,7 @@ with upload_col:
         st.subheader("Upload your statement", icon=":material/cloud_upload:", anchor=False)
         st.caption(
             "Use the PDF statement Safaricom sends you, or a CSV export. "
-            "It is saved to your business ledger so Duka's assistant can answer questions about it."
+            "It is saved to your business ledger so Duka Copilot's assistant can answer questions about it."
         )
         uploaded = st.file_uploader(
             "Choose an M-Pesa statement", type=["csv", "pdf"], accept_multiple_files=False,
@@ -225,7 +225,7 @@ if get_business_id():
         st.divider()
         st.subheader("Check these payees once", icon=":material/school:", anchor=False)
         st.caption(
-            "Duka wasn't sure about these. Pick the right category once and every past and future "
+            "Duka Copilot wasn't sure about these. Pick the right category once and every past and future "
             "payment to that payee will follow it."
         )
         with st.container(border=True):

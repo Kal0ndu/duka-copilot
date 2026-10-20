@@ -67,7 +67,7 @@ def render_add_form(setup: BusinessSetup, business_id: int, prefix: str = "add")
         first_due = c5.date_input("First payment due (only if never paid)", value=None, key=f"{prefix}_first")
         is_variable = st.checkbox("The amount changes each time (amount above = approximate monthly average)",
                                   key=f"{prefix}_var",
-                                  help="Duka plans each payment within ±10% of its share of that average.")
+                                  help="Duka Copilot plans each payment within ±10% of its share of that average.")
         if st.form_submit_button(":material/add: Add expense", type="primary"):
             try:
                 setup.add_recurring_expense(

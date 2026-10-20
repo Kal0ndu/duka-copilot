@@ -7,7 +7,7 @@ updated, and sales already imported (same sale_ref) are skipped.
 
 Money is parsed with Decimal, never float, so "19.99" is exactly 1999 cents.
 Customer phone numbers and emails are stored only as hashes
-(party_identifier), like every other identifier in Duka.
+(party_identifier), like every other identifier in Duka Copilot.
 """
 from __future__ import annotations
 

@@ -111,7 +111,7 @@ def _signup_form(db_path: str):
         display_name = st.text_input(
             "Display name",
             placeholder="Your name or business name",
-            help="How you'll appear in Duka"
+            help="How you'll appear in Duka Copilot"
         )
         password = st.text_input(
             "Password",
@@ -261,7 +261,7 @@ def _signup_complete():
     
     st.markdown("""
     <div style="text-align: center; margin: 2rem 0;">
-        <h2 style="color: #86efac; margin: 0 0 0.5rem 0;">Welcome to Duka!</h2>
+        <h2 style="color: #86efac; margin: 0 0 0.5rem 0;">Welcome to Duka Copilot!</h2>
         <p style="color: #cbd5e1; margin: 0 0 2rem 0;">Your account is ready to go</p>
     </div>
     """, unsafe_allow_html=True)
@@ -327,7 +327,7 @@ def _login_form(db_path: str):
     """Step 1: phone number entry."""
     render_progress_indicator(1, 2)
     
-    st.markdown('<div class="auth-form-section-title">Log in to Duka</div>', unsafe_allow_html=True)
+    st.markdown('<div class="auth-form-section-title">Log in to Duka Copilot</div>', unsafe_allow_html=True)
     
     with st.form("login_form"):
         phone_raw = st.text_input(
@@ -658,7 +658,7 @@ def logout() -> None:
 def require_auth():
     """Gate: if not authenticated, show login prompt and stop."""
     if not validate_and_refresh_session():
-        st.warning(":material/lock: Please log in to access Duka.")
+        st.warning(":material/lock: Please log in to access Duka Copilot.")
         st.markdown("[Log In](Login)  |  [Sign Up](Sign_Up)")
         st.stop()
 

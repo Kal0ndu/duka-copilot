@@ -1,4 +1,4 @@
-"""User CRUD operations for the Duka auth system."""
+"""User CRUD operations for the Duka Copilot auth system."""
 import sqlite3
 from datetime import datetime
 from typing import Optional

@@ -399,7 +399,7 @@ class OfflineHelper:
         {
             "patterns": [r"how\s+do\s+i", r"how\s+to", r"what\s+is", r"get\s+started", r"tutorial",
                         r"vipi", r"nianze", r"kuanza", r"mwongozo"],
-            "response_en": "Getting started with Duka:\n"
+            "response_en": "Getting started with Duka Copilot:\n"
                           "1. **Upload Statement** → M-Pesa PDF or CSV\n"
                           "2. **Review Ledger** → Verify categorizations\n"
                           "3. **View Insights** → Revenue, costs, margins, best days\n"
@@ -408,7 +408,7 @@ class OfflineHelper:
                           "6. **Standing Orders** → Schedule recurring payments\n"
                           "7. **Approvals** → Approve what the assistant proposes, with your PIN\n"
                           "8. **Chat** → Ask me questions about your business",
-            "response_sw": "Kuanza na Duka:\n"
+            "response_sw": "Kuanza na Duka Copilot:\n"
                           "1. **Upload Statement** → pakia taarifa ya M-Pesa (PDF au CSV)\n"
                           "2. **Kagua miamala** → thibitisha aina za matumizi\n"
                           "3. **Uchambuzi** → mapato, gharama, faida, siku bora\n"
@@ -480,7 +480,7 @@ class OfflineHelper:
                 "kwa kutumia takwimu za biashara yako:\n\n"
                 "**Ninachoweza kufanya:**\n"
                 "• Kueleza hali ya biashara yako, utabiri na mikopo\n"
-                "• Kukuongoza kutumia sehemu za Duka\n"
+                "• Kukuongoza kutumia sehemu za Duka Copilot\n"
                 "• Kuomba malipo, ambayo wewe unaidhinisha kwa PIN yako\n\n"
                 "**Kurudisha AI kamili:**\n"
                 "1. Angalia LLM_API_KEY kwenye mipangilio\n"
@@ -494,7 +494,7 @@ class OfflineHelper:
                 "I can still answer using your own business figures:\n\n"
                 "**What I can do:**\n"
                 "• Explain how your business is doing, your forecast and loan options\n"
-                "• Guide you through using Duka features\n"
+                "• Guide you through using Duka Copilot features\n"
                 "• Request a payment, which you approve with your PIN\n\n"
                 "**To unlock full AI features:**\n"
                 "1. Check your LLM_API_KEY configuration\n"

@@ -422,7 +422,7 @@ class ApprovalService:
         self._audit(actor, "ACTION_EXECUTED", business_id, action_id, decision="executed",
                     receipt=receipt, balance_after_minor=balance, **result)
         self._notify(business_id, action_id, "Approved request carried out",
-                     f"Duka: request #{action_id} was carried out in the sandbox. Receipt {receipt}.")
+                     f"Duka Copilot: request #{action_id} was carried out in the sandbox. Receipt {receipt}.")
         return {"status": "done", "receipt": receipt, "balance_kes": balance / 100, **result}
 
     def _close_unrun(self, conn, action, approval, reason: str) -> None:
@@ -454,8 +454,8 @@ class ApprovalService:
         else:
             what = f"take a loan of KES {amount_minor / 100:,.0f} (offer #{offer_id})"
         self._pending_notice = (business_id, action_id, "Approval needed",
-                                f"Duka: your assistant asks to {what}. Nothing happens until you "
-                                f"approve it with your Duka PIN on the Approvals page. Duka never asks "
+                                f"Duka Copilot: your assistant asks to {what}. Nothing happens until you "
+                                f"approve it with your Duka Copilot PIN on the Approvals page. Duka Copilot never asks "
                                 f"for your PIN by SMS or call.")
 
     def _flush_pending_notice(self):

@@ -11,7 +11,7 @@ from core.business_setup import EXPENSE_TYPES, BusinessSetup, ExpenseError
 from app.expense_ui import render_add_form, render_expense_list
 from auth.middleware import invalidate_user_context_on_page
 
-st.set_page_config(page_title="Expense Setup — Duka", page_icon=":material/description:")
+st.set_page_config(page_title="Expense Setup — Duka Copilot", page_icon=":material/description:")
 # ---- Authentication Gate ----
 require_auth()
 

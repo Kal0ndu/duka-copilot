@@ -16,7 +16,7 @@ from core.charts import chart_aging_buckets
 from core.config import Config
 from core.working_capital import AGING_BUCKETS, open_invoices, working_capital_position
 
-st.set_page_config(page_title="Working Capital — Duka", page_icon=":material/credit_card:", layout="wide")
+st.set_page_config(page_title="Working Capital — Duka Copilot", page_icon=":material/credit_card:", layout="wide")
 require_auth()
 
 business_id = get_business_id()

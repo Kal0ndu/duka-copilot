@@ -17,7 +17,7 @@ from core.config import Config
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Cashflow Forecast — Duka", page_icon=":material/trending_up:", layout="wide")
+st.set_page_config(page_title="Cashflow Forecast — Duka Copilot", page_icon=":material/trending_up:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -158,7 +158,7 @@ k4.metric("Shortfall risk days", len(shortfalls), help="Days where conservative 
 # ---- ALTAIR FAN CHART ----
 st.subheader("Where your balance could go", icon=":material/analytics:")
 st.caption(
-    "Duka replays your past days 1,000 times to see the range of balances you might have. "
+    "Duka Copilot replays your past days 1,000 times to see the range of balances you might have. "
     "**Shaded band:** 8 in 10 of those futures land inside it. **Blue line:** the expected balance. "
     "**Yellow line:** a bad week (only 1 in 10 futures end lower). **Red dashed line:** your safety buffer; "
     "**red diamonds** mark days the bad-week balance falls under it. **White triangles** are bills due. "

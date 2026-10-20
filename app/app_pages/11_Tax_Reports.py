@@ -16,7 +16,7 @@ from core.invoice_manager import InvoiceManager
 from app.session_helpers import SessionManager
 from auth.middleware import get_business_id
 
-st.set_page_config(page_title="Tax Reports — Duka", page_icon=":material/analytics:", layout="wide")
+st.set_page_config(page_title="Tax Reports — Duka Copilot", page_icon=":material/analytics:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
