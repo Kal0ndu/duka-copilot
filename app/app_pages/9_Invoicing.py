@@ -19,7 +19,7 @@ from core.ai_sales_assistant import AISalesAssistant
 from app.session_helpers import SessionManager
 from auth.middleware import get_business_id
 
-st.set_page_config(page_title="Invoicing — Duka", page_icon=":material/description:", layout="wide")
+st.set_page_config(page_title="Invoicing — Duka Copilot", page_icon=":material/description:", layout="wide")
 
 # ---- Session & Auth ----
 require_auth()

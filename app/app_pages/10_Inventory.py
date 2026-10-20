@@ -13,7 +13,7 @@ from core.pos_engine import POSEngine
 from app.session_helpers import SessionManager
 from auth.middleware import get_business_id
 
-st.set_page_config(page_title="Inventory — Duka", page_icon=":material/inventory:", layout="wide")
+st.set_page_config(page_title="Inventory — Duka Copilot", page_icon=":material/inventory:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 

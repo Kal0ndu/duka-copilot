@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from app.auth_ui import render_sign_up, check_auth
 
 st.set_page_config(
-    page_title="Sign Up — Duka",
+    page_title="Sign Up — Duka Copilot",
     page_icon=":material/person_add:",
     layout="wide",
     initial_sidebar_state="collapsed",

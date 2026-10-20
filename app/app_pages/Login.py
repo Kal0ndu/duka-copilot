@@ -9,7 +9,7 @@ from app.auth_ui import render_login, check_auth, render_brand_header
 from app.auth_theme import inject_auth_theme
 
 st.set_page_config(
-    page_title="Login — Duka",
+    page_title="Login — Duka Copilot",
     page_icon=":material/login:",
     layout="wide",
     initial_sidebar_state="collapsed",

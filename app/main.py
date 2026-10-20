@@ -1,4 +1,4 @@
-"""Duka — Streamlit entry point: page navigation and the shared sidebar.
+"""Duka Copilot — Streamlit entry point: page navigation and the shared sidebar.
 
 Every page lives in app/app_pages/ and keeps its old URL (url_path), so
 bookmarks such as /POS_Dashboard still work. Logged-out visitors see the
@@ -16,7 +16,7 @@ from auth.middleware import get_business_id, get_user_id
 from core.config import config
 
 st.set_page_config(
-    page_title="Duka — Micro-Business CFO",
+    page_title="Duka Copilot — Micro-Business CFO",
     page_icon=":material/storefront:",
     layout="wide",
     initial_sidebar_state="expanded",

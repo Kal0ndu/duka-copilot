@@ -533,7 +533,7 @@ class POSEngine:
     def format_receipt(self, sale: Sale, pos_settings: Optional[POSSetting] = None) -> str:
         """Generate a plain-text receipt for printing."""
         currency = pos_settings.currency if pos_settings else "KES"
-        biz_name = pos_settings.business_name if pos_settings else "Duka POS"
+        biz_name = pos_settings.business_name if pos_settings else "Duka Copilot POS"
         lines = []
         lines.append("=" * 40)
         lines.append(f"  {biz_name}")

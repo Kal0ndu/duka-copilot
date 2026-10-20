@@ -1,6 +1,6 @@
 """Standing Orders — scheduled payments ranked by priority, authorized by the owner.
 
-Duka reminds and ranks; it never pays. Each payment needs the owner to tap
+Duka Copilot reminds and ranks; it never pays. Each payment needs the owner to tap
 Authorize here and then enter their M-Pesa PIN on the prompt sent to their phone.
 """
 import streamlit as st
@@ -16,13 +16,13 @@ from core.standing_orders import CADENCES, KINDS, PaymentNotAllowed, StandingOrd
 from core.owner_settings import load_settings
 from integrations.mpesa_daraja import DarajaError
 
-st.set_page_config(page_title="Standing Orders — Duka", page_icon=":material/event_repeat:", layout="wide")
+st.set_page_config(page_title="Standing Orders — Duka Copilot", page_icon=":material/event_repeat:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
 st.title("Standing orders", icon=":material/schedule_send:")
 st.caption(
-    "Set up regular payments like M-Pesa Ratiba. Duka reminds you and ranks what to pay first. "
+    "Set up regular payments like M-Pesa Ratiba. Duka Copilot reminds you and ranks what to pay first. "
     "Nothing is paid until you tap **Authorize** and enter your M-Pesa PIN on your phone."
 )
 
@@ -141,7 +141,7 @@ with tab_pay:
     if payments:
         st.caption(
             "Priority is calculated from due date, type of payment, late fees and whether your current "
-            "balance covers it. Ask the Duka assistant to explain it."
+            "balance covers it. Ask the Duka Copilot assistant to explain it."
         )
 
 # ---- Standing orders ----

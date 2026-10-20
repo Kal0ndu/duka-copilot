@@ -1,4 +1,4 @@
-"""Database migration runner for Duka.
+"""Database migration runner for Duka Copilot.
 
 Usage:
     python db/migrate.py --latest    # Run all pending migrations

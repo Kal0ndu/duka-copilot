@@ -10,7 +10,7 @@ from auth.middleware import get_business_id, get_user_id
 from core.business_setup import BusinessSetup
 from app.expense_ui import render_add_form, render_expense_list
 
-st.set_page_config(page_title="Business Setup — Duka", page_icon=":material/storefront:")
+st.set_page_config(page_title="Business Setup — Duka Copilot", page_icon=":material/storefront:")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -45,7 +45,7 @@ if business_id:
     with tab1:
         st.subheader("Recurring expenses")
         st.caption("Add rent, salary, utilities and other regular payments. Enter when you last paid "
-                   "and how often it repeats; Duka works out the next due date and counts down to it.")
+                   "and how often it repeats; Duka Copilot works out the next due date and counts down to it.")
 
         render_add_form(setup, business_id, prefix="bs_add")
         st.divider()
@@ -209,7 +209,7 @@ if business_id:
 
         st.subheader("Owner PIN")
         st.caption(
-            "Your Duka PIN approves what the assistant proposes and protects your caps and payees. "
+            "Your Duka Copilot PIN approves what the assistant proposes and protects your caps and payees. "
             "It is stored only as a salted hash. Three wrong tries lock approvals for 15 minutes."
         )
         has_pin = pins.is_set(business_id)

@@ -15,7 +15,7 @@ from core.config import Config
 from core.owner_settings import load_settings
 from core.redaction import Redactor
 
-st.set_page_config(page_title="Privacy & Compliance — Duka", page_icon=":material/shield:", layout="wide")
+st.set_page_config(page_title="Privacy & Compliance — Duka Copilot", page_icon=":material/shield:", layout="wide")
 require_auth()
 
 business_id = get_business_id()
@@ -24,7 +24,7 @@ if not business_id:
     st.stop()
 
 st.title("Privacy & compliance", icon=":material/policy:")
-st.caption("How Duka limits payments and protects your data, checked against your own records.")
+st.caption("How Duka Copilot limits payments and protects your data, checked against your own records.")
 
 settings = load_settings(Config.DB_PATH, business_id)
 with sqlite3.connect(Config.DB_PATH) as conn:
@@ -43,17 +43,17 @@ with sqlite3.connect(Config.DB_PATH) as conn:
 # ---- safety status ----
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Payments sandbox", "On" if Config.SANDBOX_ONLY else "Off — live", border=True,
-          help="With the sandbox on, no real money can leave your account from Duka.")
+          help="With the sandbox on, no real money can leave your account from Duka Copilot.")
 m2.metric("Your per-payment limit", f"KES {settings.per_txn_cap_minor / 100:,.0f}", border=True,
           help="Set in Business setup → Limits and preferences.")
 m3.metric("Your daily limit", f"KES {settings.daily_cap_minor / 100:,.0f}", border=True,
-          help="Total Duka may pay out for you in one day.")
+          help="Total Duka Copilot may pay out for you in one day.")
 m4.metric("Your loan limit", f"KES {settings.loan_cap_minor / 100:,.0f}", border=True,
-          help="The most Duka will help you borrow at once.")
+          help="The most Duka Copilot will help you borrow at once.")
 
 # ---- limits vs your real payments ----
 st.subheader("Your limits against your real payments", icon=":material/speed:", anchor=False)
-st.caption("Any payment Duka makes for you that is above **your** limit is stopped and needs your approval. "
+st.caption("Any payment Duka Copilot makes for you that is above **your** limit is stopped and needs your approval. "
            "Below, your statement history is checked against the same limits, so you can see whether they fit "
            "how you actually pay.")
 
@@ -71,15 +71,15 @@ else:
     days_over = int((daily["KES"] > your_day).sum())
 
     st.dataframe(pd.DataFrame([
-        {"Limit": "One payment", "Your limit (KES)": your_txn, "Duka default (KES)": default_txn,
+        {"Limit": "One payment", "Your limit (KES)": your_txn, "Duka Copilot default (KES)": default_txn,
          "Your largest (KES)": biggest_payment, "Used": biggest_payment / your_txn if your_txn else 0,
          "Times over your limit": payments_over},
-        {"Limit": "One day", "Your limit (KES)": your_day, "Duka default (KES)": default_day,
+        {"Limit": "One day", "Your limit (KES)": your_day, "Duka Copilot default (KES)": default_day,
          "Your largest (KES)": float(biggest_day["KES"]), "Used": float(biggest_day["KES"]) / your_day if your_day else 0,
          "Times over your limit": days_over},
     ]), hide_index=True, width="stretch", column_config={
         "Your limit (KES)": st.column_config.NumberColumn(format="accounting"),
-        "Duka default (KES)": st.column_config.NumberColumn(
+        "Duka Copilot default (KES)": st.column_config.NumberColumn(
             format="accounting", help="The limit a new business starts with, before you set your own."),
         "Your largest (KES)": st.column_config.NumberColumn(format="accounting", help="From your saved statements"),
         "Used": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1,
@@ -88,7 +88,7 @@ else:
     })
     if payments_over or days_over:
         st.warning(f"{payments_over} payment(s) and {days_over} day(s) in your statements went above your limits. "
-                   "If Duka had made them, it would have stopped and asked you. Raise the limits in "
+                   "If Duka Copilot had made them, it would have stopped and asked you. Raise the limits in "
                    "**Business setup** if these were normal for your business.", icon=":material/warning:")
     else:
         st.success("Everything in your statements fits inside your limits.", icon=":material/check_circle:")
@@ -108,7 +108,7 @@ else:
                     "Paid out (KES)": st.column_config.NumberColumn(format="accounting")})
 
 # ---- privacy: what is actually stored ----
-st.subheader("What Duka keeps about your customers", icon=":material/encrypted:", anchor=False)
+st.subheader("What Duka Copilot keeps about your customers", icon=":material/encrypted:", anchor=False)
 names = sum(n for t, n in vault)
 p1, p2, p3 = st.columns(3)
 p1.metric("Names stored as tokens", f"{names:,}", border=True,

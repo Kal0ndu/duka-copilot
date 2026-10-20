@@ -351,11 +351,11 @@ class StandingOrderService:
     def _sms_body(self, payment: sqlite3.Row) -> str:
         due = date.fromisoformat(payment["due_date"])
         base = os.getenv("APP_BASE_URL", "").rstrip("/")
-        link = f" Open: {base}/Standing_Orders?pay={payment['payment_id']}" if base else " Open the Duka app to authorize."
+        link = f" Open: {base}/Standing_Orders?pay={payment['payment_id']}" if base else " Open the Duka Copilot app to authorize."
         return (
-            f"Duka: KES {payment['amount_minor'] / 100:,.0f} for {payment['label']} is due "
+            f"Duka Copilot: KES {payment['amount_minor'] / 100:,.0f} for {payment['label']} is due "
             f"{due.strftime('%a %d %b')} (priority {payment['priority_band'].upper()}).{link} "
-            "Duka never asks for your M-Pesa PIN by SMS or call."
+            "Duka Copilot never asks for your M-Pesa PIN by SMS or call."
         )
 
     def dispatch_notifications(self, business_id: Optional[int] = None) -> int:

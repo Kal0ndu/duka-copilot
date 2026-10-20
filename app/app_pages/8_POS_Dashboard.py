@@ -16,7 +16,7 @@ from core.ai_sales_assistant import AISalesAssistant
 from app.session_helpers import SessionManager
 from auth.middleware import get_business_id
 
-st.set_page_config(page_title="POS Dashboard — Duka", page_icon=":material/shopping_cart:", layout="wide")
+st.set_page_config(page_title="POS Dashboard — Duka Copilot", page_icon=":material/shopping_cart:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 

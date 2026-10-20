@@ -12,7 +12,7 @@ from core.spending_advisor import SpendingAdvisor
 from core.charts import chart_allocation, chart_forecast_confidence
 from core.config import config as cfg
 
-st.set_page_config(page_title="Spending Advisor — Duka", page_icon=":material/lightbulb:")
+st.set_page_config(page_title="Spending Advisor — Duka Copilot", page_icon=":material/lightbulb:")
 # ---- Authentication Gate ----
 require_auth()
 

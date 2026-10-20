@@ -13,7 +13,7 @@ from core.config import Config
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Financing — Duka", page_icon=":material/payments:", layout="wide")
+st.set_page_config(page_title="Financing — Duka Copilot", page_icon=":material/payments:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -129,7 +129,7 @@ if best:
             )
 
     with col_res2:
-        st.markdown("##### Duka CFO Cost Transparency Tip:")
+        st.markdown("##### Duka Copilot CFO Cost Transparency Tip:")
         st.info(
             f"Lenders often market loans as having 'just 1% daily interest' or 'low flat fee'. "
             f"Over a {term}-day term, that compounds to an Effective Annual Rate (EAR) of "

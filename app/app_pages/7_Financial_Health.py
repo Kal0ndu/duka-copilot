@@ -12,7 +12,7 @@ from core.charts import chart_cashflow_trend, PRIMARY_GREEN, SECONDARY_BLUE, ACC
 from app.sample_loader import load_sample_business, MOCK_PROFILES
 from app.session_helpers import SessionManager, render_data_info_banner
 
-st.set_page_config(page_title="Financial Health — Duka", page_icon=":material/monitor_heart:", layout="wide")
+st.set_page_config(page_title="Financial Health — Duka Copilot", page_icon=":material/monitor_heart:", layout="wide")
 # ---- Authentication Gate ----
 require_auth()
 
@@ -203,7 +203,7 @@ with st.expander("Weekly Revenue & Margin Summary", expanded=False):
 # ---- HEALTH SCORE BREAKDOWN ----
 with st.expander(":material/help: How this score is calculated", expanded=False):
     st.markdown("""
-    The **Duka Financial Health Score** is a weighted composite from 0–100:
+    The **Duka Copilot Financial Health Score** is a weighted composite from 0–100:
 
     | Factor | Weight | What It Measures |
     |--------|--------|------------------|

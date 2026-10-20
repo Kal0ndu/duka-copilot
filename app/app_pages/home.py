@@ -1,4 +1,4 @@
-"""Home: today's numbers, what needs attention, and the Duka assistant chat."""
+"""Home: today's numbers, what needs attention, and the Duka Copilot assistant chat."""
 import sqlite3
 import sys
 import time
@@ -43,7 +43,7 @@ SUGGESTIONS = {
 with st.sidebar:
     with st.expander("Assistant settings", icon=":material/tune:"):
         swahili = st.toggle("Reply in Kiswahili", key="ui_swahili",
-                            help="Without this, Duka replies in the language you write in.")
+                            help="Without this, Duka Copilot replies in the language you write in.")
         st.session_state.orch.force_language = "sw" if swahili else None
         st.session_state.orch.offline = st.toggle(
             "Offline mode", key="ui_offline",
@@ -57,7 +57,7 @@ with st.sidebar:
             st.rerun()
 
     with st.expander("Try a demo business", icon=":material/science:"):
-        st.caption("Explore Duka with sample data. Your own statements stay saved.")
+        st.caption("Explore Duka Copilot with sample data. Your own statements stay saved.")
         demo = st.segmented_control(
             "Demo business", list(MOCK_PROFILES), key="ui_demo", label_visibility="collapsed",
             format_func=lambda k: MOCK_PROFILES[k]["name"].split()[0],
@@ -148,7 +148,7 @@ if kpi:
                   chart_data=kpi["daily_net"], chart_type="area", border=True,
                   help="Sales income minus money out; the chart is the running total")
         st.metric("To review", f"{review_count:,}", "transactions" if review_count else None, delta_color="off",
-                  border=True, help="Transactions Duka wasn't sure how to categorise")
+                  border=True, help="Transactions Duka Copilot wasn't sure how to categorise")
     st.caption(f":material/calendar_month: 30 days to {kpi['end']:%d %b %Y}")
 
 
@@ -172,12 +172,12 @@ def _shortfall_message(bid: int, swahili: bool):
     first = date.fromisoformat(below[0]["date"]).strftime("%a %d %b")
     need = f["buffer_kes"] - f["lowest_low_kes"]
     if swahili:
-        return (f"Duka: Tahadhari! Pesa zako zinaweza kushuka chini ya akiba ya KES {f['buffer_kes']:,.0f} "
-                f"kuanzia {first}. Unaweza kuhitaji takriban KES {need:,.0f}. Fungua Duka kuona njia za "
-                f"kujiandaa. Duka haitakuuliza PIN kwa SMS.")
-    return (f"Duka: Heads up! Your money may drop below your KES {f['buffer_kes']:,.0f} safety buffer from "
-            f"{first}. You may need about KES {need:,.0f}. Open Duka to see your options. "
-            f"Duka never asks for your PIN by SMS.")
+        return (f"Duka Copilot: Tahadhari! Pesa zako zinaweza kushuka chini ya akiba ya KES {f['buffer_kes']:,.0f} "
+                f"kuanzia {first}. Unaweza kuhitaji takriban KES {need:,.0f}. Fungua Duka Copilot kuona njia za "
+                f"kujiandaa. Duka Copilot haitakuuliza PIN kwa SMS.")
+    return (f"Duka Copilot: Heads up! Your money may drop below your KES {f['buffer_kes']:,.0f} safety buffer from "
+            f"{first}. You may need about KES {need:,.0f}. Open Duka Copilot to see your options. "
+            f"Duka Copilot never asks for your PIN by SMS.")
 
 
 attention = []
@@ -193,7 +193,7 @@ if business_id:
                           "app_pages/4_Expenses_Setup.py", "Mark as paid"))
     if review_count:
         attention.append(("info", f"{review_count:,} transaction(s) to check",
-                          "Pick the right category once per payee and Duka remembers it.",
+                          "Pick the right category once per payee and Duka Copilot remembers it.",
                           "app_pages/1_Upload_Statement.py", "Review payees"))
 elif not profile:
     attention.append(("info", "Set up your business", "Register your business to save statements and get advice.",
@@ -221,7 +221,7 @@ st.space("small")
 
 
 # ---- assistant chat ----
-st.subheader("Ask Duka", anchor=False)
+st.subheader("Ask Duka Copilot", anchor=False)
 st.caption("Your AI CFO answers from your own books. It can't move money: payments always need your PIN.")
 
 AVATARS = {"user": ":material/person:", "assistant": ":material/storefront:"}

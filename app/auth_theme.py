@@ -635,7 +635,7 @@ section[data-testid="stMain"] { position: relative; z-index: 1; }
 .duka-side h2 { color: #f1f5f9; font-size: 1.6rem; font-weight: 800; margin: .5rem 0 .4rem; letter-spacing: -0.01em; }
 .duka-side .lede { color: #cbd5e1; font-size: .95rem; line-height: 1.6; margin: 0 auto 1.4rem; max-width: 30rem; }
 
-/* Activity feed: what Duka does while you run the shop */
+/* Activity feed: what Duka Copilot does while you run the shop */
 .duka-feed { display: flex; flex-direction: column; gap: .6rem; max-width: 26rem; margin: 0 auto 1.4rem; text-align: left; }
 .duka-note {
     display: flex; gap: .75rem; align-items: center;
@@ -789,7 +789,7 @@ def _icon(path: str, color: str) -> str:
             f'stroke-linejoin="round">{path}</svg></div>')
 
 
-# What Duka does for an owner, shown as notifications sliding in one by one.
+# What Duka Copilot does for an owner, shown as notifications sliding in one by one.
 # These describe features (example notifications), not real account data.
 _FEED = [
     ('<path d="M12 19V5M5 12l7-7 7 7"/>', "#5eead4", "M-Pesa payment received", "Recorded and categorised as a sale", "just now"),
@@ -802,7 +802,7 @@ _FEED = [
 
 def render_illustration():
     """Right-hand panel of the login / sign-up pages: animated shop, a live-looking
-    feed of what Duka does, and trust badges. All motion stops for users who
+    feed of what Duka Copilot does, and trust badges. All motion stops for users who
     prefer reduced motion."""
     notes = "".join(
         f'<div class="duka-note">{_icon(path, color)}<div><b>{title}</b><span>{body}</span></div>'
@@ -812,7 +812,7 @@ def render_illustration():
         '<div class="duka-side">'
         f'<div class="duka-art">{SHOP_ILLUSTRATION}</div>'
         '<h2>Your business, amplified</h2>'
-        '<p class="lede">Duka reads your M-Pesa statement, keeps your books, warns you before cash runs short '
+        '<p class="lede">Duka Copilot reads your M-Pesa statement, keeps your books, warns you before cash runs short '
         'and reminds you of bills — in English or Kiswahili.</p>'
         f'<div class="duka-feed">{notes}</div>'
         '<div class="duka-trust"><span>Names stored as tokens</span><span>Payments need your PIN</span>'
@@ -823,9 +823,9 @@ def render_illustration():
 
 
 def render_brand_header():
-    """Render the Duka brand header inside the glass card."""
+    """Render the Duka Copilot brand header inside the glass card."""
     html_content = ('<div class="duka-logo-wrap" style="text-align:center; margin-bottom:1rem;">' + DUKA_LOGO_SVG
-                    + '</div><div class="auth-brand">Duka</div>'
+                    + '</div><div class="auth-brand">Duka Copilot</div>'
                     '<div class="auth-tagline">Smart books for African micro-businesses</div>')
     st.markdown(html_content, unsafe_allow_html=True)
 
@@ -882,7 +882,7 @@ def render_landing():
     # Hero section
     st.markdown("""
     <div class="landing-hero">
-        <h1>Duka</h1>
+        <h1>Duka Copilot</h1>
         <p>Smart books for African micro-businesses</p>
         <p style="font-size: 1rem; color: #94a3b8; margin-top: 1rem;">
             Manage your cash flow, understand your customers, and grow with confidence.
@@ -995,7 +995,7 @@ def render_landing():
     """, unsafe_allow_html=True)
     
     testimonials = [
-        ("Duka has transformed how I manage my business. I used to worry about cash flow, "
+        ("Duka Copilot has transformed how I manage my business. I used to worry about cash flow, "
          "but now I have real-time insights. It's like having a CFO in my pocket!",
          "Amina K., Grocery Retailer, Nairobi"),
         ("The forecasting feature has saved me thousands. I can now plan inventory better "
@@ -1005,7 +1005,7 @@ def render_landing():
          "business tool I've ever used for my salon. Highly recommended!",
          "Grace W., Salon Owner, Dar es Salaam"),
         ("The AI insights help me understand patterns I would have missed. My profit "
-         "margins are up 22% since I started using Duka.",
+         "margins are up 22% since I started using Duka Copilot.",
          "James N., Logistics SME, Kampala"),
     ]
 
@@ -1027,7 +1027,7 @@ def render_landing():
     <div style="text-align: center; padding: 3rem 2rem; background: linear-gradient(135deg, rgba(13, 148, 136, 0.1), rgba(99, 102, 241, 0.1)); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); margin: 2rem 0;">
         <h2 style="color: #e2e8f0; margin: 0 0 1rem 0;">Ready to transform your business?</h2>
         <p style="color: #cbd5e1; font-size: 1.1rem; margin: 0 0 2rem 0;">
-            Join thousands of African entrepreneurs who are already using Duka to build smarter businesses.
+            Join thousands of African entrepreneurs who are already using Duka Copilot to build smarter businesses.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1057,6 +1057,6 @@ def render_landing():
             <a href="#" style="color: #5eead4; text-decoration: none;">Terms</a> | 
             <a href="#" style="color: #5eead4; text-decoration: none;">Support</a>
         </p>
-        <p style="margin: 1rem 0 0 0; color: #475569;">v1.0.0 | © 2026 Duka. All rights reserved.</p>
+        <p style="margin: 1rem 0 0 0; color: #475569;">v1.0.0 | © 2026 Duka Copilot. All rights reserved.</p>
     </div>
     """, unsafe_allow_html=True)
