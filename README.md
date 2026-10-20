@@ -3,6 +3,7 @@
 An AI finance copilot for small businesses that run on mobile money. Built for the **Shenzhen FinTechathon 2026 International Track, Topic E (SME Finance Copilot)**.
 
 "Duka" means "shop" in Swahili.
+> **Test data:** every statement in `data/mock_data/` (including the M-Pesa PDF) and the bundled databases are AI-generated. All names, phone numbers and transactions are fictional. 
 
 ## Quick Start
 
