@@ -1,0 +1,15 @@
+{
+  "sector": "beauty salon in Kisumu",
+  "payday": "Sat",
+  "per_transaction_cap": 25000,
+  "daily_cap": 40000,
+  "loan_cap": 50000,
+  "verified_payees": {
+    "SUP-01": "STYLE SUPPLIES LTD",
+    "SUP-02": "BEAUTY HUB WHOLESALE",
+    "RENT-01": "LAKESIDE PLAZA MGMT",
+    "UTIL-01": "POWER CO TOKENS"
+  },
+  "safety_buffer": 1000,
+  "learned_rules": []
+}

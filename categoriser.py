@@ -7,9 +7,12 @@ fast, free, predictable and easy to test. Each result gets a confidence level:
   high   -> a rule matched exactly
   medium -> a reasonable guess from patterns (e.g. day of the week)
   low    -> no rule matched; the owner (or later the AI) should confirm it
+  owner  -> the owner taught this payee's category once ("teach it once")
 
 Later, the agent can ask the owner about "low" confidence items only.
 """
+
+import re
 
 # Business profile: facts the owner tells the app once, during setup.
 # (e.g. "I pay my staff on Saturday evenings")
@@ -39,10 +42,32 @@ RULES = [
 ]
 
 
-def categorise(txn, business=None):
-    """Return (category, confidence) for one transaction."""
+CATEGORIES = sorted({c for _, c in RULES} | {
+    "sales", "wages", "family_transfer", "other_expense", "other_income"})
+
+
+def payee_key(details):
+    """The part of a description that names who was paid or who paid:
+    'Pay Bill to 123 - SOKO SUPPLIES Acc. 9' -> 'soko supplies'."""
+    text = " ".join(str(details).lower().split())
+    if " - " in text:
+        text = text.split(" - ", 1)[1]
+    text = re.split(r"\s+acc\.", text)[0]
+    return " ".join(re.sub(r"[\d*]", " ", text).split())
+
+
+def categorise(txn, business=None, profile=None, learned=()):
+    """Return (category, confidence) for one transaction.
+    profile: the owner's settings (e.g. staff payday); learned: rules the owner
+    taught ("teach it once"), which win over the built-in rules."""
     text = txn["details"].lower()
-    profile = BUSINESS_PROFILES.get(business, {})
+    if profile is None:
+        profile = BUSINESS_PROFILES.get(business, {})
+
+    key = payee_key(txn["details"])
+    for rule in learned:
+        if rule["match"] == key:
+            return rule["category"], "owner"
 
     for keywords, category in RULES:
         if any(k in text for k in keywords):
@@ -65,8 +90,8 @@ def categorise(txn, business=None):
     return "other_income", "low"
 
 
-def categorise_all(transactions, business=None):
+def categorise_all(transactions, business=None, profile=None, learned=()):
     """Add 'category' and 'confidence' to every transaction (in place)."""
     for t in transactions:
-        t["category"], t["confidence"] = categorise(t, business)
+        t["category"], t["confidence"] = categorise(t, business, profile, learned)
     return transactions

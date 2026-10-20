@@ -18,6 +18,7 @@ from pathlib import Path
 
 from parser import parse_statement
 from categoriser import categorise_all
+from settings import load_settings, profile_from
 
 DATA = Path(__file__).parent / "data"
 BUSINESSES = ["amina_grocery", "grace_salon", "otieno_transport"]
@@ -50,7 +51,8 @@ def check_accuracy(transactions, labels_path):
 def main():
     for name in BUSINESSES:
         txns, report = parse_statement(DATA / f"{name}_statement.csv")
-        categorise_all(txns, name)
+        cfg = load_settings(name)               # staff payday + categories the owner taught
+        categorise_all(txns, name, profile_from(cfg), cfg["learned_rules"])
         save_ledger(DATA / f"{name}_ledger.csv", txns)
         accuracy, mistakes = check_accuracy(txns, DATA / f"{name}_labels.csv")
 

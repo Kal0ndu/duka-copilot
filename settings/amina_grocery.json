@@ -1,0 +1,16 @@
+{
+  "sector": "grocery shop in Nairobi",
+  "payday": null,
+  "per_transaction_cap": 35000,
+  "daily_cap": 60000,
+  "loan_cap": 60000,
+  "verified_payees": {
+    "SUP-01": "SOKO SUPPLIES",
+    "SUP-02": "FRESHFARM WHOLESALERS",
+    "SUP-03": "UNGA DISTRIBUTORS LTD",
+    "RENT-01": "MWANGI PROPERTIES",
+    "UTIL-01": "POWER CO TOKENS"
+  },
+  "safety_buffer": 1000,
+  "learned_rules": []
+}

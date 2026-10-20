@@ -1,0 +1,16 @@
+{
+  "sector": "motorbike-taxi (boda boda) business in Nakuru",
+  "payday": null,
+  "per_transaction_cap": 10000,
+  "daily_cap": 15000,
+  "loan_cap": 30000,
+  "verified_payees": {
+    "FUEL-01": "HIGHWAY FUEL POINT",
+    "FUEL-02": "CITY PETROL STATION",
+    "LOAN-01": "BIKE FINANCE LTD",
+    "SAV-01": "RIDERS SACCO",
+    "RENT-01": "KARIUKI HOUSING"
+  },
+  "safety_buffer": 1000,
+  "learned_rules": []
+}

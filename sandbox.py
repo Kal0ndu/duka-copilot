@@ -43,17 +43,22 @@ class SandboxAccount:
         self.payees = payees            # payee_id -> name
         self.history = []
 
+    def _record(self, when, amount_in, amount_out, details):
+        receipt = f"SBX-{len(self.history) + 1:04d}"
+        self.history.append({"receipt": receipt, "time": when, "in": amount_in,
+                             "out": amount_out, "details": details, "balance": self.balance})
+        return receipt
+
     def pay(self, payee_id, amount, when):
         if amount > self.balance:
             raise SandboxError(f"not enough money: balance KES {self.balance:,.0f} "
                                f"(the sandbox has no overdraft)")
         self.balance -= amount
-        self.history.append({"time": when, "out": amount, "in": 0,
-                             "details": f"Pay {self.payees[payee_id]} ({payee_id})"})
+        return self._record(when, 0, amount, f"Pay {self.payees[payee_id]} ({payee_id})")
 
     def receive(self, amount, details, when):
         self.balance += amount
-        self.history.append({"time": when, "out": 0, "in": amount, "details": details})
+        return self._record(when, amount, 0, details)
 
     def paid_out_on(self, day):
         return sum(t["out"] for t in self.history if t["time"].date() == day)
@@ -84,6 +89,12 @@ class Sandbox:
     def __init__(self, guard, approvals, audit, account, lender, clock=datetime.now):
         self.guard, self.approvals, self.audit = guard, approvals, audit
         self.account, self.lender, self.clock = account, lender, clock
+        self.decisions = []         # the owner's past approvals and rejections, with outcomes
+
+    def _decided(self, request_id, action, decision, outcome, receipt="", detail=""):
+        self.decisions.append({"time": self.clock(), "request_id": request_id,
+                               "action": action, "decision": decision, "outcome": outcome,
+                               "receipt": receipt, "detail": detail})
 
     def _spent_today(self):
         return self.account.paid_out_on(self.clock().date())
@@ -111,6 +122,17 @@ class Sandbox:
         self.audit.record("owner_app", "approved", request_id=request_id)
         return code
 
+    def owner_decline(self, request_id):
+        """OWNER'S APP ONLY: turn a request down. Nothing is carried out."""
+        action = self.approvals.waiting_action(request_id)
+        try:
+            self.approvals.decline(request_id)
+        except ApprovalError as e:
+            return {"status": "blocked", "reason": str(e)}
+        self.audit.record("owner_app", "declined", request_id=request_id)
+        self._decided(request_id, action, "rejected", "nothing done")
+        return {"status": "declined"}
+
     def execute(self, request_id, approval_code, actor="owner_app"):
         """Step 3: carry out an approved action. Uses the stored copy of the action,
         so nothing can be changed after approval, and checks the rules again."""
@@ -124,27 +146,32 @@ class Sandbox:
         if not decision.allowed:
             self.audit.record(actor, "execute_blocked", request_id=request_id,
                               reason=decision.reason)
+            self._decided(request_id, action, "approved", "blocked", detail=decision.reason)
             return {"status": "blocked", "reason": decision.reason}
 
         try:
             result = self._run(action)
         except SandboxError as e:
             self.audit.record(actor, "execute_failed", request_id=request_id, reason=str(e))
+            self._decided(request_id, action, "approved", "failed", detail=str(e))
             return {"status": "failed", "reason": str(e)}
         self.audit.record(actor, "executed", request_id=request_id, action=action, result=result)
+        self._decided(request_id, action, "approved", "done", receipt=result["receipt"],
+                      detail=f"balance after: KES {result['balance']:,.0f}")
         return {"status": "done", **result}
 
     def _run(self, action):
         now = self.clock()
         if action["type"] == "pay_supplier":
-            self.account.pay(action["payee_id"], action["amount"], now)
-            return {"paid": action["amount"], "to": action["payee_id"],
+            receipt = self.account.pay(action["payee_id"], action["amount"], now)
+            return {"receipt": receipt, "paid": action["amount"], "to": action["payee_id"],
                     "balance": self.account.balance}
         if action["type"] == "request_loan":
             loan = self.lender.lend(action["product"], action["amount"], action["term_days"])
             received = loan["amount"] - loan["upfront_fee"]
-            self.account.receive(received, f"Loan {loan['loan_id']} ({loan['product']})", now)
-            return {"loan_id": loan["loan_id"], "received": received,
+            receipt = self.account.receive(received, f"Loan {loan['loan_id']} ({loan['product']})",
+                                           now)
+            return {"receipt": receipt, "loan_id": loan["loan_id"], "received": received,
                     "total_to_repay": loan["total_repaid"], "balance": self.account.balance}
         raise SandboxError(f"no sandbox handler for {action['type']}")
 

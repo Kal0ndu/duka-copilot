@@ -25,11 +25,13 @@ from datetime import timedelta
 from math import sqrt
 from statistics import pstdev
 
+from settings import load_settings, safety_buffer
 from analytics import (BUSINESSES, DATA, OVERDRAFT_DAILY_FEE, WEEKDAYS, date_range,
                        end_of_day_balances, load_ledger, true_positions)
 
 HORIZON = 14              # days to forecast
-SAFETY_BUFFER = 3000      # KES the owner wants to keep; an owner setting
+SAFETY_BUFFER = 1000      # KES: the default buffer. Each business's own buffer comes
+                          # from its settings (settings.py)
 MIN_HIT_RATE = 0.6        # a payment is "recurring" if it happens in 60%+ of its slots
 MIN_HITS = 2              # ... and at least twice
 RANGE_Z = 1.28            # 1.28 standard deviations each side = about an 80% range
@@ -189,11 +191,11 @@ def describe_pattern(p):
     return f"monthly on day {p['slot']}"
 
 
-def print_forecast(name, rows, model, days, position):
+def print_forecast(name, rows, model, days, position, buffer=SAFETY_BUFFER):
     last = rows[-1]
     owed = last["balance"] - position
     print(f"\n{'=' * 78}\n{name}: {HORIZON}-day forecast from {last['date']} "
-          f"(safety buffer KES {SAFETY_BUFFER:,})")
+          f"(safety buffer KES {buffer:,.0f})")
     print(f"  Balance KES {last['balance']:,.0f} - overdraft owed KES {owed:,.0f} "
           f"= true position KES {position:,.0f}")
 
@@ -207,20 +209,20 @@ def print_forecast(name, rows, model, days, position):
 
     print(f"\n  {'Date':<11}{'Sales':>8}{'Low':>10}{'Expected':>10}{'High':>10}   Big payments due")
     for d in days:
-        flag = "!" if d["low"] < SAFETY_BUFFER else " "
+        flag = "!" if d["low"] < buffer else " "
         due = ", ".join(f"{c} {-a:,.0f}" for c, a in d["payments"] if a <= -1000)
         print(f" {flag}{d['date']:%a %d %b} {d['sales']:>8,.0f}{d['low']:>10,.0f}"
               f"{d['expected']:>10,.0f}{d['high']:>10,.0f}   {due}")
 
-    alert = shortfall_alert(days)
+    alert = shortfall_alert(days, buffer)
     if alert:
-        print(f"\n  ALERT: the low estimate drops below KES {SAFETY_BUFFER:,} on "
+        print(f"\n  ALERT: the low estimate drops below KES {buffer:,.0f} on "
               f"{alert['risky_days']} of {HORIZON} days, starting {alert['first_date']:%a %d %b}.")
         print(f"         Worst: {alert['worst_date']:%a %d %b}, low estimate "
               f"KES {alert['worst_low']:,.0f}. To stay safe you may need "
               f"KES {alert['amount_needed']:,.0f} more.")
     else:
-        print(f"\n  OK: the low estimate stays above KES {SAFETY_BUFFER:,} for all {HORIZON} days.")
+        print(f"\n  OK: the low estimate stays above KES {buffer:,.0f} for all {HORIZON} days.")
 
 
 def print_backtest(bt):
@@ -241,7 +243,8 @@ def main():
         position = true_positions(rows, [last_date])[last_date]
         model = build_model(rows)
         days = forecast(model, last_date, position)
-        print_forecast(name, rows, model, days, position)
+        buffer = safety_buffer(load_settings(name))
+        print_forecast(name, rows, model, days, position, buffer)
         print_backtest(backtest(rows))
 
 
